@@ -1,6 +1,6 @@
 const FooterMain = () => {
     return (
-        <div>FooterMain</div>
+        <div>Todos os direitos reservados</div>
     )
 }
 

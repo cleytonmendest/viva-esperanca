@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const HeaderMain = () => {
   return (
-    <header className='w-full h-24 flex justify-center'>
+    <header className='w-full h-24 flex justify-center mt-6'>
       <div className='fixed top-0 w-full h-24 bg-[var(--background)] z-10'>
         <div className='mx-auto w-full lg:max-w-7xl flex justify-between items-center p-4'>
           <nav className='w-full'>
@@ -24,6 +24,9 @@ const HeaderMain = () => {
               </li>
               <li>
                 <Link href="/contato">CONTATO</Link>
+              </li>
+              <li>
+                <Link href="/blog">BLOG</Link>
               </li>
             </ul>
           </nav>
