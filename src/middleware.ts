@@ -1,18 +1,35 @@
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+    const response = NextResponse.next()
     const url = request.nextUrl.clone();
     const hostname = request.headers.get('host') || '';
     const pathname = url.pathname;
 
+    const supabase = createMiddlewareClient({ req: request, res: response })
+    const { data: { session } } = await supabase.auth.getSession()
+
     const cleanHostname = hostname.split(':')[0];
 
-    // Seus domínios
     const prodDomain = 'igreja-viva-esperanca.com';
     const devDomain = 'viva-esperanca.local';
 
+    const isAdminSubdomain = cleanHostname === `admin.${prodDomain}` || cleanHostname === `admin.${devDomain}`;
     const isMainDomain = cleanHostname === prodDomain || cleanHostname === devDomain;
+
+    if (!session && isAdminSubdomain) {
+        if (pathname !== '/login') {
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
+    }
+
+    if (isAdminSubdomain) {
+        url.pathname = `/admin${pathname}`;
+        return NextResponse.rewrite(url);
+    }
 
     if (isMainDomain && pathname.startsWith('/admin')) {
 
