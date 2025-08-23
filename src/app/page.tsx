@@ -9,7 +9,7 @@ export default function Home() {
       <section className="flex max-w-7xl mx-auto p-4 gap-4">
         QUEM SOMOS
       </section>
-      <section className="flex max-w-7xl mx-auto p-4 gap-4 min-h-96">
+      <section className="flex max-w-7xl mx-auto p-4 gap-4 min-h-96 h-">
         <div className="flex-1">
           <h2 className="text-2xl font-semibold mb-4">Endereço</h2>
           <p>Avenida Nelson Cardoso, 299 - Taquara, Rio de Janeiro - RJ, 22730-900</p>

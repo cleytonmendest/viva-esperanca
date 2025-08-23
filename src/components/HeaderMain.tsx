@@ -12,7 +12,7 @@ const HeaderMain = () => {
           <nav className='w-full'>
             <ul className='flex gap-10 justify-center items-center'>
               <li>
-                <Link href="/sobre">QUEM SOMOS</Link>
+                <Link href="/quem-somos">QUEM SOMOS</Link>
               </li>
               <li>
                 <Link href="/programacao">GC&#39;s</Link>

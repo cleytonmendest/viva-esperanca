@@ -19,14 +19,25 @@ export async function middleware(request: NextRequest) {
     const isAdminSubdomain = cleanHostname === `admin.${prodDomain}` || cleanHostname === `admin.${devDomain}`;
     const isMainDomain = cleanHostname === prodDomain || cleanHostname === devDomain;
 
-    if (!session && isAdminSubdomain) {
-        if (pathname !== '/login') {
+    if (isAdminSubdomain) {
+
+        if (!session && pathname !== '/login') {
             url.pathname = '/login'
             return NextResponse.redirect(url)
         }
-    }
 
-    if (isAdminSubdomain) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session?.user.id)
+            .single();
+
+        if (profile?.role === 'pendente') {
+            if (request.nextUrl.pathname !== '/pending-approval') {
+                return NextResponse.redirect(new URL('/pending-approval', request.url));
+            }
+        }
+
         url.pathname = `/admin${pathname}`;
         return NextResponse.rewrite(url);
     }
