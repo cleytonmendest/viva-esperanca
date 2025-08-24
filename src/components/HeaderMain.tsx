@@ -3,8 +3,8 @@ import Link from 'next/link';
 
 const HeaderMain = () => {
   return (
-    <header className='w-full h-36 flex justify-center'>
-      <div className='fixed top-0 w-full h-24 bg-[var(--background)] z-10'>
+    <header className='w-full flex justify-center fixed top-0 z-10 bg-[var(--background)]'>
+      <div className='w-full'>
         <div className='mx-auto w-full lg:max-w-7xl flex flex-col gap-3.5 justify-between items-center p-4'>
           <Link href="/" className="cursor-pointer">
             <Image src="/images/logo-ive-branco.png" alt="Logo Viva Esperança" width={200} height={75} />
