@@ -1,10 +1,12 @@
 export default function Home() {
   return (
-    <main className="h-screen">
-      <section className="flex flex-col justify-center items-center p-4">
-        <p>VIDEO</p>
-        <h1 className="text-4xl font-bold mb-4">Bem-vindo à Igreja Viva Esperança</h1>
-        <p className="text-lg">Uma igreja bíblica, acolhedora e generosa</p>
+    <main className="">
+      <section className="flex flex-col justify-center items-center relative overflow-hidden lg:h-[600px]">
+        <video src="/videos/ive-video.mp4" autoPlay loop muted></video>
+        <div className="absolute text-center text-white bg-[#00000096] w-full h-full flex flex-col justify-center items-center">
+          <h1 className="text-4xl font-bold mb-4">Bem-vindo à Igreja Viva Esperança</h1>
+          <p className="text-lg">Uma igreja bíblica, acolhedora e generosa</p>
+        </div>
       </section>
       <section className="flex max-w-7xl mx-auto p-4 gap-4">
         QUEM SOMOS

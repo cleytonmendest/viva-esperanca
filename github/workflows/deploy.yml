@@ -1,0 +1,20 @@
+# Nome do seu workflow
+name: Deploy to Hostinger VPS
+
+# Gatilho: Este workflow será executado toda vez que houver um push na branch 'main'
+on:
+  push:
+    branches:
+      - main # ou 'master', dependendo do nome da sua branch principal
+
+# Tarefas a serem executadas
+jobs:
+  deploy:
+    # Usa a última versão do Ubuntu como ambiente
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Apenas um passo para notificar o EasyPanel
+      - name: Trigger EasyPanel Deploy
+        # Usamos o 'curl' para fazer uma requisição POST para o webhook
+        run: curl -X POST "${{ secrets.EASYPANEL_DEPLOY_WEBHOOK }}"
