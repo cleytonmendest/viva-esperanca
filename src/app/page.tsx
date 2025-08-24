@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <main className="">
-      <section className="flex flex-col justify-center items-center relative overflow-hidden lg:h-[600px]">
+      <section className="flex flex-col justify-center items-center relative overflow-hidden lg:h-[600px] mt-36">
         <video src="https://jtgfdbzqpsyckqcgsrhd.supabase.co/storage/v1/object/public/Viva%20Esperanca/Ive-Video(1).mp4" autoPlay loop muted></video>
         <div className="absolute text-center text-white bg-[#00000096] w-full h-full flex flex-col justify-center items-center">
           <h1 className="text-4xl font-bold mb-4">Bem-vindo à Igreja Viva Esperança</h1>
