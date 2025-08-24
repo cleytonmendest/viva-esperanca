@@ -8,7 +8,7 @@ export default function Home() {
           <p className="text-lg">Uma igreja bíblica, acolhedora e generosa</p>
         </div>
       </section>
-      <section className="flex max-w-7xl mx-auto p-4 gap-4">
+      <section className="flex max-w-7xl mx-auto p-4 gap-4 ">
         QUEM SOMOS
       </section>
       <section className="flex max-w-7xl mx-auto p-4 gap-4 min-h-96 h-">
