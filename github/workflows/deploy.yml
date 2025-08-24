@@ -17,4 +17,4 @@ jobs:
       # Passo 1: Apenas um passo para notificar o EasyPanel
       - name: Trigger EasyPanel Deploy
         # Usamos o 'curl' para fazer uma requisição POST para o webhook
-        run: curl -X POST "${{ secrets.EASYPANEL_DEPLOY_WEBHOOK }}"
+        run: curl -X GET "${{ secrets.EASYPANEL_DEPLOY_WEBHOOK }}"
