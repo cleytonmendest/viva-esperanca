@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Poppins } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
+import HeaderMain from "@/components/HeaderMain";
+import FooterMain from "@/components/FooterMain";
+
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -29,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${geistMono.variable} antialiased dark`}
       >
+        <HeaderMain/>
         {children}
+        <FooterMain/>
       </body>
     </html>
   );

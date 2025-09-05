@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Poppins } from "next/font/google";
-import "./globals.css";
+import "../../globals.css";
+import HeaderAdmin from "@/components/HeaderAdmin";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${geistMono.variable} antialiased dark`}
       >
+        <HeaderAdmin />
         {children}
       </body>
     </html>
