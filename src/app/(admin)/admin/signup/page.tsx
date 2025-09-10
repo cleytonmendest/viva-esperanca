@@ -2,15 +2,16 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '../../../libs/supabase/client';
+import { createClient } from '../../../../libs/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function SignUpPage() {
     const [formData, setFormData] = useState({
-        fullName: '',
+        name: '',
         birthdate: '',
         phone:'',
         email: '',
@@ -18,6 +19,7 @@ export default function SignUpPage() {
     });
     const [message, setMessage] = useState('');
     const supabase = createClient();
+    const router = useRouter();
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,16 +30,22 @@ export default function SignUpPage() {
             password: formData.password,
             options: {
                 data: {
-                    name: formData.fullName,
+                    full_name: formData.name,
+                    birthdate: formData.birthdate,
+                    phone: formData.phone,
                 },
             },
         });
 
         if (error) {
+            console.log('Erro no cadastro:', error);
             setMessage('Erro no cadastro: ' + error.message);
         } else {
-            setMessage('Cadastro realizado com sucesso! Verifique seu e-mail para confirmação e aguarde a aprovação de um administrador.');
-            // Opcional: desabilitar o formulário após o sucesso
+            setMessage('Cadastro realizado com sucesso! Aguarde a aprovação de um administrador.');
+            
+            setTimeout(() => {
+                router.push('/admin/login');
+            }, 10000);
         }
     };
 
@@ -55,8 +63,8 @@ export default function SignUpPage() {
                             <Input
                                 id="name"
                                 type="text"
-                                value={formData.fullName}
-                                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 placeholder="João da Silva"
                                 required
                             />
