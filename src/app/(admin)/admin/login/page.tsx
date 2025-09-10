@@ -25,7 +25,7 @@ export default function LoginPage() {
     if (error) {
       alert('Erro no login: ' + error.message)
     } else {
-      router.refresh()
+      router.push('/admin')
     }
   }
 
