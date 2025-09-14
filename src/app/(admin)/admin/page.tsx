@@ -8,14 +8,21 @@ export default async function Admin() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const { data: profile } = user
+    ? await supabase.from("members").select("*").eq("user_id", user.id).single()
+    : { data: null };
+
+
   if (!user) {
     return redirect('/admin/login');
   }
 
+
   return (
-    <main className="p-4">
-      <h1 className="text-2xl">Ive Admin</h1>
-      <p>Bem-vindo, {user.email}</p>
+    <main className="p-4 flex">
+      <section className="flex-1 p-4">
+        <h1>Admin</h1>
+      </section>
     </main>
   );
 }

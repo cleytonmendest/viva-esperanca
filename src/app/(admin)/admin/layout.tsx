@@ -3,6 +3,8 @@ import { Geist_Mono, Poppins } from "next/font/google";
 import "../../globals.css";
 import { createClient } from "@/libs/supabase/server";
 import StoreInitializer from "@/components/StoreInitializer";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/Sidebar";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -28,8 +30,8 @@ export default async function RootLayout({
 }>) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = user 
-    ? await supabase.from('members').select('*').eq('user_id', user.id).single() 
+  const { data: profile } = user
+    ? await supabase.from('members').select('*').eq('user_id', user.id).single()
     : { data: null };
 
   return (
@@ -38,7 +40,22 @@ export default async function RootLayout({
         className={`${poppins.variable} ${geistMono.variable} antialiased dark`}
       >
         <StoreInitializer user={user} profile={profile} />
-        {children}
+        {profile?.role === 'pendente' ? (
+          <main className="p-4 h-dvh flex flex-col justify-center items-center">
+            <section className="text-center w-fit max-w-md border border-gray-300 rounded-lg p-6 shadow-md">
+              <h1 className="text-2xl">Aguardando Aprovação</h1>
+              <p>Sua conta está pendente de aprovação. Por favor, contate ou aguarde o administrador/líder aprovar sua conta.</p>
+            </section>
+          </main>
+        ) : (
+          <SidebarProvider>
+            <AppSidebar />
+            <main>
+              <SidebarTrigger />
+              {children}
+            </main>
+          </SidebarProvider>
+        )}
       </body>
     </html>
   );
