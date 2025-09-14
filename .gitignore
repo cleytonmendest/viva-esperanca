@@ -13,6 +13,11 @@
 # testing
 /coverage
 
+# Supabase
+supabase/.temp
+supabase/functions/_temp/
+supabase/db/dumps/
+
 # next.js
 /.next/
 /out/
