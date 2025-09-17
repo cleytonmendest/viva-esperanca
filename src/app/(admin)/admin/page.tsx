@@ -12,11 +12,9 @@ export default async function Admin() {
     ? await supabase.from("members").select("*").eq("user_id", user.id).single()
     : { data: null };
 
-
   if (!user) {
     return redirect('/admin/login');
   }
-
 
   return (
     <main className="p-4 flex">
