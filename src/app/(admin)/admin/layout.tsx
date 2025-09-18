@@ -5,7 +5,6 @@ import { createClient } from "@/libs/supabase/server";
 import StoreInitializer from "@/components/StoreInitializer";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/Sidebar";
-import { redirect } from "next/navigation";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -52,7 +51,7 @@ export default async function RootLayout({
         {profile?.role !== 'pendente' && user && (
           <SidebarProvider>
             <AppSidebar />
-            <main>
+            <main className="w-full flex flex-col px-4">
               <SidebarTrigger />
               {children}
             </main>
