@@ -1,13 +1,38 @@
 // Adicione no topo para marcar como Componente de Cliente
 "use client"
 
-import { MoreHorizontal, Settings } from "lucide-react"
+import { MoreHorizontal, Settings, LogOut } from "lucide-react"
 import { SidebarMenu, SidebarMenuAction, SidebarMenuItem } from "@/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { EditProfileForm } from "@/components/layout/EditProfileForm"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/libs/supabase/client"
+import { useAuthStore } from "@/stores/authStore"
+import { Button } from "../ui/button"
 
 export const UserAccountMenu = () => {
+    const router = useRouter()
+    const supabase = createClient()
+    const resetAuthStore = useAuthStore((state) => state.reset)
+
+    const handleLogout = async () => {
+        const { error } = await supabase.auth.signOut()
+
+        if (error) {
+            console.error('Erro ao fazer logout:', error)
+            alert('Não foi possível sair. Tente novamente.')
+            return
+        }
+
+        // Limpa o estado do Zustand
+        resetAuthStore()
+ 
+        // Redireciona para a página de login e atualiza a página
+        router.push('/admin/login')
+        router.refresh()
+    }
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -24,7 +49,6 @@ export const UserAccountMenu = () => {
                         </SidebarMenuAction>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent side="right" align="start">
-                        {/* O onSelect evita que o menu feche ao abrir o dialog */}
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                             <Dialog>
                                 <DialogTrigger className="w-full text-left">Editar perfil</DialogTrigger>
@@ -35,7 +59,6 @@ export const UserAccountMenu = () => {
                                             Altere suas informações de perfil aqui.
                                         </DialogDescription>
                                     </DialogHeader>
-                                    {/* Use o componente de formulário aqui */}
                                     <EditProfileForm />
                                 </DialogContent>
                             </Dialog>
@@ -54,10 +77,24 @@ export const UserAccountMenu = () => {
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                             <Dialog>
                                 <DialogTrigger className="w-full text-left">Sair</DialogTrigger>
-                                <DialogContent>
+                                <DialogContent className="w-full !max-w-3xs">
                                     <DialogHeader>
-                                        sair
+                                        <DialogTitle>Sair</DialogTitle>
+                                        <DialogDescription>
+                                            Tem certeza que deseja sair?
+                                        </DialogDescription>
                                     </DialogHeader>
+                                    <div className="flex justify-between gap-2">
+                                        <DialogClose asChild>
+                                            <Button variant="outline">
+                                                Cancelar
+                                            </Button>
+                                        </DialogClose>
+                                        <Button variant="destructive" onClick={handleLogout}>
+                                            <LogOut />
+                                            Sair
+                                        </Button>
+                                    </div>
                                 </DialogContent>
                             </Dialog>
                         </DropdownMenuItem>
