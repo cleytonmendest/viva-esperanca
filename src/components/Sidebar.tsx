@@ -24,7 +24,7 @@ const items = [
 // Este componente continua sendo um Server Component por padrão
 const AppSidebar = () => {
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <UserAccountMenu />
       </SidebarHeader>

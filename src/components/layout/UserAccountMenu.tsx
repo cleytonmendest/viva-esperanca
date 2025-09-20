@@ -1,8 +1,8 @@
 // Adicione no topo para marcar como Componente de Cliente
 "use client"
 
-import { MoreHorizontal, Settings, LogOut } from "lucide-react"
-import { SidebarMenu, SidebarMenuAction, SidebarMenuItem } from "@/components/ui/sidebar"
+import { MoreHorizontal, Settings, LogOut, CircleUserRound } from "lucide-react"
+import { SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { EditProfileForm } from "@/components/layout/EditProfileForm"
@@ -27,7 +27,7 @@ export const UserAccountMenu = () => {
 
         // Limpa o estado do Zustand
         resetAuthStore()
- 
+
         // Redireciona para a página de login e atualiza a página
         router.push('/admin/login')
         router.refresh()
@@ -37,16 +37,14 @@ export const UserAccountMenu = () => {
         <SidebarMenu>
             <SidebarMenuItem>
                 <DropdownMenu>
-                    <DropdownMenuTrigger className="w-full">
-                        <SidebarMenuAction asChild className="static">
-                            <div className="w-full !justify-between p-2">
-                                <div className="flex items-center gap-2">
-                                    <Settings size={16} />
-                                    <span className="text-sm">Minha Conta</span>
-                                </div>
-                                <MoreHorizontal />
+                    <DropdownMenuTrigger asChild className="w-full">
+                        <SidebarMenuButton className="w-full !justify-start p-2">
+                            <CircleUserRound size={16} />
+                            <div className="flex w-full justify-between gap-1">
+                                <span className="text-sm">Minha Conta</span>
+                                <MoreHorizontal size={16} />
                             </div>
-                        </SidebarMenuAction>
+                        </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent side="right" align="start">
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
