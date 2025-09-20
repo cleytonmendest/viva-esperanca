@@ -5,6 +5,7 @@ import { createClient } from "@/libs/supabase/server";
 import StoreInitializer from "@/components/StoreInitializer";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/Sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -60,6 +61,8 @@ export default async function RootLayout({
         {!user && (
           children
         )}
+
+        <Toaster />
       </body>
     </html>
   );
