@@ -1,7 +1,8 @@
 import AddNewMemberDialog from "@/components/layout/AddNewMemberDialog"
+import EditMemberDialog from "@/components/layout/EditMemberDialog"
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
 import { createClient } from "@/libs/supabase/server"
-import { formatDate } from "@/utils/date"
+import { formatDate, formatPhoneNumber } from "@/utils/format"
 
 const MembersPage = async () => {
     const supabase = await createClient()
@@ -9,11 +10,11 @@ const MembersPage = async () => {
 
     return (
         <>
-            <section>
-                <h1>Membros</h1>
+            <section className="lg:max-w-4xl my-4 mx-auto w-full">
+                <h1 className="text-3xl font-bold">Membros</h1>
             </section>
             <section className="lg:max-w-4xl mx-auto w-full">
-                <div className="flex justify-end">
+                <div className="flex justify-end mb-4">
                     <AddNewMemberDialog />
                 </div>
                 <Table>
@@ -23,6 +24,7 @@ const MembersPage = async () => {
                             <TableHead>Setor</TableHead>
                             <TableHead>Telefone</TableHead>
                             <TableHead>Nascimento</TableHead>
+                            <TableHead>Editar</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -30,8 +32,9 @@ const MembersPage = async () => {
                             <TableRow key={member.id}>
                                 <TableCell>{member.name}</TableCell>
                                 <TableCell>{member.sector ?? 'Sem setor'}</TableCell>
-                                <TableCell>{member.phone}</TableCell>
+                                <TableCell>{formatPhoneNumber(member.phone)}</TableCell>
                                 <TableCell>{formatDate(member.birthdate)}</TableCell>
+                                <TableCell><EditMemberDialog member={member} /></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
