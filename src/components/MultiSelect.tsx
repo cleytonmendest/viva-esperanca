@@ -29,7 +29,7 @@ export type OptionType = {
 
 interface MultiSelectProps {
     options: OptionType[]
-    selected: string[] | null
+    selected: string[]
     onChange: React.Dispatch<React.SetStateAction<string[]>>
     className?: string
     placeholder?: string
@@ -51,7 +51,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
                         variant="outline"
                         role="combobox"
                         aria-expanded={open} // Fix: Ensure selected is not null before accessing length
-                        className={cn("w-full justify-between", selected && selected.length > 0 ? "h-full" : "h-10")} 
+                        className={cn("w-full justify-between", selected && selected.length > 0 ? "h-full" : "h-10")}
                         onClick={() => setOpen(!open)}
                     >
                         <div className="flex gap-1 flex-wrap">
@@ -63,27 +63,30 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
                                         variant="secondary"
                                         key={item}
                                         className="mr-1 mb-1"
+                                        asChild
                                         onClick={(e) => {
                                             e.stopPropagation(); // Evita que o Popover feche ao clicar no Badge
                                             handleUnselect(item)
                                         }}
                                     >
-                                        {optionLabel}
-                                        <button
-                                            className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter") {
-                                                    handleUnselect(item)
-                                                }
-                                            }}
-                                            onMouseDown={(e) => {
-                                                e.preventDefault()
-                                                e.stopPropagation()
-                                            }}
-                                            onClick={() => handleUnselect(item)}
-                                        >
-                                            <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                                        </button>
+                                        <div>
+                                            {optionLabel}
+                                            <button
+                                                className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleUnselect(item)
+                                                    }
+                                                }}
+                                                onMouseDown={(e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                }}
+                                                onClick={() => handleUnselect(item)}
+                                            >
+                                                <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                                            </button>
+                                        </div>
                                     </Badge>
                                 )
                             })}

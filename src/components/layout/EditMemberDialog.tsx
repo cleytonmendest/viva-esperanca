@@ -1,75 +1,141 @@
 'use client'
 
 import { EllipsisVertical } from "lucide-react"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
-import { Constants, Tables } from "@/libs/supabase/database.types"
-import { Input } from "../ui/input"
-import { useState } from "react"
-import { Label } from "../ui/label"
-import { Button } from "../ui/button"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Constants, Tables, TablesUpdate } from "@/libs/supabase/database.types"
+import { Input } from "@/components/ui/input"
+import { useState, useEffect, useMemo } from "react"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/libs/supabase/client"
-import { MultiSelect, OptionType } from "../MultiSelect"
+import { MultiSelect, OptionType } from "@/components/MultiSelect"
+import { applyPhoneMask, formatPhoneNumber, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
+import { arraysAreEqual } from "@/libs/utils"
 
 type EditMemberDialogProps = {
     member: Tables<'members'>
 }
 
 const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
-    const [formData, setFormData] = useState({
+    const [initialData, setInitialData] = useState({
         name: member.name,
-        phone: member.phone,
+        phone: formatPhoneNumber(member.phone),
         birthdate: member.birthdate,
         sector: member.sector ?? []
-    })
+    });
+
+    const [formData, setFormData] = useState(initialData);
+    const [phoneError, setPhoneError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+
+    const router = useRouter();
+    const supabase = createClient();
+
+    // Atualiza o estado se a prop `member` mudar
+    useEffect(() => {
+        const newInitialData = {
+            name: member.name,
+            phone: formatPhoneNumber(member.phone),
+            birthdate: member.birthdate,
+            sector: member.sector ?? []
+        };
+        setInitialData(newInitialData);
+        setFormData(newInitialData);
+    }, [member]);
+
+    const isChanged = useMemo(() => {
+        const initialPhoneClean = unmaskPhoneNumber(initialData.phone);
+        const currentPhoneClean = unmaskPhoneNumber(formData.phone);
+
+        if (initialData.name !== formData.name) return true;
+        if (initialPhoneClean !== currentPhoneClean) return true;
+        if (initialData.birthdate !== formData.birthdate) return true;
+        if (!arraysAreEqual(initialData.sector, formData.sector)) return true;
+
+        return false;
+    }, [formData, initialData]);
 
     const sectorOptions: OptionType[] = Constants.public.Enums.sector_enum.map(sector => ({
         value: sector,
-        // Transforma a primeira letra em maiúscula para uma melhor UI
         label: sector.charAt(0).toUpperCase() + sector.slice(1)
     }));
 
-    console.log(member)
-
-    const router = useRouter()
-    const supabase = createClient()
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setFormData((prev) => ({ ...prev, [name]: value }))
-    }
+        const { name, value } = e.target;
+        if (name === 'phone') {
+            const maskedValue = applyPhoneMask(value);
+            setFormData((prev) => ({ ...prev, [name]: maskedValue }));
+
+            if (isPhoneNumberValid(maskedValue) || maskedValue === '') {
+                setPhoneError('');
+            } else {
+                setPhoneError('O telefone deve ter 11 dígitos.');
+            }
+        } else {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+    };
 
     const handleSectorsChange = (newSectors: string[]) => {
         setFormData(prevFormData => ({
             ...prevFormData,
-            sector: newSectors as (typeof Constants.public.Enums.sector_enum[number])[]
+            sector: newSectors
         }));
     };
 
+    const handleOpenChange = (open: boolean) => {
+        setIsOpen(open);
+        if (!open) {
+            // Reseta o formulário para os dados iniciais ao fechar
+            setFormData(initialData);
+            setPhoneError('');
+            setIsSubmitting(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        // const memberData: TablesInsert<'members'> = {
-        //     name: formData.name,
-        //     phone: formData.phone,
-        //     birthdate: formData.birthdate,
-        //     sector: formData.sector === 'sem' || formData.sector === '' ? null : [formData.sector as Enums<'sector_enum'>],
-        // }
+        if (!isChanged || !isPhoneNumberValid(formData.phone)) {
+            if (!isPhoneNumberValid(formData.phone)) {
+                setPhoneError('Por favor, insira um telefone válido com 11 dígitos.');
+            }
+            return;
+        }
 
-        // const { error } = await supabase.from('members').insert([memberData])
+        setIsSubmitting(true);
+        const cleanedPhone = unmaskPhoneNumber(formData.phone);
 
-        // if (error) {
-        //     console.error('Erro ao adicionar membro:', error)
-        //     alert('Erro ao adicionar membro: ' + error.message)
-        // } else {
-        //     alert('Membro adicionado com sucesso!')
-        //     setFormData({ name: '', phone: '', birthdate: '', sector: '' })
-        //     router.refresh()
-        // }
-    }
+        const memberData: TablesUpdate<'members'> = {
+            name: formData.name,
+            phone: cleanedPhone,
+            birthdate: formData.birthdate,
+            sector: formData.sector,
+        };
+
+        const { error } = await supabase
+            .from('members')
+            .update(memberData)
+            .eq('id', member.id);
+
+        if (error) {
+            console.error('Erro ao atualizar membro:', error);
+            alert('Erro ao atualizar membro: ' + error.message);
+        } else {
+            alert('Membro atualizado com sucesso!');
+            setIsOpen(false);
+            router.refresh();
+        }
+        setIsSubmitting(false);
+    };
+
+    const isFormValid = formData.name && formData.birthdate && isPhoneNumberValid(formData.phone);
+    const canSubmit = isChanged && isFormValid && !isSubmitting;
 
     return (
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger>
                 <EllipsisVertical size={16} />
             </DialogTrigger>
@@ -97,14 +163,16 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
                         <Input
                             type="text"
                             name="phone"
-                            placeholder="Digite o telefone do membro"
+                            placeholder="(21) 99999-9999"
                             value={formData.phone}
                             onChange={handleInputChange}
                             required
+                            maxLength={15}
                         />
+                        {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
                     </div>
                     <div className="flex gap-4">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 flex-1">
                             <Label htmlFor="birthdate">Data de Nascimento</Label>
                             <Input
                                 type="date"
@@ -114,25 +182,25 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
                                 required
                             />
                         </div>
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 flex-1">
                             <Label htmlFor="sector">Setor</Label>
                             <MultiSelect
                                 options={sectorOptions}
                                 selected={formData.sector}
                                 onChange={handleSectorsChange as React.Dispatch<React.SetStateAction<string[]>>}
-                                placeholder="Selecione o(s) setor(es)"
+                                placeholder="Selecione..."
                                 className="w-full"
                             />
                         </div>
                     </div>
-                    <div className="flex justify-between gap-2">
+                    <div className="flex justify-end gap-2 mt-4">
                         <DialogClose asChild>
                             <Button type="button" variant="outline">
                                 Cancelar
                             </Button>
                         </DialogClose>
-                        <Button type="submit">
-                            Salvar
+                        <Button type="submit" disabled={!canSubmit}>
+                            {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
                         </Button>
                     </div>
                 </form>
@@ -141,4 +209,5 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
     )
 }
 
-export default EditMemberDialog
+export default EditMemberDialog;
+
