@@ -12,6 +12,7 @@ import { createClient } from "@/libs/supabase/client"
 import { MultiSelect, OptionType } from "@/components/MultiSelect"
 import { applyPhoneMask, formatPhoneNumber, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
 import { arraysAreEqual } from "@/libs/utils"
+import { toast } from "sonner"
 
 type EditMemberDialogProps = {
     member: Tables<'members'>
@@ -122,9 +123,11 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
 
         if (error) {
             console.error('Erro ao atualizar membro:', error);
-            alert('Erro ao atualizar membro: ' + error.message);
+            toast.error('Tivemos um problema ao atualizar o membro. Tente novamente mais tarde.', {position: 'top-center'});
+            // alert('Erro ao atualizar membro: ' + error.message);
         } else {
-            alert('Membro atualizado com sucesso!');
+            // alert('Membro atualizado com sucesso!');
+            toast.success('Membro editado com sucesso!', {position: 'top-center'});
             setIsOpen(false);
             router.refresh();
         }
