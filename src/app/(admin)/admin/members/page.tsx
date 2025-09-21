@@ -52,11 +52,11 @@ const MembersPage = async () => {
                             <TableRow key={member.id}>
                                 <TableCell>{member.name}</TableCell>
                                 <TableCell>
-                                    {member.sector ? member.sector.map((sector) => (
+                                    {member.sector && member.sector.length > 0 ? member.sector.map((sector) => (
                                         <Badge key={sector} variant="default"
                                             className="mr-1 mb-1"
                                         >{sector}</Badge>
-                                    )) : 'Sem setor'}
+                                    )) : <span className="text-xs">Sem setor</span>}
                                 </TableCell>
                                 <TableCell>{formatPhoneNumber(member.phone)}</TableCell>
                                 <TableCell>{formatDate(member.birthdate)}</TableCell>
