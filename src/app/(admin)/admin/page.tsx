@@ -1,5 +1,4 @@
 import { createClient } from "@/libs/supabase/server";
-import { redirect } from "next/navigation";
 
 export default async function Admin() {
   const supabase = await createClient();
@@ -11,10 +10,6 @@ export default async function Admin() {
   const { data: profile } = user
     ? await supabase.from("members").select("*").eq("user_id", user.id).single()
     : { data: null };
-
-  if (!user) {
-    return redirect('/admin/login');
-  }
 
   return (
     <main className="p-4 flex">

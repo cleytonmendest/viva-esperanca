@@ -13,6 +13,8 @@ import { MultiSelect, OptionType } from "@/components/MultiSelect"
 import { applyPhoneMask, formatPhoneNumber, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
 import { arraysAreEqual } from "@/libs/utils"
 import { toast } from "sonner"
+import { useAuthStore } from "@/stores/authStore"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 type EditMemberDialogProps = {
     member: Tables<'members'>
@@ -23,13 +25,15 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
         name: member.name,
         phone: formatPhoneNumber(member.phone),
         birthdate: member.birthdate,
-        sector: member.sector ?? []
+        sector: member.sector ?? [],
+        role: member.role
     });
 
     const [formData, setFormData] = useState(initialData);
     const [phoneError, setPhoneError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const { profile } = useAuthStore()
 
     const router = useRouter();
     const supabase = createClient();
@@ -40,7 +44,8 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
             name: member.name,
             phone: formatPhoneNumber(member.phone),
             birthdate: member.birthdate,
-            sector: member.sector ?? []
+            sector: member.sector ?? [],
+            role: member.role
         };
         setInitialData(newInitialData);
         setFormData(newInitialData);
@@ -123,11 +128,11 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
 
         if (error) {
             console.error('Erro ao atualizar membro:', error);
-            toast.error('Tivemos um problema ao atualizar o membro. Tente novamente mais tarde.', {position: 'top-center'});
+            toast.error('Tivemos um problema ao atualizar o membro. Tente novamente mais tarde.', { position: 'top-center' });
             // alert('Erro ao atualizar membro: ' + error.message);
         } else {
             // alert('Membro atualizado com sucesso!');
-            toast.success('Membro editado com sucesso!', {position: 'top-center'});
+            toast.success('Membro editado com sucesso!', { position: 'top-center' });
             setIsOpen(false);
             router.refresh();
         }
@@ -137,9 +142,11 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
     const isFormValid = formData.name && formData.birthdate && isPhoneNumberValid(formData.phone);
     const canSubmit = isChanged && isFormValid && !isSubmitting;
 
+    if (member.user_id && profile?.role !== 'admin') return null;
+
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-            <DialogTrigger>
+            <DialogTrigger className="cursor-pointer">
                 <EllipsisVertical size={16} />
             </DialogTrigger>
             <DialogContent>
@@ -196,6 +203,36 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
                             />
                         </div>
                     </div>
+                    {profile?.role === 'admin' &&
+                        <div className="flex gap-4">
+                            <Label>Role</Label>
+                            <Select defaultValue={formData.role}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione uma opção" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="admin">
+                                        Admin
+                                    </SelectItem>
+                                    <SelectItem value="pastor(a)">
+                                        Pastor(a)
+                                    </SelectItem>
+                                    <SelectItem value="lider_midia">
+                                        Lider Mídia
+                                    </SelectItem>
+                                    <SelectItem value="lider_geral">
+                                        Lider Geral
+                                    </SelectItem>
+                                    <SelectItem value="membro">
+                                        Membro
+                                    </SelectItem>
+                                    <SelectItem value="pendente">
+                                        Pendente
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    }
                     <div className="flex justify-end gap-2 mt-4">
                         <DialogClose asChild>
                             <Button type="button" variant="outline">

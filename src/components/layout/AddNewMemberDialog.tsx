@@ -103,7 +103,7 @@ const AddNewMemberDialog = () => {
             if (!open) resetForm();
         }}>
             <DialogTrigger asChild>
-                <Button>
+                <Button variant="default" className="cursor-pointer">
                     Adicionar Membro
                 </Button>
             </DialogTrigger>
