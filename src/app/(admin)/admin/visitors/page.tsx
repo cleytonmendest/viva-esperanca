@@ -6,6 +6,7 @@ import { formatDate, formatPhoneNumber } from "@/utils/format"
 const VisitorsPage = async () => {
     const supabase = await createClient()
     const { data: visitors } = await supabase.from('visitors').select('*')
+    const { data: members } = await supabase.from('members').select('*')
 
     return (
         <>
@@ -14,7 +15,7 @@ const VisitorsPage = async () => {
             </section>
             <section className="lg:max-w-4xl mx-auto w-full">
                 <div className="flex justify-end mb-4">
-                    <AddNewVisitorDialog />
+                    {members && members.length > 0 && <AddNewVisitorDialog members={members}/>}
                 </div>
                 <Table>
                     <TableHeader>

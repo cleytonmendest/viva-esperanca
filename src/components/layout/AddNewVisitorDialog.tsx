@@ -7,12 +7,18 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, Di
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { createClient } from "@/libs/supabase/client"
-import type { TablesInsert } from "@/libs/supabase/database.types"
+import type { Tables, TablesInsert } from "@/libs/supabase/database.types"
 import { applyPhoneMask, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
 import { toast } from "sonner"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
+import { Combobox } from "../Combobox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
-const AddNewVisitorDialog = () => {
+type AddVisitorProps = {
+    members: Tables<'members'>[]
+}
+
+const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -157,6 +163,40 @@ const AddNewVisitorDialog = () => {
                                 maxLength={15}
                             />
                             {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
+                        </div>
+                    </div>
+                    <div className="flex gap-4">
+                        <div className="flex flex-col gap-1 flex-1">
+                            <Label htmlFor="birthdate">Convidado por:</Label>
+                            <Combobox
+                                empty="Nenhum membro encontrado"
+                                options={members.map(member => ({ value: member.id, label: member.name }))}
+                                placeholder="Selecione..."
+                                value={formData.invited_by}
+                                onChange={(value:string) => setFormData(prev => ({ ...prev, invited_by: value }))}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-1 flex-1">
+                            <Label htmlFor="birthdate">Situação do Visitante</Label>
+                            <Select>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione uma opção" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="sem_igreja">
+                                        Sem Igreja
+                                    </SelectItem>
+                                    <SelectItem value="visitante_outra_igreja">
+                                        Membro de outra Igreja
+                                    </SelectItem>
+                                    <SelectItem value="afastado">
+                                        Afastado
+                                    </SelectItem>
+                                    <SelectItem value="pendente">
+                                        Indeciso
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                     <div className="flex justify-end gap-2 mt-4">
