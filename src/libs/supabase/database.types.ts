@@ -161,7 +161,7 @@ export type Database = {
     }
     Enums: {
       member_status_enum: "ativo" | "inativo"
-      sector_enum: "m├¡dia" | "geral" | "louvor" | "infantil" | "social"
+      sector_enum: "mídia" | "geral" | "louvor" | "infantil" | "social"
       status_enum: "pending" | "processing" | "sent" | "failed"
       user_role_enum:
         | "admin"
