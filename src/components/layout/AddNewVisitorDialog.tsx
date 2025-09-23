@@ -7,7 +7,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, Di
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { createClient } from "@/libs/supabase/client"
-import type { Tables, TablesInsert } from "@/libs/supabase/database.types"
+import type { Tables, TablesInsert, Enums } from "@/libs/supabase/database.types"
 import { applyPhoneMask, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
 import { toast } from "sonner"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
@@ -18,15 +18,25 @@ type AddVisitorProps = {
     members: Tables<'members'>[]
 }
 
+type VisitorFormData = {
+    name: string;
+    phone: string;
+    visit_date: string;
+    event_name: string;
+    invited_by: string;
+    first_time: boolean;
+    visitor_status: Tables<'visitors'>['visitor_status']
+};
+
 const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<VisitorFormData>({
         name: '',
         phone: '',
         visit_date: '',
         event_name: '',
         invited_by: '',
         first_time: true,
-        visitor_status: 'sem_igreja'
+        visitor_status: "sem_igreja"
     });
     const [phoneError, setPhoneError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,7 +62,7 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', phone: '', visit_date: '', event_name: '', first_time: false, invited_by: '', visitor_status: 'sem_igreja' });
+        setFormData({ name: '', phone: '', visit_date: '', event_name: '', first_time: true, invited_by: '', visitor_status: 'sem_igreja' });
         setPhoneError('');
         setIsSubmitting(false);
     }
@@ -69,21 +79,20 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
         setIsSubmitting(true);
         const cleanedPhone = unmaskPhoneNumber(formData.phone);
 
-        const memberData: TablesInsert<'visitors'> = {
+        const visitorData: TablesInsert<'visitors'> = {
             visitor_name: formData.name,
             visitor_whatsapp: cleanedPhone,
-            visite_date: 'telefone',
-            event_name: 'event_name',
-            first_time: true,
-            invited_by: 'invited_by',
-            visitor_status: 'sem_igreja'
+            visite_date: formData.visit_date,
+            event_name: formData.event_name,
+            first_time: formData.first_time,
+            invited_by: formData.invited_by !== '' ? formData.invited_by as Tables<'members'>['id'] : null,
+            visitor_status: formData.visitor_status as Enums<'visitor_status_enum'>
         }
 
-        const { error } = await supabase.from('visitors').insert([memberData]);
+        const { error } = await supabase.from('visitors').insert([visitorData]);
 
         if (error) {
             console.error('Erro ao adicionar visitante:', error);
-            // alert('Erro ao adicionar visitante: ' + error.message);
             toast.error('Tivemos um problema ao adicionar o visitante. Tente novamente mais tarde.', { position: 'top-center' });
             setIsSubmitting(false);
         } else {
@@ -94,7 +103,7 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
         }
     };
 
-    const isFormValid = formData.name && formData.first_time && isPhoneNumberValid(formData.phone) && formData.visitor_status;
+    const isFormValid = formData.name && isPhoneNumberValid(formData.phone) && formData.visitor_status;
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => {
@@ -114,9 +123,9 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
                     </DialogDescription>
                 </DialogHeader>
                 <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-col-reverse md:flex-row">
                         <div className="flex flex-col gap-1 flex-1">
-                            <Label htmlFor="name">Nome</Label>
+                            <Label htmlFor="name">Nome: *</Label>
                             <Input
                                 type="text"
                                 name="name"
@@ -127,32 +136,36 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
                             />
                         </div>
                         <div className="flex flex-col gap-4">
-                            <Label htmlFor="first_time">Primeira visita?</Label>
-                            <RadioGroup defaultValue="option-one" className="flex">
+                            <Label htmlFor="first_time">Primeira visita? *</Label>
+                            <RadioGroup
+                                value={String(formData.first_time)}
+                                onValueChange={(value) => setFormData(prev => ({ ...prev, first_time: value === 'true' }))}
+                                defaultValue={String(formData.first_time)}
+                                className="flex">
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="option-one" id="option-one" />
+                                    <RadioGroupItem value="true" id="option-one" />
                                     <Label htmlFor="option-one">Sim</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="option-two" id="option-two" />
+                                    <RadioGroupItem value="false" id="option-two" />
                                     <Label htmlFor="option-two">Não</Label>
                                 </div>
                             </RadioGroup>
                         </div>
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-col sm:flex-row">
                         <div className="flex flex-col gap-1 flex-1">
-                            <Label htmlFor="birthdate">Data da Visita</Label>
+                            <Label htmlFor="visit_date">Data da Visita: *</Label>
                             <Input
                                 type="date"
-                                name="birthdate"
+                                name="visit_date"
                                 value={formData.visit_date}
                                 onChange={handleInputChange}
                                 required
                             />
                         </div>
                         <div className="flex flex-col gap-1 flex-1">
-                            <Label htmlFor="phone">Telefone</Label>
+                            <Label htmlFor="phone">Telefone: *</Label>
                             <Input
                                 type="text"
                                 name="phone"
@@ -165,20 +178,23 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
                             {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
                         </div>
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-col md:flex-row">
                         <div className="flex flex-col gap-1 flex-1">
-                            <Label htmlFor="birthdate">Convidado por:</Label>
+                            <Label htmlFor="invited_by">Convidado por:</Label>
                             <Combobox
                                 empty="Nenhum membro encontrado"
                                 options={members.map(member => ({ value: member.id, label: member.name }))}
                                 placeholder="Selecione..."
                                 value={formData.invited_by}
-                                onChange={(value:string) => setFormData(prev => ({ ...prev, invited_by: value }))}
+                                onChange={(value: string) => setFormData(prev => ({ ...prev, invited_by: value }))}
                             />
                         </div>
                         <div className="flex flex-col gap-1 flex-1">
-                            <Label htmlFor="birthdate">Situação do Visitante</Label>
-                            <Select>
+                            <Label htmlFor="visitor_status">Situação do Visitante: *</Label>
+                            <Select
+                                defaultValue={formData.visitor_status as string}
+                                onValueChange={(value: string) => setFormData(prev => ({ ...prev, visitor_status: value as Tables<'visitors'>['visitor_status']}))}
+                            >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Selecione uma opção" />
                                 </SelectTrigger>
