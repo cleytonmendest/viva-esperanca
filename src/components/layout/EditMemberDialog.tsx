@@ -87,7 +87,7 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
     const handleSectorsChange = (newSectors: string[]) => {
         setFormData(prevFormData => ({
             ...prevFormData,
-            sector: newSectors
+            sector: newSectors as (typeof Constants.public.Enums.sector_enum[number])[]
         }));
     };
 
@@ -250,4 +250,3 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
 }
 
 export default EditMemberDialog;
-
