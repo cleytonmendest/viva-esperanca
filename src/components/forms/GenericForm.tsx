@@ -1,0 +1,83 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/components/forms/GenericForm.tsx
+'use client';
+
+import { useForm, FormProvider, Controller } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MultiSelect } from '@/components/MultiSelect';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormConfig } from '@/components/forms/form-config';
+
+type GenericFormProps = {
+    formConfig: FormConfig;
+    onSubmit: (data: any) => void;
+    isLoading: boolean;
+    defaultValues?: any;
+};
+
+export const GenericForm = ({ formConfig, onSubmit, isLoading, defaultValues }: GenericFormProps) => {
+    const methods = useForm({ defaultValues });
+    const { handleSubmit, control } = methods;
+
+    return (
+        <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                {formConfig.map((field) => (
+                    <div key={field.name} className="flex flex-col gap-1">
+                        <Label htmlFor={field.name}>{field.label}{field.required && ' *'}</Label>
+                        <Controller
+                            name={field.name}
+                            control={control}
+                            rules={{ required: field.required }}
+                            render={({ field: controllerField }) => {
+                                switch (field.type) {
+                                    case 'multiselect':
+                                        return (
+                                            <MultiSelect
+                                                options={field.options || []}
+                                                selected={controllerField.value || []}
+                                                onChange={controllerField.onChange}
+                                                placeholder={field.placeholder}
+                                            />
+                                        );
+                                    case 'select':
+                                        return (
+                                            <Select onValueChange={controllerField.onChange} defaultValue={controllerField.value}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={field.placeholder} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {field.options?.map(option => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        );
+                                    // Adicione outros cases para 'date', 'tel', etc.
+                                    default:
+                                        return (
+                                            <Input
+                                                {...controllerField}
+                                                type={field.type}
+                                                placeholder={field.placeholder}
+                                            />
+                                        );
+                                }
+                            }}
+                        />
+                    </div>
+                ))}
+                <div className="flex justify-end gap-2 mt-4">
+                    {/* Você pode passar os botões como children se quiser mais flexibilidade */}
+                    <Button type="submit" disabled={isLoading}>
+                        {isLoading ? 'Salvando...' : 'Salvar'}
+                    </Button>
+                </div>
+            </form>
+        </FormProvider>
+    );
+};
