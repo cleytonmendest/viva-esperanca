@@ -39,6 +39,82 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_assignments: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          member_id: string | null
+          status: Database["public"]["Enums"]["assignment_status"]
+          task_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          member_id?: string | null
+          status?: Database["public"]["Enums"]["assignment_status"]
+          task_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          member_id?: string | null
+          status?: Database["public"]["Enums"]["assignment_status"]
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_assignments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_assignments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_assignments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_date: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           birthdate: string
@@ -102,6 +178,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean
+          name: string
+          sector: Database["public"]["Enums"]["sector_enum"] | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          sector?: Database["public"]["Enums"]["sector_enum"] | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          sector?: Database["public"]["Enums"]["sector_enum"] | null
+        }
+        Relationships: []
+      }
       visitors: {
         Row: {
           created_at: string
@@ -160,6 +263,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      assignment_status: "pendente" | "confirmado" | "recusado"
       member_status_enum: "ativo" | "inativo"
       sector_enum: "mídia" | "geral" | "louvor" | "infantil" | "social"
       status_enum: "pending" | "processing" | "sent" | "failed"
@@ -305,6 +409,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      assignment_status: ["pendente", "confirmado", "recusado"],
       member_status_enum: ["ativo", "inativo"],
       sector_enum: ["mídia", "geral", "louvor", "infantil", "social"],
       status_enum: ["pending", "processing", "sent", "failed"],
