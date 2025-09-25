@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/MultiSelect';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormConfig } from '@/components/forms/form-config';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Textarea } from '../ui/textarea';
 
 type GenericFormProps = {
     formConfig: FormConfig;
@@ -57,6 +59,24 @@ export const GenericForm = ({ formConfig, onSubmit, isLoading, defaultValues }: 
                                                 </SelectContent>
                                             </Select>
                                         );
+                                    case 'radio':
+                                        return (
+                                            <RadioGroup
+                                                onValueChange={controllerField.onChange}
+                                                defaultValue={controllerField.value}
+                                                className={`flex ${field.options && field?.options?.length > 2 ? 'flex-col' : 'flex-row'}`}>
+                                                {field.options?.map(option => (
+                                                    <div key={option.value} className="flex items-center space-x-2">
+                                                        <RadioGroupItem value={option.value}  id={option.value}  />
+                                                        <Label htmlFor={option.value} >{option.label}</Label>
+                                                    </div>
+                                                ))}
+                                            </RadioGroup>
+                                        )
+                                    case 'textarea':
+                                        return (
+                                            <Textarea placeholder={field.placeholder} {...controllerField} />
+                                        )
                                     // Adicione outros cases para 'date', 'tel', etc.
                                     default:
                                         return (
