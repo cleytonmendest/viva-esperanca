@@ -2,17 +2,17 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "../ui/button"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+import { Button } from "../../../../../components/ui/button"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../../../components/ui/dialog"
+import { Input } from "../../../../../components/ui/input"
+import { Label } from "../../../../../components/ui/label"
 import { createClient } from "@/libs/supabase/client"
 import type { Tables, TablesInsert, Enums } from "@/libs/supabase/database.types"
 import { applyPhoneMask, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
 import { toast } from "sonner"
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
-import { Combobox } from "../Combobox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { RadioGroup, RadioGroupItem } from "../../../../../components/ui/radio-group"
+import { Combobox } from "../../../../../components/Combobox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select"
 
 type AddVisitorProps = {
     members: Tables<'members'>[]

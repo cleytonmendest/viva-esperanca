@@ -2,15 +2,15 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "../ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { Button } from "../../../../../components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../../../components/ui/dialog"
 import { createClient } from "@/libs/supabase/client"
 import type { TablesInsert, Enums } from "@/libs/supabase/database.types"
 import { Constants } from "@/libs/supabase/database.types"
 import { isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
 import { toast } from "sonner"
-import { GenericForm } from "../forms/GenericForm"
-import { FormConfig } from "../forms/form-config"
+import { GenericForm } from "../../../../../components/forms/GenericForm"
+import { FormConfig } from "../../../../../components/forms/form-config"
 
 const memberFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome do membro', required: true },

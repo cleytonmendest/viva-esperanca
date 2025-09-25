@@ -14,7 +14,7 @@ import { applyPhoneMask, formatPhoneNumber, isPhoneNumberValid, unmaskPhoneNumbe
 import { arraysAreEqual } from "@/libs/utils"
 import { toast } from "sonner"
 import { useAuthStore } from "@/stores/authStore"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select"
 
 type EditMemberDialogProps = {
     member: Tables<'members'>

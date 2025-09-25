@@ -7,18 +7,10 @@ import { Input } from "@/components/ui/input"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 
 // Supondo que você tenha um store do Zustand assim:
-// import { useUserStore } from "@/store/user-store"
+import { useAuthStore } from "@/stores/authStore"
 
-export const EditProfileForm = () => {
-    // Exemplo de como você usaria o Zustand
-    // const { user, updateUser } = useUserStore()
-
-    // Para demonstração, usaremos dados mocados
-    const user = {
-        name: "Usuário Exemplo",
-        phone: "21999998888",
-        birthDate: "1990-01-15",
-    }
+export const EditProfileForm = () => { 
+    const { profile } = useAuthStore()
 
     const [formData, setFormData] = useState({
         name: "",
@@ -29,23 +21,23 @@ export const EditProfileForm = () => {
 
     // Preenche o formulário com dados do usuário quando o componente monta
     useEffect(() => {
-        if (user) {
+        if (profile) {
             setFormData({
-                name: user.name,
-                phone: user.phone,
-                birthDate: user.birthDate,
+                name: profile.name,
+                phone: profile.phone,
+                birthDate: profile.birthdate,
             })
         }
-    }, [user])
+    }, [profile])
 
     // Verifica se houve mudanças para habilitar o botão de salvar
     useEffect(() => {
         const hasChanged =
-            formData.name !== user.name ||
-            formData.phone !== user.phone ||
-            formData.birthDate !== user.birthDate
+            formData.name !== profile?.name ||
+            formData.phone !== profile?.phone ||
+            formData.birthDate !== profile?.birthdate
         setIsChanged(hasChanged)
-    }, [formData, user])
+    }, [formData, profile])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target

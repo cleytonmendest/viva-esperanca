@@ -1,5 +1,5 @@
-import AddNewMemberDialog from "@/components/layout/AddNewMemberDialog"
-import EditMemberDialog from "@/components/layout/EditMemberDialog"
+import AddNewMemberDialog from "@/app/(admin)/admin/members/components/AddNewMemberDialog"
+import EditMemberDialog from "@/app/(admin)/admin/members/components/EditMemberDialog"
 import { Badge } from "@/components/ui/badge"
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
 import { createClient } from "@/libs/supabase/server"
