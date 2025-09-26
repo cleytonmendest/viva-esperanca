@@ -2,6 +2,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AddNewEventDialog from "./components/AddEventDialog"
 import { createClient } from "@/libs/supabase/server"
 import { formatDate } from "@/utils/format"
+import EditNewEventDialog from "./components/EditEventDialog"
 
 const EventsPage = async () => {
   const supabase = await createClient()
@@ -32,9 +33,9 @@ const EventsPage = async () => {
                   {formatDate(event.event_date)}
                 </TableCell>
                 <TableCell>
-                  {/* <EditNeweventDialog
+                  <EditNewEventDialog
                     event={event}
-                  /> */}
+                  />
                 </TableCell>
               </TableRow>
             ))}
