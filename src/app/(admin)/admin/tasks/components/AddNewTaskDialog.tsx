@@ -39,8 +39,6 @@ const AddNewTaskDialog = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (data: TaskFormData) => {
-        console.log(data, 'event')
-
         setIsSubmitting(true);
 
         const taskData: TablesInsert<'tasks'> = {
