@@ -2,10 +2,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AddNewTaskDialog from './components/AddNewTaskDialog'
 import { createClient } from '@/libs/supabase/server'
 import EditNewTaskDialog from './components/EditNewTaskDialog'
+import { redirect } from 'next/navigation'
 
 const TaskPage = async () => {
     const supabase = await createClient()
     const { data: tasks } = await supabase.from('tasks').select('*')
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+        // Esta linha é uma salvaguarda, mas teoricamente nunca será alcançada
+        return redirect('/admin/login')
+    }
+
+    const { data: profile } = await supabase.from('members').select('role').eq('user_id', user.id).single()
+
+    // Define as roles que podem acessar esta página
+    const allowedRoles: string[] = ['admin', 'pastor(a)']
+
+    // Se o usuário não tem uma role ou a role dele não está na lista, redireciona
+    if (!profile?.role || !allowedRoles.includes(profile.role)) {
+        redirect('/admin/unauthorized')
+    }
 
     return (
         <>
