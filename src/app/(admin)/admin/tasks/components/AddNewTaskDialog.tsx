@@ -25,35 +25,29 @@ const memberFormConfig: FormConfig = [
         required: true
     }
 ];
+interface TaskFormData {
+    name: string;
+    description: string;
+    is_default: string;
+    sector: Enums<'sector_enum'>;
+}
 
 const AddNewTaskDialog = () => {
     const router = useRouter();
     const supabase = createClient();
     const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        sector: 'geral' as Enums<'sector_enum'>,
-        isDefault: 'false'
-    });
 
-    const resetForm = () => {
-        setFormData({ name: '', description: ' ,', isDefault: 'false', sector: 'geral' });
-        setIsSubmitting(false);
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        // e.preventDefault();
-        console.log(e, 'event')
+    const handleSubmit = async (data: TaskFormData) => {
+        console.log(data, 'event')
 
         setIsSubmitting(true);
 
         const taskData: TablesInsert<'tasks'> = {
-            name: formData.name,
-            description: formData.description,
-            is_default: formData.isDefault === 'true',
-            sector: formData.sector as Enums<'sector_enum'>
+            name: data.name,
+            description: data.description,
+            is_default: data.is_default === 'true',
+            sector: data.sector
         }
 
         const { error } = await supabase.from('tasks').insert([taskData]);
@@ -65,7 +59,6 @@ const AddNewTaskDialog = () => {
             setIsSubmitting(false);
         } else {
             toast.success('Tarefa adicionada com sucesso!', { position: 'top-center' });
-            resetForm();
             setIsOpen(false);
             router.refresh();
         }
@@ -74,7 +67,6 @@ const AddNewTaskDialog = () => {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => {
             setIsOpen(open);
-            if (!open) resetForm();
         }}>
             <DialogTrigger asChild>
                 <Button variant="default" className="cursor-pointer">

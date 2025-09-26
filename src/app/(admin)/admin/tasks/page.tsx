@@ -1,9 +1,11 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import AddNewTaskDialog from './components/AddNewTaskDialog'
+import { createClient } from '@/libs/supabase/server'
+import EditNewTaskDialog from './components/EditNewTaskDialog'
 
-const TaskPage = () => {
-    
-
+const TaskPage = async () => {
+    const supabase = await createClient()
+    const { data: tasks } = await supabase.from('tasks').select('*')
 
     return (
         <>
@@ -14,34 +16,30 @@ const TaskPage = () => {
                 <div className="flex justify-end mb-4">
                     <AddNewTaskDialog />
                 </div>
-                {/* <Table>
+                <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Nome</TableHead>
                             <TableHead>Setor</TableHead>
-                            <TableHead>Telefone</TableHead>
-                            <TableHead>Nascimento</TableHead>
                             <TableHead>Editar</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {members && members.map((member) => (
-                            <TableRow key={member.id}>
-                                <TableCell>{member.name}</TableCell>
+                        {tasks && tasks.map((task) => (
+                            <TableRow key={task.id}>
+                                <TableCell>{task.name}</TableCell>
                                 <TableCell>
-                                    {member.sector && member.sector.length > 0 ? member.sector.map((sector) => (
-                                        <Badge key={sector} variant="default"
-                                            className="mr-1 mb-1"
-                                        >{sector}</Badge>
-                                    )) : <span className="text-xs">Sem setor</span>}
+                                    {task.sector}
                                 </TableCell>
-                                <TableCell>{formatPhoneNumber(member.phone)}</TableCell>
-                                <TableCell>{formatDate(member.birthdate)}</TableCell>
-                                <TableCell><EditMemberDialog member={member} /></TableCell>
+                                <TableCell>
+                                    <EditNewTaskDialog
+                                        task={task}
+                                    />
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
-                </Table> */}
+                </Table>
             </section>
         </>
     )
