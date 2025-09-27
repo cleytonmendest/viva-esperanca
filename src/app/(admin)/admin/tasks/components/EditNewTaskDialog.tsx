@@ -7,7 +7,7 @@ import { createClient } from "@/libs/supabase/client";
 import { Constants, Enums, Tables, TablesUpdate } from "@/libs/supabase/database.types";
 import { EllipsisVertical } from "lucide-react"
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const taskFormConfig: FormConfig = [
@@ -78,6 +78,11 @@ const EditNewTaskDialog = ({ task }: TaskData) => {
         }
         setIsSubmitting(false);
     };
+
+    useEffect(() => {
+        console.log('isSubmitting:', isSubmitting);
+    }, [isSubmitting]);
+
 
     const defaultValues = {
         name: task.name,

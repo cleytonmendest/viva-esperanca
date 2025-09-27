@@ -54,12 +54,13 @@ const AddNewTaskDialog = () => {
             console.error('Erro ao adicionar tarefa:', error);
             // alert('Erro ao adicionar membro: ' + error.message);
             toast.error('Tivemos um problema ao adicionar a tarefa. Tente novamente mais tarde.', { position: 'top-center' });
-            setIsSubmitting(false);
         } else {
             toast.success('Tarefa adicionada com sucesso!', { position: 'top-center' });
             setIsOpen(false);
             router.refresh();
         }
+
+        setIsSubmitting(false);
     };
 
     return (

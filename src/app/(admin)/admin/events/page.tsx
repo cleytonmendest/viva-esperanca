@@ -3,6 +3,7 @@ import AddNewEventDialog from "./components/AddEventDialog"
 import { createClient } from "@/libs/supabase/server"
 import { formatDate } from "@/utils/format"
 import EditNewEventDialog from "./components/EditEventDialog"
+import Link from 'next/link';
 
 const EventsPage = async () => {
   const supabase = await createClient()
@@ -28,7 +29,11 @@ const EventsPage = async () => {
           <TableBody>
             {events && events.map((event) => (
               <TableRow key={event.id}>
-                <TableCell>{event.name}</TableCell>
+                <TableCell>
+                  <Link href={`/admin/events/${event.id}`}>
+                    {event.name}
+                  </Link>
+                </TableCell>
                 <TableCell>
                   {formatDate(event.event_date)}
                 </TableCell>
