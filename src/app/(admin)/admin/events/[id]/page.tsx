@@ -1,9 +1,10 @@
-import EventAssignmentTable from "@/components/layout/EventAssignmentTable";
+import EventAssignmentTable from "@/app/(admin)/admin/events/[id]/components/EventAssignmentTable";
 import { createClient } from "@/libs/supabase/server";
+import { formatDate } from "@/utils/format";
 
 const EventDetailPage = async ({ params }: { params: { id: string } }) => {
     const supabase = await createClient();
-    const eventId = params.id;
+    const { id: eventId } = await params
 
     const { data: event } = await supabase
         .from('events')
@@ -30,12 +31,12 @@ const EventDetailPage = async ({ params }: { params: { id: string } }) => {
 
     return (
         <>
-            <section>
-                <h1>{event.name}</h1>
+            <section className="lg:max-w-4xl mx-auto w-full pt-5">
+                <h1 className="text-3xl font-bold mb-4">{event.name}</h1>
                 <p>{event.description}</p>
-                <p>Data do Evento: {event.event_date}</p>
-                <div className="lg:max-w-4xl mx-auto w-full">
-                    <EventAssignmentTable allMembers={allMembers || []} assignments={assignments || []} eventId={eventId} />
+                <p>Data do Evento: {formatDate(event.event_date)}</p>
+                <div className="mt-8">
+                    <EventAssignmentTable allMembers={allMembers || []} assignments={assignments || []} />
                 </div>
             </section>
         </>
