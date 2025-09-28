@@ -38,7 +38,6 @@ export default function SignUpPage() {
         });
 
         if (error) {
-            console.log('Erro no cadastro:', error);
             setMessage('Erro no cadastro: ' + error.message);
         } else {
             setMessage('Cadastro realizado com sucesso! Aguarde a aprovação de um administrador.');

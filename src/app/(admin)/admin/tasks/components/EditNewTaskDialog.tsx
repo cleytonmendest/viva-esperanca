@@ -79,11 +79,6 @@ const EditNewTaskDialog = ({ task }: TaskData) => {
         setIsSubmitting(false);
     };
 
-    useEffect(() => {
-        console.log('isSubmitting:', isSubmitting);
-    }, [isSubmitting]);
-
-
     const defaultValues = {
         name: task.name,
         description: task.description,

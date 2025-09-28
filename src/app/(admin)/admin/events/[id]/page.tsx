@@ -23,8 +23,6 @@ const EventDetailPage = async ({ params }: { params: { id: string } }) => {
 
     const { data: allMembers } = await supabase.from('members').select('id, name');
 
-    console.log('Event ID:', eventId)
-
     if (!event) {
         return <div>Evento não encontrado.</div>;
     }

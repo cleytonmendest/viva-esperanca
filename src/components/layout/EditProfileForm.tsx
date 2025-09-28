@@ -47,7 +47,7 @@ export const EditProfileForm = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (!isChanged) return
-        console.log("Salvando dados:", formData)
+        // console.log("Salvando dados:", formData)
         // Aqui você chamaria a função updateUser(formData) do seu store
     }
 

@@ -67,8 +67,14 @@ export const UserAccountMenu = () => {
                                 <DialogTrigger className="w-full text-left">Alterar senha</DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
-                                        {/* Conteúdo do modal de alterar senha */}
+                                        <DialogTitle>Alterar senha</DialogTitle>
+                                        <DialogDescription>
+                                            Altere sua senha aqui.
+                                        </DialogDescription>
                                     </DialogHeader>
+                                    <div className="flex justify-between gap-2">
+                                        
+                                    </div>
                                 </DialogContent>
                             </Dialog>
                         </DropdownMenuItem>
