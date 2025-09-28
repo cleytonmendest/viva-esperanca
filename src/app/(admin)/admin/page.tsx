@@ -1,15 +1,15 @@
-import { createClient } from "@/libs/supabase/server";
+// import { createClient } from "@/libs/supabase/server";
 
 export default async function Admin() {
-  const supabase = await createClient();
+  // const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  const { data: profile } = user
-    ? await supabase.from("members").select("*").eq("user_id", user.id).single()
-    : { data: null };
+  // const { data: profile } = user
+  //   ? await supabase.from("members").select("*").eq("user_id", user.id).single()
+  //   : { data: null };
 
   return (
     <main className="p-4 flex">

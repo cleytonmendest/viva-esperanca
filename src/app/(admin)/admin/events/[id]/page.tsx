@@ -4,7 +4,7 @@ import { formatDate } from "@/utils/format";
 
 const EventDetailPage = async ({ params }: { params: { id: string } }) => {
     const supabase = await createClient();
-    const { id: eventId } = await params
+    const { id: eventId } = params
 
     const { data: event } = await supabase
         .from('events')

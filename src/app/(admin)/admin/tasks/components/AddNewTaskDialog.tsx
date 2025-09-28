@@ -4,7 +4,7 @@ import { GenericForm } from "@/components/forms/GenericForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createClient } from "@/libs/supabase/client";
-import { Constants, Enums, Tables, TablesInsert } from "@/libs/supabase/database.types";
+import { Constants, Enums, TablesInsert } from "@/libs/supabase/database.types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";

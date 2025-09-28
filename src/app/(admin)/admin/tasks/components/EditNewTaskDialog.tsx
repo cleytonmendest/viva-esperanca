@@ -7,7 +7,7 @@ import { createClient } from "@/libs/supabase/client";
 import { Constants, Enums, Tables, TablesUpdate } from "@/libs/supabase/database.types";
 import { EllipsisVertical } from "lucide-react"
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const taskFormConfig: FormConfig = [

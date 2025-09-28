@@ -1,8 +1,8 @@
 // Adicione no topo para marcar como Componente de Cliente
 "use client"
 
-import { MoreHorizontal, Settings, LogOut, CircleUserRound } from "lucide-react"
-import { SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
+import { MoreHorizontal, LogOut, CircleUserRound } from "lucide-react"
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { EditProfileForm } from "@/components/layout/EditProfileForm"
@@ -73,7 +73,7 @@ export const UserAccountMenu = () => {
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="flex justify-between gap-2">
-                                        
+
                                     </div>
                                 </DialogContent>
                             </Dialog>
