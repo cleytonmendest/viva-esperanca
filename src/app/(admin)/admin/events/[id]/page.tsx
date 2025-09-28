@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import EventAssignmentTable from "@/app/(admin)/admin/events/[id]/components/EventAssignmentTable";
 import { createClient } from "@/libs/supabase/server";
 import { formatDate } from "@/utils/format";
