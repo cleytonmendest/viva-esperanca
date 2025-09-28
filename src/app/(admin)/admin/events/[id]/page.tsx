@@ -3,11 +3,11 @@ import EventAssignmentTable from "@/app/(admin)/admin/events/[id]/components/Eve
 import { createClient } from "@/libs/supabase/server";
 import { formatDate } from "@/utils/format";
 
-type Props = Awaited<{ params: { id: string } }>;
+type Props = { params: Promise<{ id: string }> };
 
 const EventDetailPage = async ({params}: Props) => {
     const supabase = await createClient();
-    const { id: eventId } = params;
+    const { id: eventId } = await params;
 
     const { data: event } = await supabase
         .from('events')
