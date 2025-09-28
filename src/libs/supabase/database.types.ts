@@ -178,6 +178,33 @@ export type Database = {
         }
         Relationships: []
       }
+      page_permissions: {
+        Row: {
+          allowed_roles: Database["public"]["Enums"]["user_role_enum"][]
+          created_at: string
+          icon: string | null
+          id: string
+          page_name: string
+          page_path: string
+        }
+        Insert: {
+          allowed_roles: Database["public"]["Enums"]["user_role_enum"][]
+          created_at?: string
+          icon?: string | null
+          id?: string
+          page_name: string
+          page_path: string
+        }
+        Update: {
+          allowed_roles?: Database["public"]["Enums"]["user_role_enum"][]
+          created_at?: string
+          icon?: string | null
+          id?: string
+          page_name?: string
+          page_path?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           created_at: string

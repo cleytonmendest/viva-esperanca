@@ -15,16 +15,6 @@ const TaskPage = async () => {
         return redirect('/admin/login')
     }
 
-    const { data: profile } = await supabase.from('members').select('role').eq('user_id', user.id).single()
-
-    // Define as roles que podem acessar esta página
-    const allowedRoles: string[] = ['admin', 'pastor(a)']
-
-    // Se o usuário não tem uma role ou a role dele não está na lista, redireciona
-    if (!profile?.role || !allowedRoles.includes(profile.role)) {
-        redirect('/admin/unauthorized')
-    }
-
     return (
         <>
             <section className="lg:max-w-4xl my-4 mx-auto w-full">

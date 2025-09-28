@@ -41,5 +41,5 @@ export async function updateSession(request: NextRequest) {
   // Atualiza a sessão se expirada e obtém os dados do usuário
   const { data: { user } } = await supabase.auth.getUser()
 
-  return { response, user }
+  return { response, user, supabase }
 }

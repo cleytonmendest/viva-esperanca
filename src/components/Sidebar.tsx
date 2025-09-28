@@ -1,5 +1,5 @@
 import { createClient } from "../libs/supabase/server"
-import { Calendar, Church, Home, PersonStanding } from "lucide-react"
+import { Calendar, Church, Home, PersonStanding, ShieldCheck, ListTodo } from "lucide-react" // Adicionei ShieldCheck
 import {
   Sidebar,
   SidebarContent,
@@ -12,20 +12,18 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "./ui/sidebar"
-// Importe o novo componente de cliente
 import { UserAccountMenu } from "./layout/UserAccountMenu"
-import { Database } from "../libs/supabase/database.types"
 
-type Role = Database['public']['Enums']['user_role_enum'];
+// Mapeamento de ícones para não precisar guardar componentes no DB
+const iconMap = {
+  Home,
+  Church,
+  PersonStanding,
+  Calendar,
+  ShieldCheck,
+  ListTodo
+};
 
-const allItems: { title: string; url: string; icon: React.ElementType, roles: Role[] }[] = [
-  { title: "Página Inicial", url: "/admin", icon: Home, roles: ['admin', 'pastor(a)', 'lider_midia', 'lider_geral', 'membro', 'pendente'] },
-  { title: "Membros", url: "/admin/members", icon: Church, roles: ['admin', 'pastor(a)'] },
-  { title: "Visitantes", url: "/admin/visitors", icon: PersonStanding, roles: ['admin', 'pastor(a)', 'lider_geral'] },
-  { title: "Eventos", url: "/admin/events", icon: Calendar, roles: ['admin', 'pastor(a)', 'lider_midia', 'lider_geral', 'membro'] },
-]
-
-// Este componente agora é um Server Component assíncrono para buscar os dados do usuário
 const AppSidebar = async () => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -33,10 +31,17 @@ const AppSidebar = async () => {
     ? await supabase.from('members').select('role').eq('user_id', user.id).single()
     : { data: null }
 
-  const userRole = profile?.role ?? null
+  const userRole = profile?.role ?? null;
+
+  // Busca as páginas do banco de dados
+  const { data: pages } = await supabase
+    .from('page_permissions')
+    .select('*');
 
   // Filtra os itens do menu com base na role do usuário logado
-  const items = allItems.filter(item => userRole && item.roles.includes(userRole))
+  const items = pages
+    ? pages.filter(page => userRole && page.allowed_roles.includes(userRole))
+    : [];
 
   return (
     <Sidebar collapsible="icon">
@@ -49,16 +54,19 @@ const AppSidebar = async () => {
           <SidebarGroupLabel>Admin</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                const IconComponent = item.icon ? iconMap[item.icon as keyof typeof iconMap] : Home;
+                return (
+                  <SidebarMenuItem key={item.page_name}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.page_path}>
+                        <IconComponent />
+                        <span>{item.page_name}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -69,4 +77,3 @@ const AppSidebar = async () => {
 }
 
 export default AppSidebar
-
