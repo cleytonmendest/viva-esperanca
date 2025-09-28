@@ -2,15 +2,11 @@ import EventAssignmentTable from "@/app/(admin)/admin/events/[id]/components/Eve
 import { createClient } from "@/libs/supabase/server";
 import { formatDate } from "@/utils/format";
 
-type EventDetailPageProps = {
-  params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
+type Props = Awaited<{ params: { id: string } }>;
 
-const EventDetailPage = async (props: EventDetailPageProps) => {
+const EventDetailPage = async ({params}: Props) => {
     const supabase = await createClient();
-    const { params } = await props;
-    const { id: eventId } = await params
+    const { id: eventId } = params;
 
     const { data: event } = await supabase
         .from('events')
