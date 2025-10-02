@@ -25,6 +25,7 @@ const EventDetailPage = async ({params}: Props) => {
         .eq('event_id', eventId);
 
     const { data: allMembers } = await supabase.from('members').select('id, name');
+    const { data: allTasks } = await supabase.from('tasks').select('id, name');
 
     if (!event) {
         return <div>Evento não encontrado.</div>;
@@ -37,7 +38,12 @@ const EventDetailPage = async ({params}: Props) => {
                 <p>{event.description}</p>
                 <p>Data do Evento: {formatDate(event.event_date)}</p>
                 <div className="mt-8">
-                    <EventAssignmentTable allMembers={allMembers || []} assignments={assignments || []} />
+                    <EventAssignmentTable
+                        allMembers={allMembers || []}
+                        assignments={assignments || []}
+                        allTasks={allTasks || []}
+                        eventId={eventId}
+                    />
                 </div>
             </section>
         </>
