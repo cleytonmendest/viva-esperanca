@@ -74,7 +74,7 @@ const EditNewEventDialog = ({ event }: EventData) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-            <DialogTrigger className="cursor-pointer">
+            <DialogTrigger className="cursor-pointer" asChild>
                 <Button variant="default" size="icon" className="h-8 w-8">
                     <Pencil className="h-4 w-4" />
                 </Button>
