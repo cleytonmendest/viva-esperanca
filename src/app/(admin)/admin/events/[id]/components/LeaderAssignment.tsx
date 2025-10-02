@@ -1,7 +1,6 @@
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Assignment } from "./EventAssignmentTable"
 import { Button } from "@/components/ui/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface LeaderAssignmentProps {
@@ -22,7 +21,7 @@ const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => 
         <DialogHeader>
           <DialogTitle>{alreadyTaken ? 'Alterar Membro' : 'Preencher Membro'}</DialogTitle>
           <DialogDescription>
-            desci
+            Altere ou preencha o membro que será responsável pela tarefa.
           </DialogDescription>
         </DialogHeader>
         <Select defaultValue={memberOwner?.id}>

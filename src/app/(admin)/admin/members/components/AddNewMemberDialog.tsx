@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { createClient } from "@/libs/supabase/client"
 import type { TablesInsert, Enums } from "@/libs/supabase/database.types"
 import { Constants } from "@/libs/supabase/database.types"
-import { isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
+import { unmaskPhoneNumber } from "@/utils/format"
 import { toast } from "sonner"
 import { GenericForm } from "../../../../../components/forms/GenericForm"
 import { FormConfig } from "../../../../../components/forms/form-config"
@@ -28,14 +28,15 @@ const memberFormConfig: FormConfig = [
     }
 ];
 
+interface MemberFormData {
+    name: string;
+    phone: string;
+    birthdate: string;
+    sector: string[];
+    role?: string;
+}
+
 const AddNewMemberDialog = () => {
-    const [formData, setFormData] = useState({
-        name: '',
-        phone: '',
-        birthdate: '',
-        sector: [] as string[]
-    });
-    const [phoneError, setPhoneError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -43,35 +44,24 @@ const AddNewMemberDialog = () => {
     const supabase = createClient();
 
     const resetForm = () => {
-        setFormData({ name: '', phone: '', birthdate: '', sector: [] });
-        setPhoneError('');
         setIsSubmitting(false);
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Checagem final de validação
-        if (phoneError || !isPhoneNumberValid(formData.phone)) {
-            setPhoneError('Por favor, insira um telefone válido com 11 dígitos.');
-            return;
-        }
+    const handleSubmit = async (member: MemberFormData) => {
 
         setIsSubmitting(true);
-        const cleanedPhone = unmaskPhoneNumber(formData.phone);
+        const cleanedPhone = unmaskPhoneNumber(member.phone);
 
         const memberData: TablesInsert<'members'> = {
-            name: formData.name,
+            name: member.name,
             phone: cleanedPhone,
-            birthdate: formData.birthdate,
-            sector: formData.sector.length > 0 ? formData.sector as Enums<'sector_enum'>[] : null,
+            birthdate: member.birthdate,
+            sector: member.sector.length > 0 ? member.sector as Enums<'sector_enum'>[] : null,
         }
 
         const { error } = await supabase.from('members').insert([memberData]);
 
         if (error) {
-            console.error('Erro ao adicionar membro:', error);
-            // alert('Erro ao adicionar membro: ' + error.message);
             toast.error('Tivemos um problema ao adicionar o membro. Tente novamente mais tarde.', { position: 'top-center' });
             setIsSubmitting(false);
         } else {
