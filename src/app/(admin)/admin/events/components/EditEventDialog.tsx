@@ -13,7 +13,8 @@ import { toast } from "sonner";
 const taskFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome da tarefa', required: true },
     { name: 'description', label: 'Descrição', type: 'textarea', placeholder: 'Breve descrição da tarefa' },
-    { name: 'event_date', label: 'Data do Evento', type: 'date', required: true }
+    // Alterado de 'date' para 'datetime-local'
+    { name: 'event_date', label: 'Data e Hora do Evento', type: 'datetime-local', required: true }
 ];
 
 interface EventData {

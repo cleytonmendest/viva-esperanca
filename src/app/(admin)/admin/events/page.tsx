@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import AddNewEventDialog from "./components/AddEventDialog"
 import { createClient } from "@/libs/supabase/server"
-import { formatDate } from "@/utils/format"
+import { formatDateTime } from "@/utils/format"
 import EditNewEventDialog from "./components/EditEventDialog"
 import Link from 'next/link';
 
@@ -35,7 +35,7 @@ const EventsPage = async () => {
                   </Link>
                 </TableCell>
                 <TableCell>
-                  {formatDate(event.event_date)}
+                  {formatDateTime(event.event_date)}
                 </TableCell>
                 <TableCell>
                   <EditNewEventDialog

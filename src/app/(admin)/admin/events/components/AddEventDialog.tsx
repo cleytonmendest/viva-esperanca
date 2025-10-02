@@ -12,7 +12,7 @@ import { toast } from "sonner";
 const eventFormConfig: FormConfig = [
     { name: 'name', label: 'Nome do Evento', type: 'text', placeholder: 'Digite o nome do evento', required: true },
     { name: 'description', label: 'Descrição', type: 'textarea', placeholder: 'Breve descrição do evento' },
-    { name: 'event_date', label: 'Data do Evento', type: 'date', required: true },
+    { name: 'event_date', label: 'Data e Hora do Evento', type: 'datetime-local', required: true },
 ];
 interface EventFormData {
     name: string;

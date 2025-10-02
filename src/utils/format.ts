@@ -1,9 +1,24 @@
 export const formatDate = (dateString: string) => {
     // Cria o objeto Date tratando o fuso horário para evitar o erro de "um dia a menos"
-    const date = new Date(dateString + 'T00:00:00');
+    const date = new Date(dateString); // TIMESTAMPTZ já vem no formato correto
 
     // Formata para o padrão brasileiro (dd/mm/aaaa)
-    return new Intl.DateTimeFormat('pt-BR').format(date);
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(date);
+};
+
+export const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+
+    // Formata para o padrão brasileiro com data e hora (dd/mm/aaaa HH:mm)
+    return new Intl.DateTimeFormat('pt-BR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'UTC'
+    }).format(date);
 };
 
 
