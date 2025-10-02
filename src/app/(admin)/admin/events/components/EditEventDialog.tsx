@@ -2,10 +2,11 @@
 
 import { FormConfig } from "@/components/forms/form-config";
 import { GenericForm } from "@/components/forms/GenericForm";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { createClient } from "@/libs/supabase/client";
 import { Tables, TablesUpdate } from "@/libs/supabase/database.types";
-import { EllipsisVertical } from "lucide-react"
+import { Pencil } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -74,7 +75,9 @@ const EditNewEventDialog = ({ event }: EventData) => {
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger className="cursor-pointer">
-                <EllipsisVertical size={16} />
+                <Button variant="default" size="icon" className="h-8 w-8">
+                    <Pencil className="h-4 w-4" />
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

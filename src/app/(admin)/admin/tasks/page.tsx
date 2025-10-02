@@ -3,6 +3,7 @@ import AddNewTaskDialog from './components/AddNewTaskDialog'
 import { createClient } from '@/libs/supabase/server'
 import EditNewTaskDialog from './components/EditNewTaskDialog'
 import { redirect } from 'next/navigation'
+import DeleteTaskDialog from './components/DeleteTaskDialog'
 
 const TaskPage = async () => {
     const supabase = await createClient()
@@ -40,9 +41,8 @@ const TaskPage = async () => {
                                     {task.sector}
                                 </TableCell>
                                 <TableCell>
-                                    <EditNewTaskDialog
-                                        task={task}
-                                    />
+                                    <EditNewTaskDialog task={task} />
+                                    <DeleteTaskDialog taskId={task.id} taskName={task.name} />
                                 </TableCell>
                             </TableRow>
                         ))}

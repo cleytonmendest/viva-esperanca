@@ -1,6 +1,6 @@
 'use client'
 
-import { EllipsisVertical } from "lucide-react"
+import { Pencil } from "lucide-react"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Constants, Tables, TablesUpdate } from "@/libs/supabase/database.types"
 import { Input } from "@/components/ui/input"
@@ -146,8 +146,10 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-            <DialogTrigger className="cursor-pointer">
-                <EllipsisVertical size={16} />
+            <DialogTrigger className="cursor-pointer" asChild>
+                <Button variant="default" size="icon" className="h-8 w-8">
+                    <Pencil className="h-4 w-4" />
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
