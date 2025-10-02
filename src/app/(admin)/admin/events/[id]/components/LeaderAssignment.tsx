@@ -1,7 +1,14 @@
+'use client'
+
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Assignment } from "./EventAssignmentTable"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Combobox } from "@/components/Combobox";
+import { useState, useMemo } from "react"; // Importe o useMemo
+import { createClient } from "@/libs/supabase/client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { TablesUpdate } from "@/libs/supabase/database.types";
 
 interface LeaderAssignmentProps {
   assignment: Assignment;
@@ -9,42 +16,82 @@ interface LeaderAssignmentProps {
 }
 
 const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => {
-  const memberOwner = allMembers.find(member => member.id === assignment.member_id)
-  const alreadyTaken = !!assignment.member_id
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialMember] = useState(assignment.member_id || ""); 
+  const [selectedMember, setSelectedMember] = useState(initialMember);
+
+  const alreadyTaken = !!assignment.member_id;
+
+  const isChanged = useMemo(() => initialMember !== selectedMember, [initialMember, selectedMember]);
+
+  const memberOptions = allMembers.map(member => ({
+    value: member.id,
+    label: member.name
+  }));
+
+  const handleAssignMember = async () => {
+    // Verificação adicional para garantir que não envie se não houver mudança
+    if (!isChanged) return;
+
+    setIsSubmitting(true);
+
+    const assignmentData: TablesUpdate<'event_assignments'> = {
+        member_id: selectedMember || null 
+    };
+
+    const { error } = await supabase
+        .from('event_assignments')
+        .update(assignmentData)
+        .eq('id', assignment.id);
+
+    if (error) {
+        toast.error('Tivemos um problema ao atribuir a tarefa. Tente novamente.', { position: 'top-center' });
+    } else {
+        toast.success('Tarefa atribuída com sucesso!', { position: 'top-center' });
+        router.refresh();
+        setIsOpen(false);
+    }
+    setIsSubmitting(false);
+  }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button size="sm">{alreadyTaken ? 'Alterar' : 'Preencher'}</Button>
       </DialogTrigger>
-      <DialogContent className="!max-w-xs">
+      <DialogContent className="!max-w-sm">
         <DialogHeader>
           <DialogTitle>{alreadyTaken ? 'Alterar Membro' : 'Preencher Membro'}</DialogTitle>
           <DialogDescription>
             Altere ou preencha o membro que será responsável pela tarefa.
           </DialogDescription>
         </DialogHeader>
-        <Select defaultValue={memberOwner?.id}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Selecionar Membro" />
-          </SelectTrigger>
-          <SelectContent>
-            {allMembers.map((member) => (
-              <SelectItem key={member.id} value={member.id}>
-                {member.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        
+        <Combobox
+            options={memberOptions}
+            value={selectedMember}
+            onChange={setSelectedMember}
+            placeholder="Selecione um membro..."
+            empty="Nenhum membro encontrado."
+        />
+
         <DialogFooter>
           <div className="w-full flex justify-between pt-5">
             <DialogClose asChild>
-              <Button variant='destructive'>
+              <Button variant='destructive' type="button">
                 Cancelar
               </Button>
             </DialogClose>
-            <Button variant="default">
-              {alreadyTaken ? 'Alterar Membro' : 'Preencher Membro'}
+            <Button 
+                variant="default" 
+                onClick={handleAssignMember} 
+                disabled={isSubmitting || !isChanged} // Botão desabilitado se estiver submetendo OU se não houver mudança
+            >
+              {isSubmitting ? 'Salvando...' : (alreadyTaken ? 'Alterar Membro' : 'Preencher Membro')}
             </Button>
           </div>
         </DialogFooter>
@@ -53,4 +100,4 @@ const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => 
   )
 }
 
-export default LeaderAssignment
+export default LeaderAssignment;
