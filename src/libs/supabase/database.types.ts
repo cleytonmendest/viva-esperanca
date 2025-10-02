@@ -212,6 +212,7 @@ export type Database = {
           id: string
           is_default: boolean
           name: string
+          quantity: number
           sector: Database["public"]["Enums"]["sector_enum"] | null
         }
         Insert: {
@@ -220,6 +221,7 @@ export type Database = {
           id?: string
           is_default?: boolean
           name: string
+          quantity?: number
           sector?: Database["public"]["Enums"]["sector_enum"] | null
         }
         Update: {
@@ -228,6 +230,7 @@ export type Database = {
           id?: string
           is_default?: boolean
           name?: string
+          quantity?: number
           sector?: Database["public"]["Enums"]["sector_enum"] | null
         }
         Relationships: []

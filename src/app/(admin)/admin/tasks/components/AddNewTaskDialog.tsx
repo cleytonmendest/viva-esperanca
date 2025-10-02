@@ -13,6 +13,7 @@ const memberFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome da tarefa', required: true },
     { name: 'description', label: 'Descrição', type: 'textarea', placeholder: 'Breve descrição da tarefa' },
     { name: 'is_default', label: 'Tarefa padrão?', type: 'radio', options: [{ value: 'true', label: 'Sim' }, { value: 'false', label: 'Não' }] },
+    { name: 'quantity', label: 'Quantidade', type: 'number', placeholder: '1', required: true },
     {
         name: 'sector',
         label: 'Setor',
@@ -30,6 +31,7 @@ interface TaskFormData {
     description: string;
     is_default: string;
     sector: Enums<'sector_enum'>;
+    quantity: number;
 }
 
 const AddNewTaskDialog = () => {
@@ -45,7 +47,8 @@ const AddNewTaskDialog = () => {
             name: data.name,
             description: data.description,
             is_default: data.is_default === 'true',
-            sector: data.sector
+            sector: data.sector,
+            quantity: Number(data.quantity)
         }
 
         const { error } = await supabase.from('tasks').insert([taskData]);
