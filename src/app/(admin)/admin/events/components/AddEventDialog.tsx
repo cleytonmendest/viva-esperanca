@@ -29,24 +29,25 @@ const AddNewEventDialog = () => {
     const handleSubmit = async (data: EventFormData) => {
         setIsSubmitting(true);
 
+        const isoDate = new Date(data.event_date).toISOString();
+
         const taskData: TablesInsert<'events'> = {
             name: data.name,
             description: data.description,
-            event_date: data.event_date
+            event_date: isoDate
         }
 
         const { error } = await supabase.from('events').insert([taskData]);
 
         if (error) {
             console.error('Erro ao adicionar evento:', error);
-            // alert('Erro ao adicionar membro: ' + error.message);
             toast.error('Tivemos um problema ao adicionar o evento. Tente novamente mais tarde.', { position: 'top-center' });
-            setIsSubmitting(false);
         } else {
             toast.success('Evento adicionada com sucesso!', { position: 'top-center' });
             setIsOpen(false);
             router.refresh();
         }
+        setIsSubmitting(false);
     };
 
     return (

@@ -14,7 +14,6 @@ import { toast } from "sonner";
 const taskFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome da tarefa', required: true },
     { name: 'description', label: 'Descrição', type: 'textarea', placeholder: 'Breve descrição da tarefa' },
-    // Alterado de 'date' para 'datetime-local'
     { name: 'event_date', label: 'Data e Hora do Evento', type: 'datetime-local', required: true }
 ];
 
@@ -44,10 +43,12 @@ const EditNewEventDialog = ({ event }: EventData) => {
     const handleSubmit = async (data: EventFormData) => {
         setIsSubmitting(true);
 
+        const isoDate = new Date(data.event_date).toISOString();
+
         const taskData: TablesUpdate<'events'> = {
             name: data.name,
             description: data.description,
-            event_date: data.event_date
+            event_date: isoDate
         };
 
         const { error } = await supabase
@@ -66,10 +67,18 @@ const EditNewEventDialog = ({ event }: EventData) => {
         setIsSubmitting(false);
     };
 
+    const date = new Date(event.event_date);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const localDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+
     const defaultValues = {
         name: event.name,
         description: event.description,
-        event_date: event.event_date,
+        event_date: localDateTimeString,
     };
 
     return (
