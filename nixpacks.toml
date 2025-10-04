@@ -1,18 +1,8 @@
-[providers]
-node = "18"
-
 [variables]
 NODE_ENV = "production"
-NEXT_TELEMETRY_DISABLED = "1"
 
 [phases.setup]
-apkPackages = ["bash", "curl", "jq", "git"]
-
-[phases.install]
-cmds = ["npm ci"]
+nixPkgs = ["bash"]
 
 [phases.build] 
 cmds = ["npm run build"]
-
-[start]
-cmd = "npm run start"
