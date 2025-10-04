@@ -2,7 +2,7 @@
 NODE_ENV = "production"
 
 [phases.setup]
-nixPkgs = ["bash"]
+nixPkgs = ["bash", "nodejs_18", "npm-9_x"]
 
 [phases.build] 
 cmds = ["npm run build"]
