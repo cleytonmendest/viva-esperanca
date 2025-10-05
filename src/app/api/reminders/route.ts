@@ -8,14 +8,14 @@ export async function GET(request: Request) {
     // --- Camada de Segurança ---
     // Verifica se a requisição veio com a chave secreta correta.
     const authHeader = request.headers.get('authorization');
-    const expectedSecret = process.env.N8N_API_SECRET;
+    const expectedSecret = process.env.NEXT_PUBLIC_N8N_SECRET_KEY;
 
     // --- Bloco de Depuração ---
     // Em vez de bloquear, vamos retornar os valores para podermos compará-los.
     return NextResponse.json({
         message: "Modo de depuração ativo. Compare os valores abaixo.",
         receivedHeader: authHeader || "Nenhum header de autorização foi recebido.",
-        expectedOnServer: `Bearer ${expectedSecret}` || "A variável N8N_API_SECRET não está configurada no servidor."
+        expectedOnServer: `Bearer ${expectedSecret}` || "A variável NEXT_PUBLIC_N8N_SECRET_KEY não está configurada no servidor."
     });
 
     /* const supabase = await createClient();
