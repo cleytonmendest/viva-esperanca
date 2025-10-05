@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     // --- Camada de Segurança ---
     // Verifica se a requisição veio com a chave secreta correta.
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.N8N_API_SECRET}`) {
+    if (authHeader !== `Bearer ${process.env.NEXT_PUBLIC_N8N_SECRET_KEY}`) {
     return new NextResponse(
       JSON.stringify({ message: 'Unauthorized' }),
       { status: 401, headers: { 'Content-Type': 'application/json' } }
