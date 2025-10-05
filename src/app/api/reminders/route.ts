@@ -8,17 +8,14 @@ export async function GET(request: Request) {
     // --- Camada de Segurança ---
     // Verifica se a requisição veio com a chave secreta correta.
     const authHeader = request.headers.get('authorization');
-    const expectedSecret = process.env.NEXT_PUBLIC_N8N_SECRET_KEY;
+    if (authHeader !== `Bearer ${process.env.N8N_API_SECRET}`) {
+    return new NextResponse(
+      JSON.stringify({ message: 'Unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
-    // --- Bloco de Depuração ---
-    // Em vez de bloquear, vamos retornar os valores para podermos compará-los.
-    return NextResponse.json({
-        message: "Modo de depuração ativo. Compare os valores abaixo.",
-        receivedHeader: authHeader || "Nenhum header de autorização foi recebido.",
-        expectedOnServer: `Bearer ${expectedSecret}` || "A variável NEXT_PUBLIC_N8N_SECRET_KEY não está configurada no servidor."
-    });
-
-    /* const supabase = await createClient();
+    const supabase = await createClient();
 
     // Define o intervalo de tempo: de agora até as próximas 24 horas.
     const now = new Date();
@@ -50,5 +47,5 @@ export async function GET(request: Request) {
     }
 
     // Retorna os dados em formato JSON
-    return NextResponse.json(data); */
+    return NextResponse.json(data);
 }
