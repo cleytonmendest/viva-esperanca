@@ -1,51 +1,86 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/libs/supabase/server';
+// Importa o cliente genérico do Supabase para usar com a chave de serviço
+import { createClient } from '@supabase/supabase-js';
+// Importa os tipos gerados do banco de dados para garantir a segurança de tipos
+import type { Tables } from '@/libs/supabase/database.types';
 
-// Esta é uma "Edge Function", otimizada para ser rápida.
+// Define que esta é uma "Edge Function", otimizada para ser rápida.
 export const runtime = 'edge';
+
+// --- DEFINIÇÃO DE TIPOS PARA A RESPOSTA DA CONSULTA ---
+// Isso descreve a estrutura dos dados que estamos buscando: um evento com suas escalas,
+// e cada escala com os detalhes do membro e da tarefa.
+type EventWithAssignments = Tables<'events'> & {
+  event_assignments: (Tables<'event_assignments'> & {
+    members: Tables<'members'>;
+    tasks: Tables<'tasks'>;
+  })[];
+};
+
 
 export async function GET(request: Request) {
     // --- Camada de Segurança ---
-    // Verifica se a requisição veio com a chave secreta correta.
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.NEXT_PUBLIC_N8N_SECRET_KEY}`) {
-    return new NextResponse(
-      JSON.stringify({ message: 'Unauthorized' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    if (authHeader !== `Bearer ${process.env.N8N_API_SECRET}`) {
+        return new NextResponse(
+            JSON.stringify({ message: 'Unauthorized' }),
+            { status: 401, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+
+    // --- Cliente de Serviço do Supabase ---
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!, // Chave de serviço!
+        {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+          },
+        }
     );
-  }
 
-    const supabase = await createClient();
+    // --- LÓGICA DE DATA/HORA SIMPLIFICADA E ROBUSTA ---
+    const startTime = new Date();
+    const endTime = new Date(startTime.getTime() + 24 * 60 * 60 * 1000);
 
-    // Define o intervalo de tempo: de agora até as próximas 24 horas.
-    const now = new Date();
-    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-
-    // --- Consulta Única ao Supabase ---
-    // Esta consulta faz tudo de uma vez:
-    // 1. Filtra os eventos que acontecem nas próximas 24 horas.
-    // 2. Pega apenas as escalas (assignments) que têm um membro associado.
-    // 3. Junta os dados completos do evento, do membro e da tarefa.
+    // --- Consulta com a janela de tempo correta e TIPAGEM explícita ---
     const { data, error } = await supabase
-        .from('event_assignments')
-        .select(`
-      *,
-      events!inner(*),
-      members!inner(*),
-      tasks!inner(*)
-    `)
-        .filter('events.event_date', 'gte', now.toISOString())
-        .filter('events.event_date', 'lte', tomorrow.toISOString())
-        .not('member_id', 'is', null);
+        .from('events')
+        .select<string, EventWithAssignments>(`
+            *,
+            event_assignments (
+                *,
+                members!inner(*),
+                tasks!inner(*)
+            )
+        `)
+        .gte('event_date', startTime.toISOString())
+        .lte('event_date', endTime.toISOString());
 
     if (error) {
-        console.error('Erro ao buscar escalas no Supabase:', error);
+        console.error('Erro na consulta ao Supabase:', error);
         return new NextResponse(
             JSON.stringify({ message: 'Erro interno do servidor', error: error.message }),
             { status: 500, headers: { 'Content-Type': 'application/json' } }
         );
     }
 
-    // Retorna os dados em formato JSON
-    return NextResponse.json(data);
+    // --- Filtragem dos Resultados para o n8n ---
+    // Agora, 'event' e 'assignment' têm seus tipos corretos, eliminando o 'any'.
+    const assignmentsWithMembers = data
+        .flatMap(event => 
+            event.event_assignments.map(assignment => ({
+                ...assignment,
+                event_details: {
+                    id: event.id,
+                    name: event.name,
+                    event_date: event.event_date
+                }
+            }))
+        )
+        .filter(assignment => assignment.members);
+
+    return NextResponse.json(assignmentsWithMembers);
 }
+
