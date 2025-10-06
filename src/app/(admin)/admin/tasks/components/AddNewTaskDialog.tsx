@@ -3,11 +3,10 @@ import { FormConfig } from "@/components/forms/form-config";
 import { GenericForm } from "@/components/forms/GenericForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { createClient } from "@/libs/supabase/client";
 import { Constants, Enums, TablesInsert } from "@/libs/supabase/database.types";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { addTask } from "../../lib/actions";
 
 const memberFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome da tarefa', required: true },
@@ -35,8 +34,6 @@ interface TaskFormData {
 }
 
 const AddNewTaskDialog = () => {
-    const router = useRouter();
-    const supabase = createClient();
     const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,16 +48,13 @@ const AddNewTaskDialog = () => {
             quantity: Number(data.quantity)
         }
 
-        const { error } = await supabase.from('tasks').insert([taskData]);
+        const result = await addTask(taskData);
 
-        if (error) {
-            console.error('Erro ao adicionar tarefa:', error);
-            // alert('Erro ao adicionar membro: ' + error.message);
-            toast.error('Tivemos um problema ao adicionar a tarefa. Tente novamente mais tarde.', { position: 'top-center' });
-        } else {
-            toast.success('Tarefa adicionada com sucesso!', { position: 'top-center' });
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' });
             setIsOpen(false);
-            router.refresh();
+        } else {
+            toast.error(result.message, { position: 'top-center' });
         }
 
         setIsSubmitting(false);

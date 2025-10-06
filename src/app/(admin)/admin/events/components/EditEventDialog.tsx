@@ -4,12 +4,11 @@ import { FormConfig } from "@/components/forms/form-config";
 import { GenericForm } from "@/components/forms/GenericForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { createClient } from "@/libs/supabase/client";
 import { Tables, TablesUpdate } from "@/libs/supabase/database.types";
 import { Pencil } from "lucide-react"
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { updateEvent } from "../../lib/actions";
 
 const taskFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome da tarefa', required: true },
@@ -30,8 +29,6 @@ interface EventFormData {
 const EditNewEventDialog = ({ event }: EventData) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    const router = useRouter();
-    const supabase = createClient();
 
     const handleOpenChange = (open: boolean) => {
         setIsOpen(open);
@@ -45,24 +42,19 @@ const EditNewEventDialog = ({ event }: EventData) => {
 
         const isoDate = new Date(data.event_date).toISOString();
 
-        const taskData: TablesUpdate<'events'> = {
+        const eventData: TablesUpdate<'events'> = {
             name: data.name,
             description: data.description,
             event_date: isoDate
         };
 
-        const { error } = await supabase
-            .from('events')
-            .update(taskData)
-            .eq('id', event.id);
+        const result = await updateEvent(event.id, eventData);
 
-        if (error) {
-            console.error('Erro ao atualizar tarefa:', error);
-            toast.error('Tivemos um problema ao atualizar a tarefa. Tente novamente mais tarde.', { position: 'top-center' });
-        } else {
-            toast.success('Tarefa editada com sucesso!', { position: 'top-center' });
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' });
             setIsOpen(false);
-            router.refresh();
+        } else {
+            toast.error(result.message, { position: 'top-center' });
         }
         setIsSubmitting(false);
     };

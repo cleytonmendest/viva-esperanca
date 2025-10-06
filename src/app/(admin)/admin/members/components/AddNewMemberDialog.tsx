@@ -1,16 +1,15 @@
 'use client'
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "../../../../../components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../../../components/ui/dialog"
-import { createClient } from "@/libs/supabase/client"
 import type { TablesInsert, Enums } from "@/libs/supabase/database.types"
 import { Constants } from "@/libs/supabase/database.types"
 import { unmaskPhoneNumber } from "@/utils/format"
 import { toast } from "sonner"
 import { GenericForm } from "../../../../../components/forms/GenericForm"
 import { FormConfig } from "../../../../../components/forms/form-config"
+import { addMember } from "../../lib/actions"
 
 const memberFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome do membro', required: true },
@@ -40,9 +39,6 @@ const AddNewMemberDialog = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
-    const router = useRouter();
-    const supabase = createClient();
-
     const resetForm = () => {
         setIsSubmitting(false);
     }
@@ -59,16 +55,15 @@ const AddNewMemberDialog = () => {
             sector: member.sector.length > 0 ? member.sector as Enums<'sector_enum'>[] : null,
         }
 
-        const { error } = await supabase.from('members').insert([memberData]);
+        const result = await addMember(memberData);
 
-        if (error) {
-            toast.error('Tivemos um problema ao adicionar o membro. Tente novamente mais tarde.', { position: 'top-center' });
-            setIsSubmitting(false);
-        } else {
-            toast.success('Membro adicionado com sucesso!', { position: 'top-center' });
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' });
             resetForm();
             setIsOpen(false);
-            router.refresh();
+        } else {
+            toast.error(result.message, { position: 'top-center' });
+            setIsSubmitting(false);
         }
     };
 

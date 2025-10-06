@@ -1,31 +1,19 @@
 export const dynamic = 'force-dynamic';
 import EventAssignmentTable from "@/app/(admin)/admin/events/[id]/components/EventAssignmentTable";
-import { createClient } from "@/libs/supabase/server";
+import { getAssignmentsByEventId, getEventById, getAllMembers, getAllTasks } from "@/app/(admin)/admin/lib/data";
 import { formatDate } from "@/utils/format";
 
 type Props = { params: Promise<{ id: string }> };
 
 const EventDetailPage = async ({params}: Props) => {
-    const supabase = await createClient();
     const { id: eventId } = await params;
 
-    const { data: event } = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', eventId)
-        .single();
-
-    const { data: assignments } = await supabase
-        .from('event_assignments')
-        .select(`
-            *,
-            tasks ( * ),
-            members ( * )
-    `)
-        .eq('event_id', eventId);
-
-    const { data: allMembers } = await supabase.from('members').select('id, name');
-    const { data: allTasks } = await supabase.from('tasks').select('id, name');
+    const [event, assignments, allMembers, allTasks] = await Promise.all([
+        getEventById(eventId),
+        getAssignmentsByEventId(eventId),
+        getAllMembers(),
+        getAllTasks(),
+    ]);
 
     if (!event) {
         return <div>Evento não encontrado.</div>;

@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Combobox } from "@/components/Combobox";
-import { createClient } from "@/libs/supabase/client";
 import { PlusCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { addAssignmentToEvent } from "../../../lib/actions";
 
 interface AddAssignmentDialogProps {
     eventId: string;
@@ -15,9 +14,6 @@ interface AddAssignmentDialogProps {
 }
 
 const AddAssignmentDialog = ({ eventId, allTasks }: AddAssignmentDialogProps) => {
-    const router = useRouter();
-    const supabase = createClient();
-
     const [isOpen, setIsOpen] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,20 +27,14 @@ const AddAssignmentDialog = ({ eventId, allTasks }: AddAssignmentDialogProps) =>
         }
         setIsSubmitting(true);
 
-        const { error } = await supabase
-            .from('event_assignments')
-            .insert({
-                event_id: eventId,
-                task_id: selectedTaskId,
-            });
+        const result = await addAssignmentToEvent(eventId, selectedTaskId);
 
-        if (error) {
-            toast.error('Tivemos um problema ao adicionar a tarefa. Tente novamente.', { position: 'top-center' });
-        } else {
-            toast.success('Tarefa adicionada ao evento com sucesso!', { position: 'top-center' });
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' });
             setSelectedTaskId('');
             setIsOpen(false);
-            router.refresh();
+        } else {
+            toast.error(result.message, { position: 'top-center' });
         }
         setIsSubmitting(false);
     };

@@ -4,11 +4,9 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Assignment } from "./EventAssignmentTable"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/Combobox";
-import { useState, useMemo } from "react"; // Importe o useMemo
-import { createClient } from "@/libs/supabase/client";
-import { useRouter } from "next/navigation";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { TablesUpdate } from "@/libs/supabase/database.types";
+import { updateAssignmentMember } from "../../../lib/actions";
 
 interface LeaderAssignmentProps {
   assignment: Assignment;
@@ -16,9 +14,6 @@ interface LeaderAssignmentProps {
 }
 
 const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => {
-  const router = useRouter();
-  const supabase = createClient();
-
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [initialMember] = useState(assignment.member_id || ""); 
@@ -34,26 +29,17 @@ const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => 
   }));
 
   const handleAssignMember = async () => {
-    // Verificação adicional para garantir que não envie se não houver mudança
     if (!isChanged) return;
 
     setIsSubmitting(true);
 
-    const assignmentData: TablesUpdate<'event_assignments'> = {
-        member_id: selectedMember || null 
-    };
+    const result = await updateAssignmentMember(assignment.id, selectedMember || null, assignment.event_id);
 
-    const { error } = await supabase
-        .from('event_assignments')
-        .update(assignmentData)
-        .eq('id', assignment.id);
-
-    if (error) {
-        toast.error('Tivemos um problema ao atribuir a tarefa. Tente novamente.', { position: 'top-center' });
-    } else {
-        toast.success('Tarefa atribuída com sucesso!', { position: 'top-center' });
-        router.refresh();
+    if (result.success) {
+        toast.success(result.message, { position: 'top-center' });
         setIsOpen(false);
+    } else {
+        toast.error(result.message, { position: 'top-center' });
     }
     setIsSubmitting(false);
   }
@@ -89,7 +75,7 @@ const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => 
             <Button 
                 variant="default" 
                 onClick={handleAssignMember} 
-                disabled={isSubmitting || !isChanged} // Botão desabilitado se estiver submetendo OU se não houver mudança
+                disabled={isSubmitting || !isChanged}
             >
               {isSubmitting ? 'Salvando...' : (alreadyTaken ? 'Alterar Membro' : 'Preencher Membro')}
             </Button>

@@ -30,14 +30,14 @@ export default function MyAssignments({ tasks }: MyAssignmentsProps) {
   const filteredTasks = showPastEvents
     ? sortedTasks
     : sortedTasks.filter((assignment) => {
-        const eventDate = assignment.events?.event_date
-          ? new Date(assignment.events.event_date)
-          : null;
-        if (!eventDate) return true; // Keep tasks without a date
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Compare dates only
-        return eventDate >= today;
-      });
+      const eventDate = assignment.events?.event_date
+        ? new Date(assignment.events.event_date)
+        : null;
+      if (!eventDate) return true; // Keep tasks without a date
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Compare dates only
+      return eventDate >= today;
+    });
 
   return (
     <Card>
@@ -56,28 +56,31 @@ export default function MyAssignments({ tasks }: MyAssignmentsProps) {
       </CardHeader>
       <CardContent>
         {filteredTasks.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Evento</TableHead>
-                <TableHead>Tarefa</TableHead>
-                <TableHead className="text-right">Data do Evento</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTasks.map((assignment) => (
-                <TableRow key={assignment.id}>
-                  <TableCell>{assignment.events?.name ?? "N/A"}</TableCell>
-                  <TableCell>{assignment.tasks?.name ?? "N/A"}</TableCell>
-                  <TableCell className="text-right">
-                    {assignment.events?.event_date
-                      ? formatDate(assignment.events.event_date)
-                      : "N/A"}
-                  </TableCell>
+          <div className="overflow-y-auto h-full max-h-[300px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Evento</TableHead>
+                  <TableHead>Tarefa</TableHead>
+                  <TableHead className="text-right">Data do Evento</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+
+              <TableBody>
+                {filteredTasks.map((assignment) => (
+                  <TableRow key={assignment.id}>
+                    <TableCell>{assignment.events?.name ?? "N/A"}</TableCell>
+                    <TableCell>{assignment.tasks?.name ?? "N/A"}</TableCell>
+                    <TableCell className="text-right">
+                      {assignment.events?.event_date
+                        ? formatDate(assignment.events.event_date)
+                        : "N/A"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         ) : (
           <p>Você ainda não foi atribuído a nenhuma tarefa.</p>
         )}

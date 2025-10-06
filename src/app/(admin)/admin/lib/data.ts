@@ -49,3 +49,69 @@ export async function getAvailableTasks(sectors: SectorEnum[]) {
 
   return data;
 }
+
+export async function getEventById(eventId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('id', eventId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching event:", error);
+    return null;
+  }
+  return data;
+}
+
+export async function getAssignmentsByEventId(eventId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('event_assignments')
+    .select(`
+      *,
+      tasks ( * ),
+      members ( * )
+    `)
+    .eq('event_id', eventId);
+
+  if (error) {
+    console.error("Error fetching assignments:", error);
+    return [];
+  }
+  return data;
+}
+
+export async function getAllMembers() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('members').select('id, name');
+
+  if (error) {
+    console.error("Error fetching members:", error);
+    return [];
+  }
+  return data;
+}
+
+export async function getAllTasks() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('tasks').select('id, name');
+
+  if (error) {
+    console.error("Error fetching tasks:", error);
+    return [];
+  }
+  return data;
+}
+
+export async function getMembers() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('members').select('*');
+
+  if (error) {
+    console.error("Error fetching members:", error);
+    return [];
+  }
+  return data;
+}

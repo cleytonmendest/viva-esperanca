@@ -3,11 +3,10 @@ import { FormConfig } from "@/components/forms/form-config";
 import { GenericForm } from "@/components/forms/GenericForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { createClient } from "@/libs/supabase/client";
 import { TablesInsert } from "@/libs/supabase/database.types";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { addEvent } from "../../lib/actions";
 
 const eventFormConfig: FormConfig = [
     { name: 'name', label: 'Nome do Evento', type: 'text', placeholder: 'Digite o nome do evento', required: true },
@@ -21,8 +20,6 @@ interface EventFormData {
 }
 
 const AddNewEventDialog = () => {
-    const router = useRouter();
-    const supabase = createClient();
     const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,21 +28,19 @@ const AddNewEventDialog = () => {
 
         const isoDate = new Date(data.event_date).toISOString();
 
-        const taskData: TablesInsert<'events'> = {
+        const eventData: TablesInsert<'events'> = {
             name: data.name,
             description: data.description,
             event_date: isoDate
         }
 
-        const { error } = await supabase.from('events').insert([taskData]);
+        const result = await addEvent(eventData);
 
-        if (error) {
-            console.error('Erro ao adicionar evento:', error);
-            toast.error('Tivemos um problema ao adicionar o evento. Tente novamente mais tarde.', { position: 'top-center' });
-        } else {
-            toast.success('Evento adicionada com sucesso!', { position: 'top-center' });
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' });
             setIsOpen(false);
-            router.refresh();
+        } else {
+            toast.error(result.message, { position: 'top-center' });
         }
         setIsSubmitting(false);
     };

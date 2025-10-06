@@ -2,12 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { createClient } from "@/libs/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { deleteTask } from "../../lib/actions";
 
 interface DeleteTaskDialogProps {
     taskId: string;
@@ -16,8 +15,6 @@ interface DeleteTaskDialogProps {
 
 const DeleteTaskDialog = ({ taskId, taskName }: DeleteTaskDialogProps) => {
     const { profile } = useAuthStore();
-    const router = useRouter();
-    const supabase = createClient();
 
     const [isOpen, setIsOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -29,17 +26,13 @@ const DeleteTaskDialog = ({ taskId, taskName }: DeleteTaskDialogProps) => {
 
     const handleDelete = async () => {
         setIsDeleting(true);
-        const { error } = await supabase
-            .from('tasks')
-            .delete()
-            .eq('id', taskId);
+        const result = await deleteTask(taskId);
 
-        if (error) {
-            toast.error('Tivemos um problema ao remover a tarefa. Tente novamente.', { position: 'top-center' });
-        } else {
+        if (result.success) {
             toast.success(`Tarefa "${taskName}" removida com sucesso!`, { position: 'top-center' });
-            router.refresh();
             setIsOpen(false);
+        } else {
+            toast.error(result.message, { position: 'top-center' });
         }
         setIsDeleting(false);
     };

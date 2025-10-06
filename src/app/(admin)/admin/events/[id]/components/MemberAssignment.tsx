@@ -2,11 +2,10 @@
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { createClient } from "@/libs/supabase/client";
-import { TablesUpdate } from "@/libs/supabase/database.types";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { Assignment } from "./EventAssignmentTable";
+import { updateAssignmentMember } from "../../../lib/actions";
 
 interface MemberAssignmentProps {
     assignment: Assignment
@@ -14,21 +13,16 @@ interface MemberAssignmentProps {
 
 const MemberAssignment = ({ assignment }: MemberAssignmentProps) => {
     const { profile } = useAuthStore();
-    const supabase = createClient();
 
     const handleAssignMember = async () => {
-        const assignmentId = assignment.id;
+        if (!profile) return;
 
-        const assignmenData: TablesUpdate<'event_assignments'> = {
-            member_id: profile?.id
-        };
+        const result = await updateAssignmentMember(assignment.id, profile.id, assignment.event_id);
 
-        const { error } = await supabase.from('event_assignments').update(assignmenData).eq('id', assignmentId);
-
-        if (error) {
-            toast.error('Tivemos um problema ao atribuir a tarefa. Tente novamente mais tarde.', { position: 'top-center' })
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' })
         } else {
-            toast.success('Tarefa atribuída com sucesso!', { position: 'top-center' })
+            toast.error(result.message, { position: 'top-center' })
         }
     };
 

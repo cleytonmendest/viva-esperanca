@@ -2,21 +2,11 @@ import AddNewMemberDialog from "@/app/(admin)/admin/members/components/AddNewMem
 import EditMemberDialog from "@/app/(admin)/admin/members/components/EditMemberDialog"
 import { Badge } from "@/components/ui/badge"
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
-import { createClient } from "@/libs/supabase/server"
+import { getMembers } from "@/app/(admin)/admin/lib/data"
 import { formatDate, formatPhoneNumber } from "@/utils/format"
-import { redirect } from "next/navigation"
 
 const MembersPage = async () => {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-        // Esta linha é uma salvaguarda, mas teoricamente nunca será alcançada
-        return redirect('/admin/login')
-    }
-
-    // O resto da página só é executado se o usuário tiver permissão
-    const { data: members } = await supabase.from('members').select('*')
+    const members = await getMembers();
 
     return (
         <>

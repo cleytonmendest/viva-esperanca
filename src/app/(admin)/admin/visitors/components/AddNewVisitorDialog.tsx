@@ -1,18 +1,17 @@
 'use client'
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "../../../../../components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../../../components/ui/dialog"
 import { Input } from "../../../../../components/ui/input"
 import { Label } from "../../../../../components/ui/label"
-import { createClient } from "@/libs/supabase/client"
 import type { Tables, TablesInsert, Enums } from "@/libs/supabase/database.types"
 import { applyPhoneMask, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
 import { toast } from "sonner"
 import { RadioGroup, RadioGroupItem } from "../../../../../components/ui/radio-group"
 import { Combobox } from "../../../../../components/Combobox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select"
+import { addVisitor } from "../../lib/actions"
 
 type AddVisitorProps = {
     members: Tables<'members'>[]
@@ -41,9 +40,6 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
     const [phoneError, setPhoneError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-
-    const router = useRouter();
-    const supabase = createClient();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -89,18 +85,16 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
             visitor_status: formData.visitor_status as Enums<'visitor_status_enum'>
         }
 
-        const { error } = await supabase.from('visitors').insert([visitorData]);
+        const result = await addVisitor(visitorData);
 
-        if (error) {
-            console.error('Erro ao adicionar visitante:', error);
-            toast.error('Tivemos um problema ao adicionar o visitante. Tente novamente mais tarde.', { position: 'top-center' });
-            setIsSubmitting(false);
-        } else {
-            toast.success('visitante adicionado com sucesso!', { position: 'top-center' });
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' });
             resetForm();
             setIsOpen(false);
-            router.refresh();
+        } else {
+            toast.error(result.message, { position: 'top-center' });
         }
+        setIsSubmitting(false);
     };
 
     const isFormValid = formData.name && isPhoneNumberValid(formData.phone) && formData.visitor_status;

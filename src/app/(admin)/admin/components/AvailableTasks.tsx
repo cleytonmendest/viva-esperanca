@@ -113,7 +113,7 @@ export default function AvailableTasks({ tasks, memberId }: AvailableTasksProps)
         </div>
       </CardHeader>
       <CardContent>
-        <div className="max-h-[500px] overflow-y-auto">
+        <div className="max-h-[300px] h-full overflow-y-auto">
           {filteredTasks.length > 0 ? (
             <Table>
               <TableHeader>

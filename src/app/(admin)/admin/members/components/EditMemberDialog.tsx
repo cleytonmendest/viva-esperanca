@@ -7,14 +7,13 @@ import { Input } from "@/components/ui/input"
 import { useState, useEffect, useMemo } from "react"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/libs/supabase/client"
 import { MultiSelect, OptionType } from "@/components/MultiSelect"
 import { applyPhoneMask, formatPhoneNumber, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
 import { arraysAreEqual } from "@/libs/utils"
 import { toast } from "sonner"
 import { useAuthStore } from "@/stores/authStore"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select"
+import { updateMember } from "../../lib/actions"
 
 type EditMemberDialogProps = {
     member: Tables<'members'>
@@ -34,9 +33,6 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const { profile } = useAuthStore()
-
-    const router = useRouter();
-    const supabase = createClient();
 
     // Atualiza o estado se a prop `member` mudar
     useEffect(() => {
@@ -121,20 +117,13 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
             sector: formData.sector,
         };
 
-        const { error } = await supabase
-            .from('members')
-            .update(memberData)
-            .eq('id', member.id);
+        const result = await updateMember(member.id, memberData);
 
-        if (error) {
-            console.error('Erro ao atualizar membro:', error);
-            toast.error('Tivemos um problema ao atualizar o membro. Tente novamente mais tarde.', { position: 'top-center' });
-            // alert('Erro ao atualizar membro: ' + error.message);
-        } else {
-            // alert('Membro atualizado com sucesso!');
-            toast.success('Membro editado com sucesso!', { position: 'top-center' });
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' });
             setIsOpen(false);
-            router.refresh();
+        } else {
+            toast.error(result.message, { position: 'top-center' });
         }
         setIsSubmitting(false);
     };

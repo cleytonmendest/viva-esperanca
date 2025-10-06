@@ -7,13 +7,12 @@ import { Input } from "../../../../../../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../components/ui/select";
 import { useMemo, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
-import { createClient } from "@/libs/supabase/client";
 import MemberAssignment from "./MemberAssignment";
 import LeaderAssignment from "./LeaderAssignment";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import AddAssignmentDialog from "./AddAssignmentDialog"; // Importe o novo componente
 import DeleteAssignment from "./DeleteAssignment";
+import { deleteAssignment } from "../../../lib/actions";
 
 type Task = Tables<'tasks'>;
 type Member = Tables<'members'>;
@@ -32,8 +31,6 @@ interface EventAssignmentsTableProps {
 const EventAssignmentTable = ({ allMembers, assignments, allTasks, eventId }: EventAssignmentsTableProps) => {
   const { profile } = useAuthStore();
   const isMember = profile?.role === 'membro';
-  const supabase = createClient();
-  const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sectorFilter, setSectorFilter] = useState('all');
@@ -68,12 +65,11 @@ const EventAssignmentTable = ({ allMembers, assignments, allTasks, eventId }: Ev
 
   const handleDeleteAssignment = async (assignmentId: string) => {
     setIsDeleting(true);
-    const { error } = await supabase.from('event_assignments').delete().eq('id', assignmentId);
-    if (error) {
-      toast.error('Tivemos um problema ao remover a tarefa. Tente novamente.', { position: 'top-center' });
+    const result = await deleteAssignment(assignmentId, eventId);
+    if (result.success) {
+      toast.success(result.message, { position: 'top-center' });
     } else {
-      toast.success('Tarefa removida do evento com sucesso!', { position: 'top-center' });
-      router.refresh();
+      toast.error(result.message, { position: 'top-center' });
     }
     setIsDeleting(false);
   };
