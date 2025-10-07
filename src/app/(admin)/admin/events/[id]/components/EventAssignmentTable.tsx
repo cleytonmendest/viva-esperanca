@@ -23,7 +23,7 @@ export type Assignment = Tables<'event_assignments'> & {
 
 interface EventAssignmentsTableProps {
   assignments: Assignment[];
-  allMembers: { id: string; name: string; sector: string }[];
+  allMembers: ({ id: string; name: string; sector: string[] | null; })[];
   allTasks: { id: string; name: string }[];
   eventId: string;
 }

@@ -14,7 +14,7 @@ interface MemberAssignmentProps {
 const MemberAssignment = ({ assignment }: MemberAssignmentProps) => {
     const { profile } = useAuthStore();
 
-    const handleAssignMember = async () => {
+    const handleAssignMember = async () => {''
         if (!profile) return;
 
         const result = await updateAssignmentMember(assignment.id, profile.id, assignment.event_id);
