@@ -1,23 +1,17 @@
-import { createClient } from "@/libs/supabase/server";
 import MyAssignments from "./components/MyAssignments";
 import AvailableTasks from "./components/AvailableTasks";
-import { getAssignedTasks, getAvailableTasks } from "./lib/data";
+import { getAssignedTasks, getAvailableTasks, getAllMembers, getProfile } from "./lib/data";
 
 export default async function Admin() {
-  const supabase = await createClient();
+  const profile = await getProfile();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: profile } = user
-    ? await supabase.from("members").select("*").eq("user_id", user.id).single()
-    : { data: null };
-
-  const assignedTasks = profile ? await getAssignedTasks(profile.id) : [];
-  const availableTasks = (profile?.sector && profile.sector.length > 0)
-    ? await getAvailableTasks(profile.sector)
-    : [];
+  const [assignedTasks, availableTasks, allMembers] = await Promise.all([
+    profile ? getAssignedTasks(profile.id) : Promise.resolve([]),
+    (profile?.sector && profile.sector.length > 0)
+      ? getAvailableTasks(profile.sector)
+      : Promise.resolve([]),
+    getAllMembers(),
+  ]);
 
   return (
     <main className="p-4">
@@ -28,7 +22,7 @@ export default async function Admin() {
 
       <section className="space-y-6">
         <MyAssignments tasks={assignedTasks} />
-        <AvailableTasks tasks={availableTasks} memberId={profile?.id ?? ''} />
+        <AvailableTasks tasks={availableTasks} allMembers={allMembers} />
       </section>
     </main>
   );

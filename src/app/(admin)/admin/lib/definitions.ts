@@ -1,16 +1,14 @@
-import type { Database } from "@/libs/supabase/database.types";
+import { Tables } from "@/libs/supabase/database.types";
 
-export type Event = Database["public"]["Tables"]["events"]["Row"];
-export type Task = Database["public"]["Tables"]["tasks"]["Row"];
+export type Event = Tables<"events">;
+export type Task = Tables<"tasks">;
 
-export type AssignedTask = {
-  id: string;
+export type AssignedTask = Tables<'event_assignments'> & {
   events: Event | null;
   tasks: Task | null;
 };
 
-export type AvailableTask = {
-  id: string;
-  events: Event | null;
-  tasks: Task | null;
+export type AvailableTask = Tables<'event_assignments'> & {
+    events: Tables<'events'> | null;
+    tasks: Tables<'tasks'> | null;
 };

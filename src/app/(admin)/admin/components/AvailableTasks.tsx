@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -11,31 +10,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AvailableTask } from "../lib/definitions";
-import { assignTaskToSelf } from "../lib/actions";
+import { useAuthStore } from "@/stores/authStore";
+import LeaderAssignment from "../events/[id]/components/LeaderAssignment";
+import MemberAssignment from "../events/[id]/components/MemberAssignment";
+import { Assignment } from "../events/[id]/components/EventAssignmentTable";
 
 interface AvailableTasksProps {
   tasks: AvailableTask[];
-  memberId: string;
+  allMembers: { id: string; name: string }[];
 }
 
-export default function AvailableTasks({ tasks, memberId }: AvailableTasksProps) {
+export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProps) {
+  const { profile } = useAuthStore();
   const [eventFilter, setEventFilter] = useState("");
   const [taskFilter, setTaskFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [showPastEvents, setShowPastEvents] = useState(false);
 
-  const handleAssignTask = async (formData: FormData) => {
-    const result = await assignTaskToSelf(memberId, formData);
-    if (result.success) {
-      toast.success(result.message);
-    } else {
-      toast.error(result.message);
-    }
-  };
+  const isLeader = useMemo(() => {
+    if (!profile) return false;
+    const allowedRoles: (string | null)[] = [
+      "admin",
+      "lider_midia",
+      "lider_geral",
+      "pastor(a)",
+    ];
+    return allowedRoles.includes(profile.role);
+  }, [profile]);
 
   const processedTasks = [...tasks]
     .sort((a, b) => {
@@ -125,29 +129,38 @@ export default function AvailableTasks({ tasks, memberId }: AvailableTasksProps)
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTasks.map((assignment) => (
-                  <TableRow key={assignment.id}>
-                    <TableCell>{assignment.events?.name ?? "N/A"}</TableCell>
-                    <TableCell>{assignment.tasks?.name ?? "N/A"}</TableCell>
-                    <TableCell>
-                      {assignment.events?.event_date
-                        ? new Date(
-                            assignment.events.event_date
-                          ).toLocaleDateString()
-                        : "N/A"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <form action={handleAssignTask}>
-                        <input
-                          type="hidden"
-                          name="assignmentId"
-                          value={assignment.id}
-                        />
-                        <Button size="sm">Assumir</Button>
-                      </form>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filteredTasks.map((assignment) => {
+                  const assignmentForComponent: Assignment = {
+                    id: assignment.id,
+                    event_id: assignment.event_id,
+                    task_id: assignment.task_id,
+                    member_id: assignment.member_id,
+                    created_at: assignment.created_at,
+                    status: assignment.status,
+                    tasks: assignment.tasks,
+                    members: null,
+                  };
+                  return (
+                    <TableRow key={assignment.id}>
+                      <TableCell>{assignment.events?.name ?? "N/A"}</TableCell>
+                      <TableCell>{assignment.tasks?.name ?? "N/A"}</TableCell>
+                      <TableCell>
+                        {assignment.events?.event_date
+                          ? new Date(
+                              assignment.events.event_date
+                            ).toLocaleDateString()
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {isLeader ? (
+                          <LeaderAssignment assignment={assignmentForComponent} allMembers={allMembers} />
+                        ) : (
+                          <MemberAssignment assignment={assignmentForComponent} />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           ) : (

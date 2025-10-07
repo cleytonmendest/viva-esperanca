@@ -10,7 +10,7 @@ export async function getAssignedTasks(memberId: string) {
     .from("event_assignments")
     .select(
       `
-      id,
+      *,
       events (*),
       tasks (*)
     `
@@ -33,7 +33,7 @@ export async function getAvailableTasks(sectors: SectorEnum[]) {
     .from("event_assignments")
     .select(
       `
-      id,
+      *,
       events (*),
       tasks!inner(*)
     `
@@ -114,4 +114,28 @@ export async function getMembers() {
     return [];
   }
   return data;
+}
+
+export async function getProfile() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const { data: profile, error } = await supabase
+    .from("members")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching profile:", error);
+    return null;
+  }
+
+  return profile;
 }
