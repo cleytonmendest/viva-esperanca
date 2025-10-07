@@ -76,43 +76,47 @@ export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProp
     <Card>
       <CardHeader>
         <CardTitle>Tarefas Disponíveis no seu Setor</CardTitle>
-        <div className="mt-4 flex items-end gap-4">
-          <div className="flex-1 space-y-2">
-            <Label htmlFor="event-filter">Evento</Label>
-            <Input
-              id="event-filter"
-              placeholder="Filtrar por evento..."
-              value={eventFilter}
-              onChange={(e) => setEventFilter(e.target.value)}
-            />
+        <div className="mt-4 flex flex-col lg:flex-row gap-4">
+          <div className="flex gap-2.5">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="event-filter">Evento</Label>
+              <Input
+                id="event-filter"
+                placeholder="Filtrar por evento..."
+                value={eventFilter}
+                onChange={(e) => setEventFilter(e.target.value)}
+              />
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="task-filter">Tarefa</Label>
+              <Input
+                id="task-filter"
+                placeholder="Filtrar por tarefa..."
+                value={taskFilter}
+                onChange={(e) => setTaskFilter(e.target.value)}
+              />
+            </div>
           </div>
-          <div className="flex-1 space-y-2">
-            <Label htmlFor="task-filter">Tarefa</Label>
-            <Input
-              id="task-filter"
-              placeholder="Filtrar por tarefa..."
-              value={taskFilter}
-              onChange={(e) => setTaskFilter(e.target.value)}
-            />
-          </div>
-          <div className="flex-1 space-y-2">
-            <Label htmlFor="date-filter">Data</Label>
-            <Input
-              id="date-filter"
-              placeholder="Filtrar por data (dd/mm/aaaa)..."
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center space-x-2 pb-2">
-            <input
-              type="checkbox"
-              id="show-past-tasks"
-              checked={showPastEvents}
-              onChange={(e) => setShowPastEvents(e.target.checked)}
-              className="h-4 w-4"
-            />
-            <Label htmlFor="show-past-tasks">Mostrar eventos passados</Label>
+          <div className="flex gap-2.5">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="date-filter">Data</Label>
+              <Input
+                id="date-filter"
+                placeholder="Filtrar por data (dd/mm/aaaa)..."
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center max-w-[40%] pb-2">
+              <input
+                type="checkbox"
+                id="show-past-tasks"
+                checked={showPastEvents}
+                onChange={(e) => setShowPastEvents(e.target.checked)}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="show-past-tasks">Mostrar eventos passados</Label>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -147,8 +151,8 @@ export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProp
                       <TableCell>
                         {assignment.events?.event_date
                           ? new Date(
-                              assignment.events.event_date
-                            ).toLocaleDateString()
+                            assignment.events.event_date
+                          ).toLocaleDateString()
                           : "N/A"}
                       </TableCell>
                       <TableCell className="text-right">
