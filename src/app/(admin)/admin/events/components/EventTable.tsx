@@ -24,6 +24,7 @@ import { Tables } from "@/libs/supabase/database.types"
 import { useAuthStore } from "@/stores/authStore"
 import AddNewEventDialog from "./AddEventDialog"
 import EditNewEventDialog from "./EditEventDialog"
+import DeleteEventDialog from "./DeleteEventDialog"
 
 type Event = Tables<"events">
 
@@ -116,7 +117,7 @@ const EventTable = ({ initialEvents }: EventTableProps) => {
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>Data</TableHead>
-            {canEdit && <TableHead>Editar</TableHead>}
+            {canEdit && <TableHead>Ações</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -128,7 +129,10 @@ const EventTable = ({ initialEvents }: EventTableProps) => {
               <TableCell>{formatDateTime(event.event_date)}</TableCell>
               {canEdit && (
                 <TableCell>
-                  <EditNewEventDialog event={event} />
+                  <div className="flex items-center gap-2">
+                    <EditNewEventDialog event={event} />
+                    <DeleteEventDialog eventId={event.id} eventName={event.name} />
+                  </div>
                 </TableCell>
               )}
             </TableRow>

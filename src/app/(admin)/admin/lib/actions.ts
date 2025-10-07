@@ -282,3 +282,27 @@ export async function updateTask(taskId: string, taskData: TablesUpdate<'tasks'>
     message: 'Tarefa editada com sucesso!',
   };
 }
+
+export async function deleteEvent(eventId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('events')
+    .delete()
+    .eq('id', eventId);
+
+  if (error) {
+    console.error('Error deleting event:', error);
+    return {
+      success: false,
+      message: 'Tivemos um problema ao remover o evento. Tente novamente.',
+    };
+  }
+
+  revalidatePath('/admin/events');
+
+  return {
+    success: true,
+    message: 'Evento removido com sucesso!',
+  };
+}
