@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { unmaskPhoneNumber } from '@/utils/format';
 
 export default function SignUpPage() {
     const [formData, setFormData] = useState({
@@ -28,11 +29,11 @@ export default function SignUpPage() {
         const { error } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
+            phone: unmaskPhoneNumber(formData.phone),
             options: {
                 data: {
-                    full_name: formData.name,
+                    name: formData.name,
                     birthdate: formData.birthdate,
-                    phone: formData.phone,
                 },
             },
         });
