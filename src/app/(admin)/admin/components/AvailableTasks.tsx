@@ -20,7 +20,7 @@ import { Assignment } from "../events/[id]/components/EventAssignmentTable";
 
 interface AvailableTasksProps {
   tasks: AvailableTask[];
-  allMembers: { id: string; name: string }[];
+  allMembers: ({ id: string; name: string; sector: string[] | null; })[];
 }
 
 export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProps) {
@@ -153,7 +153,7 @@ export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProp
                       </TableCell>
                       <TableCell className="text-right">
                         {isLeader ? (
-                          <LeaderAssignment assignment={assignmentForComponent} allMembers={allMembers} />
+                          <LeaderAssignment assignment={assignmentForComponent} allMembers={allMembers.filter(member => member.sector?.includes(assignment.tasks?.sector ?? ''))} />
                         ) : (
                           <MemberAssignment assignment={assignmentForComponent} />
                         )}

@@ -85,7 +85,7 @@ export async function getAssignmentsByEventId(eventId: string) {
 
 export async function getAllMembers() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('members').select('id, name');
+  const { data, error } = await supabase.from('members').select('id, name, sector');
 
   if (error) {
     console.error("Error fetching members:", error);

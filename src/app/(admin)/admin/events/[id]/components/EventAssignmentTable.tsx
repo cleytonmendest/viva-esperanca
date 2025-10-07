@@ -23,7 +23,7 @@ export type Assignment = Tables<'event_assignments'> & {
 
 interface EventAssignmentsTableProps {
   assignments: Assignment[];
-  allMembers: { id: string; name: string }[];
+  allMembers: { id: string; name: string; sector: string }[];
   allTasks: { id: string; name: string }[];
   eventId: string;
 }
@@ -161,7 +161,7 @@ const EventAssignmentTable = ({ allMembers, assignments, allTasks, eventId }: Ev
                   <div className="flex items-center gap-2">
                     {!isMember ?
                       <>
-                        <LeaderAssignment assignment={assignment} allMembers={allMembers} />
+                        <LeaderAssignment assignment={assignment} allMembers={allMembers.filter(member => member.sector?.includes(assignment.tasks?.sector ?? ''))} />
                         <DeleteAssignment
                           assignmentName={assignment.tasks?.name ?? 'Tarefa não encontrada'}
                           onClick={() => handleDeleteAssignment(assignment.id)}
