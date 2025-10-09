@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FormConfig } from '@/components/forms/form-config';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Textarea } from '../ui/textarea';
+import { applyPhoneMask } from '@/utils/format';
 
 type GenericFormProps = {
     formConfig: FormConfig;
@@ -77,7 +78,19 @@ export const GenericForm = ({ formConfig, onSubmit, isLoading, defaultValues }: 
                                         return (
                                             <Textarea placeholder={field.placeholder} {...controllerField} />
                                         )
-                                    // Adicione outros cases para 'date', 'tel', etc.
+                                    case 'tel':
+                                        return (
+                                            <Input
+                                                {...controllerField}
+                                                type='text'
+                                                placeholder={field.placeholder}
+                                                maxLength={15}
+                                                onChange={(e) => {
+                                                    const maskedValue = applyPhoneMask(e.target.value);
+                                                    controllerField.onChange(maskedValue);
+                                                }}
+                                            />
+                                        )
                                     default:
                                         return (
                                             <Input
