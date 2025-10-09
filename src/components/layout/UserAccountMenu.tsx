@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/libs/supabase/client"
 import { useAuthStore } from "@/stores/authStore"
 import { Button } from "../ui/button"
+import { ChangePasswordForm } from "./ChangePasswordForm"
 
 export const UserAccountMenu = () => {
     const router = useRouter()
@@ -69,12 +70,10 @@ export const UserAccountMenu = () => {
                                     <DialogHeader>
                                         <DialogTitle>Alterar senha</DialogTitle>
                                         <DialogDescription>
-                                            Altere sua senha aqui.
+                                            Sua nova senha deve ter no mínimo 6 caracteres.
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <div className="flex justify-between gap-2">
-
-                                    </div>
+                                    <ChangePasswordForm />
                                 </DialogContent>
                             </Dialog>
                         </DropdownMenuItem>
