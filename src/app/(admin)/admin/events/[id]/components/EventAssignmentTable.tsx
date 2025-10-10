@@ -1,6 +1,6 @@
 'use client'
 
-import { Tables } from "@/libs/supabase/database.types";
+import { Tables } from "@/lib/supabase/database.types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../../../../components/ui/table";
 import { Badge } from "../../../../../../components/ui/badge";
 import { Input } from "../../../../../../components/ui/input";
@@ -12,7 +12,7 @@ import LeaderAssignment from "./LeaderAssignment";
 import { toast } from "sonner";
 import AddAssignmentDialog from "./AddAssignmentDialog"; // Importe o novo componente
 import DeleteAssignment from "./DeleteAssignment";
-import { deleteAssignment } from "../../../lib/actions";
+import { deleteAssignment } from "../../../actions";
 
 type Task = Tables<'tasks'>;
 type Member = Tables<'members'>;

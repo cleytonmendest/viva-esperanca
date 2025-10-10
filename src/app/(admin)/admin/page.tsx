@@ -1,6 +1,6 @@
 import MyAssignments from "./components/MyAssignments";
 import AvailableTasks from "./components/AvailableTasks";
-import { getAssignedTasks, getAvailableTasks, getAllMembers, getProfile } from "./lib/data";
+import { getAssignedTasks, getAvailableTasks, getAllMembers, getProfile } from "./queries";
 
 export default async function Admin() {
   const profile = await getProfile();

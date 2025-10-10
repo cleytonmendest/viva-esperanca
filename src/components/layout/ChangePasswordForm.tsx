@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/libs/supabase/client"
-import { Database } from "@/libs/supabase/database.types"
+import { createClient } from "@/lib/supabase/client"
+import { Database } from "@/lib/supabase/database.types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"

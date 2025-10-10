@@ -1,7 +1,7 @@
 'use server';
 
-import { createClient } from '@/libs/supabase/server';
-import { TablesInsert, TablesUpdate } from '@/libs/supabase/database.types';
+import { createClient } from '@/lib/supabase/server';
+import { TablesInsert, TablesUpdate } from '@/lib/supabase/database.types';
 import { revalidatePath } from 'next/cache';
 
 export async function assignTaskToSelf(memberId: string, formData: FormData) {

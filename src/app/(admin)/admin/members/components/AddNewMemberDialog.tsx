@@ -3,13 +3,13 @@
 import { useState } from "react"
 import { Button } from "../../../../../components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../../../components/ui/dialog"
-import type { TablesInsert, Enums } from "@/libs/supabase/database.types"
-import { Constants } from "@/libs/supabase/database.types"
-import { unmaskPhoneNumber } from "@/utils/format"
+import type { TablesInsert, Enums } from "@/lib/supabase/database.types"
+import { Constants } from "@/lib/supabase/database.types"
+import { unmaskPhoneNumber } from "@/lib/format"
 import { toast } from "sonner"
 import { GenericForm } from "../../../../../components/forms/GenericForm"
 import { FormConfig } from "../../../../../components/forms/form-config"
-import { addMember } from "../../lib/actions"
+import { addMember } from "../../actions"
 
 const memberFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome do membro', required: true },

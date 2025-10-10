@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AvailableTask } from "../lib/definitions";
+import { AvailableTask } from "../types";
 import { useAuthStore } from "@/stores/authStore";
 import LeaderAssignment from "../events/[id]/components/LeaderAssignment";
 import MemberAssignment from "../events/[id]/components/MemberAssignment";

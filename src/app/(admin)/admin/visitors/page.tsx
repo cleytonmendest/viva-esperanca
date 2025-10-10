@@ -1,7 +1,7 @@
 import AddNewVisitorDialog from "@/app/(admin)/admin/visitors/components/AddNewVisitorDialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { createClient } from "@/libs/supabase/server"
-import { formatDate, formatPhoneNumber } from "@/utils/format"
+import { createClient } from "@/lib/supabase/server"
+import { formatDate, formatPhoneNumber } from "@/lib/format"
 
 const VisitorsPage = async () => {
     const supabase = await createClient()

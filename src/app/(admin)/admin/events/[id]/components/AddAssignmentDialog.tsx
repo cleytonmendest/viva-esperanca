@@ -6,7 +6,7 @@ import { Combobox } from "@/components/Combobox";
 import { PlusCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { addAssignmentToEvent } from "../../../lib/actions";
+import { addAssignmentToEvent } from "../../../actions";
 
 interface AddAssignmentDialogProps {
     eventId: string;

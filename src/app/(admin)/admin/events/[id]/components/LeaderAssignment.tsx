@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/Combobox";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { updateAssignmentMember } from "../../../lib/actions";
+import { updateAssignmentMember } from "../../../actions";
 
 interface LeaderAssignmentProps {
   assignment: Assignment;

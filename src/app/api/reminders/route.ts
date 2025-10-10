@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 // Importa o cliente genérico do Supabase para usar com a chave de serviço
 import { createClient } from '@supabase/supabase-js';
 // Importa os tipos gerados do banco de dados para garantir a segurança de tipos
-import type { Tables } from '@/libs/supabase/database.types';
+import type { Tables } from '@/lib/supabase/database.types';
 
 // Define que esta é uma "Edge Function", otimizada para ser rápida.
 export const runtime = 'edge';

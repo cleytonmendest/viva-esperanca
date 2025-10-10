@@ -2,13 +2,13 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '../../../../libs/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { unmaskPhoneNumber } from '@/utils/format';
+import { unmaskPhoneNumber } from '@/lib/format';
 
 export default function SignUpPage() {
     const [formData, setFormData] = useState({

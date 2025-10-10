@@ -3,10 +3,10 @@ import { FormConfig } from "@/components/forms/form-config";
 import { GenericForm } from "@/components/forms/GenericForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { TablesInsert } from "@/libs/supabase/database.types";
+import { TablesInsert } from "@/lib/supabase/database.types";
 import { useState } from "react";
 import { toast } from "sonner";
-import { addEvent } from "../../lib/actions";
+import { addEvent } from "../../actions";
 
 const eventFormConfig: FormConfig = [
     { name: 'name', label: 'Nome do Evento', type: 'text', placeholder: 'Digite o nome do evento', required: true },

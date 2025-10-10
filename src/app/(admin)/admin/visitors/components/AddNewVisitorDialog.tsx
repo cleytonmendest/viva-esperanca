@@ -5,13 +5,13 @@ import { Button } from "../../../../../components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../../../components/ui/dialog"
 import { Input } from "../../../../../components/ui/input"
 import { Label } from "../../../../../components/ui/label"
-import type { Tables, TablesInsert, Enums } from "@/libs/supabase/database.types"
-import { applyPhoneMask, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
+import type { Tables, TablesInsert, Enums } from "@/lib/supabase/database.types"
+import { applyPhoneMask, isPhoneNumberValid, unmaskPhoneNumber } from "@/lib/format"
 import { toast } from "sonner"
 import { RadioGroup, RadioGroupItem } from "../../../../../components/ui/radio-group"
 import { Combobox } from "../../../../../components/Combobox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select"
-import { addVisitor } from "../../lib/actions"
+import { addVisitor } from "../../actions"
 
 type AddVisitorProps = {
     members: Tables<'members'>[]

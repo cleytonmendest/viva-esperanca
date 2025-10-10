@@ -6,7 +6,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { deleteTask } from "../../lib/actions";
+import { deleteTask } from "../../actions";
 
 interface DeleteTaskDialogProps {
     taskId: string;

@@ -1,4 +1,4 @@
-import { createClient } from "../libs/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { Calendar, Church, Home, PersonStanding, ShieldCheck, ListTodo } from "lucide-react" // Adicionei ShieldCheck
 import {
   Sidebar,

@@ -5,7 +5,7 @@
 import * as React from "react"
 import { X, Check, ChevronsUpDown } from "lucide-react"
 
-import { cn } from "@/libs/utils" // Seu utilitário de classes do shadcn
+import { cn } from "@/lib/utils" // Seu utilitário de classes do shadcn
 import { Button } from "@/components/ui/button"
 import {
     Command,

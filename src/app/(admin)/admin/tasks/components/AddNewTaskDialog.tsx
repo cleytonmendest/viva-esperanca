@@ -3,10 +3,10 @@ import { FormConfig } from "@/components/forms/form-config";
 import { GenericForm } from "@/components/forms/GenericForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Constants, Enums, TablesInsert } from "@/libs/supabase/database.types";
+import { Constants, Enums, TablesInsert } from "@/lib/supabase/database.types";
 import { useState } from "react";
 import { toast } from "sonner";
-import { addTask } from "../../lib/actions";
+import { addTask } from "../../actions";
 
 const memberFormConfig: FormConfig = [
     { name: 'name', label: 'Nome', type: 'text', placeholder: 'Digite o nome da tarefa', required: true },

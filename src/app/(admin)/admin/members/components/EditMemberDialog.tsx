@@ -2,18 +2,18 @@
 
 import { Pencil } from "lucide-react"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Constants, Tables, TablesUpdate } from "@/libs/supabase/database.types"
+import { Constants, Tables, TablesUpdate } from "@/lib/supabase/database.types"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect, useMemo } from "react"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { MultiSelect, OptionType } from "@/components/MultiSelect"
-import { applyPhoneMask, formatPhoneNumber, isPhoneNumberValid, unmaskPhoneNumber } from "@/utils/format"
-import { arraysAreEqual } from "@/libs/utils"
+import { applyPhoneMask, formatPhoneNumber, isPhoneNumberValid, unmaskPhoneNumber } from "@/lib/format"
+import { arraysAreEqual } from "@/lib/utils"
 import { toast } from "sonner"
 import { useAuthStore } from "@/stores/authStore"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select"
-import { updateMember } from "../../lib/actions"
+import { updateMember } from "../../actions"
 
 type EditMemberDialogProps = {
     member: Tables<'members'>

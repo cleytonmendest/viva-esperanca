@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FormConfig } from '@/components/forms/form-config';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Textarea } from '../ui/textarea';
-import { applyPhoneMask } from '@/utils/format';
+import { applyPhoneMask } from '@/lib/format';
 
 type GenericFormProps = {
     formConfig: FormConfig;

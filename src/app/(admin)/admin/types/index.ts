@@ -1,4 +1,4 @@
-import { Tables } from "@/libs/supabase/database.types";
+import { Tables } from "@/lib/supabase/database.types";
 
 export type Event = Tables<"events">;
 export type Task = Tables<"tasks">;

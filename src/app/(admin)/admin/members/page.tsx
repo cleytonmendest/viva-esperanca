@@ -2,8 +2,8 @@ import AddNewMemberDialog from "@/app/(admin)/admin/members/components/AddNewMem
 import EditMemberDialog from "@/app/(admin)/admin/members/components/EditMemberDialog"
 import { Badge } from "@/components/ui/badge"
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
-import { getMembers } from "@/app/(admin)/admin/lib/data"
-import { formatDate, formatPhoneNumber } from "@/utils/format"
+import { getMembers } from "@/app/(admin)/admin/queries"
+import { formatDate, formatPhoneNumber } from "@/lib/format"
 
 const MembersPage = async () => {
     const members = await getMembers();

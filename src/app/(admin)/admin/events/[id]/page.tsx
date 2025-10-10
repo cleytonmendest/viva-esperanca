@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import EventAssignmentTable from "@/app/(admin)/admin/events/[id]/components/EventAssignmentTable";
-import { getAssignmentsByEventId, getEventById, getAllMembers, getAllTasks } from "@/app/(admin)/admin/lib/data";
-import { formatDate } from "@/utils/format";
+import { getAssignmentsByEventId, getEventById, getAllMembers, getAllTasks } from "@/app/(admin)/admin/queries";
+import { formatDate } from "@/lib/format";
 
 type Props = { params: Promise<{ id: string }> };
 

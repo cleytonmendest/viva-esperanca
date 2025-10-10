@@ -10,8 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDate } from "@/utils/format";
-import { AssignedTask } from "../lib/definitions";
+import { formatDate } from "@/lib/format";
+import { AssignedTask } from "../types";
 import { Label } from "@/components/ui/label";
 
 interface MyAssignmentsProps {

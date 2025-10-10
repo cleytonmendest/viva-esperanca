@@ -1,4 +1,4 @@
-import { createClient } from "@/libs/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import EventTable from "./components/EventTable"
 
 const EventsPage = async () => {

@@ -1,5 +1,5 @@
-import { createClient } from "@/libs/supabase/server";
-import { Database } from "@/libs/supabase/database.types";
+import { createClient } from "@/lib/supabase/server";
+import { Database } from "@/lib/supabase/database.types";
 
 type SectorEnum = Database["public"]["Enums"]["sector_enum"];
 

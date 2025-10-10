@@ -5,7 +5,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { Assignment } from "./EventAssignmentTable";
-import { updateAssignmentMember } from "../../../lib/actions";
+import { updateAssignmentMember } from "../../../actions";
 
 interface MemberAssignmentProps {
     assignment: Assignment

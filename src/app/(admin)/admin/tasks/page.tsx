@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import AddNewTaskDialog from './components/AddNewTaskDialog'
-import { createClient } from '@/libs/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import EditNewTaskDialog from './components/EditNewTaskDialog'
 import { redirect } from 'next/navigation'
 import DeleteTaskDialog from './components/DeleteTaskDialog'

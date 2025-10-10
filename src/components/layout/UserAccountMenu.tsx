@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { EditProfileForm } from "@/components/layout/EditProfileForm"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/libs/supabase/client"
+import { createClient } from "@/lib/supabase/client"
 import { useAuthStore } from "@/stores/authStore"
 import { Button } from "../ui/button"
 import { ChangePasswordForm } from "./ChangePasswordForm"

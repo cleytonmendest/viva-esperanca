@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { User } from '@supabase/supabase-js';
-import type { Tables } from '@/libs/supabase/database.types';
+import type { Tables } from '@/lib/supabase/database.types';
 
 // Define o tipo para os dados do perfil que queremos armazenar.
 // Pegamos o tipo 'Row' da nossa tabela 'members' gerada pela CLI.
