@@ -2,16 +2,15 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 export default function LoginPage() {
   const [user, setUser] = useState({ email: '', password: '' })
-  const router = useRouter()
   const supabase = createClient()
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -23,9 +22,9 @@ export default function LoginPage() {
     })
 
     if (error) {
-      alert('Erro no login: ' + error.message)
+      toast.error('Erro ao fazer login:')
     } else {
-      router.push('/admin')
+      window.location.href = '/admin'
     }
   }
 
