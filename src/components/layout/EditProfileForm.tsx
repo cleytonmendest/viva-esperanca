@@ -1,93 +1,92 @@
-// Adicione no topo para marcar como Componente de Cliente
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { DialogClose, DialogFooter } from "@/components/ui/dialog"
+// import { Button } from "@/components/ui/button";
+// import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { useAuthStore } from "@/stores/authStore";
+import { GenericForm } from "@/components/forms/GenericForm";
+import { FormConfig } from "@/components/forms/form-config";
+import { format, parseISO } from 'date-fns';
+import { useState } from "react";
+import { TablesUpdate } from "@/lib/supabase/database.types";
+import { updateMember } from "@/app/(admin)/admin/actions";
+import { toast } from "sonner";
+import { unmaskPhoneNumber } from "@/lib/format";
 
-// Supondo que você tenha um store do Zustand assim:
-import { useAuthStore } from "@/stores/authStore"
+const editProfileFormConfig: FormConfig = [
+    {
+        name: "name",
+        label: "Nome",
+        type: "text",
+        placeholder: "Nome",
+        required: true,
+    },
+    {
+        name: "phone",
+        label: "Telefone",
+        type: "tel",
+        placeholder: "Telefone",
+        required: true,
+    },
+    {
+        name: "birthdate",
+        label: "Data de Nascimento",
+        type: "date",
+        required: true,
+    },
+];
 
-export const EditProfileForm = () => { 
-    const { profile } = useAuthStore()
+export const EditProfileForm = () => {
+    const { profile } = useAuthStore();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [formData, setFormData] = useState({
-        name: "",
-        phone: "",
-        birthDate: "",
-    })
-    const [isChanged, setIsChanged] = useState(false)
+    const defaultValues = profile ? {
+        ...profile,
+        birthdate: profile.birthdate ? format(parseISO(profile.birthdate), 'yyyy-MM-dd') : '',
+    } : {};
 
-    // Preenche o formulário com dados do usuário quando o componente monta
-    useEffect(() => {
-        if (profile) {
-            setFormData({
-                name: profile.name,
-                phone: profile.phone,
-                birthDate: profile.birthdate,
-            })
+    const handleSubmit = async (data: TablesUpdate<'members'>) => {
+        if (!profile) return;
+
+        setIsSubmitting(true);
+
+        const cleanedData = {
+            ...data,
+            phone: data.phone ? unmaskPhoneNumber(data.phone) : '',
+        };
+
+        const result = await updateMember(profile.id, cleanedData);
+
+        if (result.success) {
+            toast.success(result.message, { position: 'top-center' });
+            // Re-initializing the store is tricky without a dedicated function.
+            // Reloading the page is a simple way to force a re-fetch of the user profile.
+            window.location.reload();
+        } else {
+            toast.error(result.message, { position: 'top-center' });
         }
-    }, [profile])
 
-    // Verifica se houve mudanças para habilitar o botão de salvar
-    useEffect(() => {
-        const hasChanged =
-            formData.name !== profile?.name ||
-            formData.phone !== profile?.phone ||
-            formData.birthDate !== profile?.birthdate
-        setIsChanged(hasChanged)
-    }, [formData, profile])
+        setIsSubmitting(false);
+    };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setFormData((prev) => ({ ...prev, [name]: value }))
-    }
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!isChanged) return
-        // console.log("Salvando dados:", formData)
-        // Aqui você chamaria a função updateUser(formData) do seu store
-    }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div className="py-4">
-                <Input
-                    name="name"
-                    type="text"
-                    placeholder="Nome"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="mb-4 mt-2 w-full"
-                />
-                <Input
-                    name="phone"
-                    type="text"
-                    placeholder="Telefone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="mb-4 w-full"
-                />
-                <Input
-                    name="birthDate"
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={handleInputChange}
-                    className="mb-4 w-full"
-                />
-            </div>
-            <DialogFooter>
+        <>
+            <GenericForm
+                formConfig={editProfileFormConfig}
+                onSubmit={handleSubmit}
+                isLoading={isSubmitting}
+                defaultValues={defaultValues}
+            />
+            {/* <DialogFooter>
                 <DialogClose asChild>
                     <Button type="button" variant="outline">
                         Cancelar
                     </Button>
                 </DialogClose>
-                <Button type="submit" disabled={!isChanged}>
-                    Salvar
+                <Button onClick={handleSave} disabled={isSubmitting}>
+                    {isSubmitting ? 'Salvando...' : 'Salvar'}
                 </Button>
-            </DialogFooter>
-        </form>
-    )
-}
+            </DialogFooter> */}
+        </>
+    );
+};
