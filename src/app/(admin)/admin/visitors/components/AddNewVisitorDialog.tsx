@@ -14,6 +14,16 @@ type AddVisitorProps = {
     members: Tables<'members'>[]
 }
 
+type VisitorFormData = {
+    name: string;
+    first_time: string;
+    visit_date: string;
+    phone: string;
+    invited_by: string;
+    visitor_status: string;
+    event_name: string;
+};
+
 const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -88,7 +98,7 @@ const AddNewVisitorDialog = ({ members }: AddVisitorProps) => {
         visitor_status: "sem_igreja"
     };
 
-    const handleSubmit = async (data: any) => {
+    const handleSubmit = async (data: VisitorFormData) => {
         setIsSubmitting(true);
 
         const cleanedPhone = data.phone ? unmaskPhoneNumber(data.phone) : '';
