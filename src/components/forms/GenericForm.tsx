@@ -12,17 +12,29 @@ import { FormConfig } from '@/components/forms/form-config';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Textarea } from '../ui/textarea';
 import { applyPhoneMask } from '@/lib/format';
+import { forwardRef, useImperativeHandle } from 'react';
 
 type GenericFormProps = {
     formConfig: FormConfig;
     onSubmit: (data: any) => void;
     isLoading: boolean;
     defaultValues?: any;
+    showSubmitButton?: boolean;
 };
 
-export const GenericForm = ({ formConfig, onSubmit, isLoading, defaultValues }: GenericFormProps) => {
+export type GenericFormRef = {
+    submit: () => void;
+};
+
+export const GenericForm = forwardRef<GenericFormRef, GenericFormProps>(({ formConfig, onSubmit, isLoading, defaultValues, showSubmitButton = true }, ref) => {
     const methods = useForm({ defaultValues });
     const { handleSubmit, control } = methods;
+
+    useImperativeHandle(ref, () => ({
+        submit: () => {
+            handleSubmit(onSubmit)();
+        },
+    }));
 
     return (
         <FormProvider {...methods}>
@@ -97,6 +109,7 @@ export const GenericForm = ({ formConfig, onSubmit, isLoading, defaultValues }: 
                                                 {...controllerField}
                                                 type={field.type}
                                                 placeholder={field.placeholder}
+                                                onChange={(e) => controllerField.onChange(e.target.value)}
                                             />
                                         );
                                 }
@@ -104,13 +117,16 @@ export const GenericForm = ({ formConfig, onSubmit, isLoading, defaultValues }: 
                         />
                     </div>
                 ))}
-                <div className="flex justify-end gap-2 mt-4">
-                    {/* Você pode passar os botões como children se quiser mais flexibilidade */}
-                    <Button type="submit" disabled={isLoading}>
-                        {isLoading ? 'Salvando...' : 'Salvar'}
-                    </Button>
-                </div>
+                {showSubmitButton && (
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? 'Salvando...' : 'Salvar'}
+                        </Button>
+                    </div>
+                )}
             </form>
         </FormProvider>
     );
-};
+});
+
+GenericForm.displayName = 'GenericForm';
