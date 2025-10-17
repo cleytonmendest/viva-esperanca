@@ -13,6 +13,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Textarea } from '../ui/textarea';
 import { applyPhoneMask } from '@/lib/format';
 import { forwardRef, useImperativeHandle } from 'react';
+import { Combobox } from '@/components/Combobox';
 
 type GenericFormProps = {
     formConfig: FormConfig;
@@ -85,7 +86,7 @@ export const GenericForm = forwardRef<GenericFormRef, GenericFormProps>(({ formC
                                                     </div>
                                                 ))}
                                             </RadioGroup>
-                                        )
+                                        );
                                     case 'textarea':
                                         return (
                                             <Textarea placeholder={field.placeholder} {...controllerField} />
@@ -103,10 +104,23 @@ export const GenericForm = forwardRef<GenericFormRef, GenericFormProps>(({ formC
                                                 }}
                                             />
                                         )
+                                    case 'combobox':
+                                        return (
+                                            <Combobox
+                                                options={field.options || []}
+                                                value={controllerField.value || ''}
+                                                onChange={controllerField.onChange}
+                                                placeholder={field.placeholder || ''}
+                                                empty={field.empty || 'Nenhum resultado.'}
+                                            />
+                                        );
                                     default:
                                         return (
                                             <Input
-                                                {...controllerField}
+                                                name={controllerField.name}
+                                                value={controllerField.value}
+                                                onBlur={controllerField.onBlur}
+                                                ref={controllerField.ref}
                                                 type={field.type}
                                                 placeholder={field.placeholder}
                                                 onChange={(e) => controllerField.onChange(e.target.value)}
