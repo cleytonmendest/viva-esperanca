@@ -29,11 +29,11 @@ export default function SignUpPage() {
         const { error } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
-            phone: unmaskPhoneNumber(formData.phone),
             options: {
                 data: {
                     name: formData.name,
                     birthdate: formData.birthdate,
+                    phone: unmaskPhoneNumber(formData.phone),
                 },
             },
         });
