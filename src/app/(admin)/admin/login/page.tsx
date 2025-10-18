@@ -1,28 +1,36 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { GenericForm, GenericFormRef } from "@/components/forms/GenericForm"
+import { FormConfig } from "@/components/forms/form-config"
+
+const formConfig: FormConfig = [
+  { name: 'email', label: 'E-mail', type: 'email', placeholder: 'm@example.com', required: true },
+  { name: 'password', label: 'Senha', type: 'password', required: true }
+]
+
+interface LoginProps {
+  email: string
+  password: string
+}
 
 export default function LoginPage() {
-  const [user, setUser] = useState({ email: '', password: '' })
   const supabase = createClient()
+  const formRef = useRef<GenericFormRef>(null);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const handleSignIn = async (data:LoginProps) => {
     const { error } = await supabase.auth.signInWithPassword({
-      email: user.email,
-      password: user.password,
+      email: data.email,
+      password: data.password,
     })
 
     if (error) {
-      toast.error('Erro ao fazer login:')
+      toast.error('Erro ao fazer login')
     } else {
       window.location.href = '/admin'
     }
@@ -35,6 +43,10 @@ export default function LoginPage() {
         redirectTo: `${location.origin}/auth/callback`,
       },
     })
+  }
+
+  const submitHandler = async () => {
+    formRef.current?.submit();
   }
 
   return (
@@ -53,39 +65,23 @@ export default function LoginPage() {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <form>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={user.email}
-                  onChange={(e) => setUser({ ...user, email: e.target.value })}
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Senha</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline cursor-pointer"
-                  >
-                    Esqueceu sua senha?
-                  </a>
-                </div>
-                <Input id="password" type="password" value={user.password} onChange={(e) => setUser({ ...user, password: e.target.value })} required />
-              </div>
-            </div>
-          </form>
+          <GenericForm
+            ref={formRef}
+            formConfig={formConfig}
+            isLoading={false}
+            onSubmit={handleSignIn}
+            showSubmitButton={false}
+          />
         </CardContent>
         <CardFooter className="flex-col gap-2">
-          <Button onClick={handleSignIn} className="w-full cursor-pointer">
+          <Button onClick={submitHandler} className="w-full cursor-pointer">
             Login
           </Button>
-          <Button variant="outline" className="w-full cursor-pointer" onClick={handleGoogleLogin}>
+          <Button
+            variant="outline"
+            className="w-full cursor-pointer"
+            onClick={handleGoogleLogin}
+          >
             Login com Google
           </Button>
         </CardFooter>
