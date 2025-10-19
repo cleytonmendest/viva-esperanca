@@ -32,19 +32,27 @@ export async function GET(request: Request) {
     );
 
     const { searchParams } = new URL(request.url);
+    const withSchedule = searchParams.get('with_schedule') === 'true';
+
+    const selectStatement = withSchedule
+        ? `*,
+           event_assignments!inner (*,
+                events (name, event_date),
+                tasks (name)
+           )`
+        : `*,
+           event_assignments (*,
+                events (name, event_date),
+                tasks (name)
+           )`;
 
     let query = supabase
         .from('members')
-        .select<string, MemberSchedule>(`
-            *,
-            event_assignments (
-                *,
-                events (name, event_date),
-                tasks (name)
-            )
-        `);
+        .select<string, MemberSchedule>(selectStatement);
 
     for (const [field, value] of searchParams.entries()) {
+        if (field === 'with_schedule') continue;
+
         const [operator, ...filterValueParts] = value.split('.');
         const filterValue = filterValueParts.join('.');
 
@@ -72,6 +80,9 @@ export async function GET(request: Request) {
                 break;
             case 'ilike':
                 query = query.ilike(field, filterValue.replace(/\*/g, '%'));
+                break;
+            case 'cs':
+                query = query.contains(field, filterValue);
                 break;
         }
     }
