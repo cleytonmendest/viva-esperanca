@@ -12,7 +12,7 @@ import { FormConfig } from '@/components/forms/form-config';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Textarea } from '../ui/textarea';
 import { applyPhoneMask } from '@/lib/format';
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle, KeyboardEvent } from 'react';
 import { Combobox } from '@/components/Combobox';
 
 type GenericFormProps = {
@@ -37,9 +37,19 @@ export const GenericForm = forwardRef<GenericFormRef, GenericFormProps>(({ formC
         },
     }));
 
+    const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            const target = event.target as HTMLElement;
+            if (target.tagName !== 'TEXTAREA') {
+                event.preventDefault();
+                handleSubmit(onSubmit)();
+            }
+        }
+    };
+
     return (
         <FormProvider {...methods}>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyPress} className="flex flex-col gap-4">
                 {formConfig.map((field) => (
                     <div key={field.name} className="flex flex-col gap-1">
                         <Label htmlFor={field.name}>{field.label}{field.required && ' *'}</Label>
