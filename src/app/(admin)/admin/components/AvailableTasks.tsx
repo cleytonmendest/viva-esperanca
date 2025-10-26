@@ -17,6 +17,8 @@ import { useAuthStore } from "@/stores/authStore";
 import LeaderAssignment from "../events/[id]/components/LeaderAssignment";
 import MemberAssignment from "../events/[id]/components/MemberAssignment";
 import { Assignment } from "../events/[id]/components/EventAssignmentTable";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface AvailableTasksProps {
   tasks: AvailableTask[];
@@ -29,6 +31,7 @@ export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProp
   const [taskFilter, setTaskFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [showPastEvents, setShowPastEvents] = useState(false);
+  const [openCollapsibles, setOpenCollapsibles] = useState<string[]>([]);
 
   const isLeader = useMemo(() => {
     if (!profile) return false;
@@ -71,6 +74,28 @@ export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProp
       eventDate.includes(dateFilter)
     );
   });
+
+  const groupedTasks = useMemo(() => {
+    return filteredTasks.reduce((acc, task) => {
+      const eventId = task.events?.id;
+      if (!eventId) return acc;
+
+      if (!acc[eventId]) {
+        acc[eventId] = {
+          event: task.events,
+          tasks: [],
+        };
+      }
+      acc[eventId].tasks.push(task);
+      return acc;
+    }, {} as Record<string, { event: AvailableTask['events'], tasks: AvailableTask[] }>);
+  }, [filteredTasks]);
+
+  const toggleCollapsible = (eventId: string) => {
+    setOpenCollapsibles(prev => 
+      prev.includes(eventId) ? prev.filter(id => id !== eventId) : [...prev, eventId]
+    );
+  };
 
   return (
     <Card>
@@ -122,49 +147,75 @@ export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProp
       </CardHeader>
       <CardContent>
         <div className="max-h-[300px] h-full overflow-y-auto">
-          {filteredTasks.length > 0 ? (
+          {Object.values(groupedTasks).length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Evento</TableHead>
-                  <TableHead>Tarefa</TableHead>
                   <TableHead>Data</TableHead>
-                  <TableHead className="text-right">Ação</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTasks.map((assignment) => {
-                  const assignmentForComponent: Assignment = {
-                    id: assignment.id,
-                    event_id: assignment.event_id,
-                    task_id: assignment.task_id,
-                    member_id: assignment.member_id,
-                    created_at: assignment.created_at,
-                    status: assignment.status,
-                    tasks: assignment.tasks,
-                    members: null,
-                  };
-                  return (
-                    <TableRow key={assignment.id}>
-                      <TableCell>{assignment.events?.name ?? "N/A"}</TableCell>
-                      <TableCell>{assignment.tasks?.name ?? "N/A"}</TableCell>
-                      <TableCell>
-                        {assignment.events?.event_date
-                          ? new Date(
-                            assignment.events.event_date
-                          ).toLocaleDateString()
-                          : "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {isLeader ? (
-                          <LeaderAssignment assignment={assignmentForComponent} allMembers={allMembers.filter(member => member.sector?.includes(assignment.tasks?.sector ?? ''))} />
-                        ) : (
-                          <MemberAssignment assignment={assignmentForComponent} />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {Object.entries(groupedTasks).map(([eventId, { event, tasks }]) => (
+                  <Collapsible key={eventId} asChild open={openCollapsibles.includes(eventId)} onOpenChange={() => toggleCollapsible(eventId)}>
+                    <>
+                      <CollapsibleTrigger asChild>
+                        <TableRow className="cursor-pointer">
+                          <TableCell>{event?.name ?? "N/A"}</TableCell>
+                          <TableCell>
+                            {event?.event_date
+                              ? new Date(event.event_date).toLocaleDateString()
+                              : "N/A"}
+                          </TableCell>
+                          <TableCell className="flex justify-end">
+                            {openCollapsibles.includes(eventId) ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                          </TableCell>
+                        </TableRow>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent asChild >
+                        <tr>
+                          <td colSpan={3} className="">
+                            <Table className="bg-neutral-800 rounded-2xl">
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Tarefa</TableHead>
+                                  <TableHead className="text-right"></TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {tasks.map((assignment) => {
+                                  const assignmentForComponent: Assignment = {
+                                    id: assignment.id,
+                                    event_id: assignment.event_id,
+                                    task_id: assignment.task_id,
+                                    member_id: assignment.member_id,
+                                    created_at: assignment.created_at,
+                                    status: assignment.status,
+                                    tasks: assignment.tasks,
+                                    members: null,
+                                  };
+                                  return (
+                                    <TableRow key={assignment.id}>
+                                      <TableCell>{assignment.tasks?.name ?? "N/A"}</TableCell>
+                                      <TableCell className="text-right">
+                                        {isLeader ? (
+                                          <LeaderAssignment assignment={assignmentForComponent} allMembers={allMembers.filter(member => member.sector?.includes(assignment.tasks?.sector ?? ''))} />
+                                        ) : (
+                                          <MemberAssignment assignment={assignmentForComponent} />
+                                        )}
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })}
+                              </TableBody>
+                            </Table>
+                          </td>
+                        </tr>
+                      </CollapsibleContent>
+                    </>
+                  </Collapsible>
+                ))}
               </TableBody>
             </Table>
           ) : (
