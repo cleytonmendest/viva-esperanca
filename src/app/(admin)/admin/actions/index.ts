@@ -306,3 +306,51 @@ export async function deleteEvent(eventId: string) {
     message: 'Evento removido com sucesso!',
   };
 }
+
+export async function updateVisitor(visitorId: string, visitorData: TablesUpdate<'visitors'>) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('visitors')
+    .update(visitorData)
+    .eq('id', visitorId);
+
+  if (error) {
+    console.error('Error updating visitor:', error);
+    return {
+      success: false,
+      message: 'Tivemos um problema ao atualizar o visitante. Tente novamente mais tarde.',
+    };
+  }
+
+  revalidatePath('/admin/visitors');
+
+  return {
+    success: true,
+    message: 'Visitante atualizado com sucesso!',
+  };
+}
+
+export async function deleteVisitor(visitorId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('visitors')
+    .delete()
+    .eq('id', visitorId);
+
+  if (error) {
+    console.error('Error deleting visitor:', error);
+    return {
+      success: false,
+      message: 'Tivemos um problema ao remover o visitante. Tente novamente.',
+    };
+  }
+
+  revalidatePath('/admin/visitors');
+
+  return {
+    success: true,
+    message: 'Visitante removido com sucesso!',
+  };
+}

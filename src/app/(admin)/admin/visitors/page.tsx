@@ -2,6 +2,8 @@ import AddNewVisitorDialog from "@/app/(admin)/admin/visitors/components/AddNewV
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { createClient } from "@/lib/supabase/server"
 import { formatDate, formatPhoneNumber } from "@/lib/format"
+import EditVisitorDialog from "./components/EditVisitorDialog"
+import DeleteVisitorDialog from "./components/DeleteVisitorDialog"
 
 const VisitorsPage = async () => {
     const supabase = await createClient()
@@ -24,6 +26,7 @@ const VisitorsPage = async () => {
                             <TableHead>Telefone</TableHead>
                             <TableHead>Data da Visita</TableHead>
                             <TableHead>Evento</TableHead>
+                            <TableHead>Ações</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -33,6 +36,10 @@ const VisitorsPage = async () => {
                                 <TableCell>{formatPhoneNumber(visitor.visitor_whatsapp)}</TableCell>
                                 <TableCell>{formatDate(visitor.visite_date)}</TableCell>
                                 <TableCell>{visitor.event_name}</TableCell>
+                                <TableCell className="flex gap-2">
+                                    <EditVisitorDialog visitor={visitor} />
+                                    <DeleteVisitorDialog visitorId={visitor.id} visitorName={visitor.visitor_name} />
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
