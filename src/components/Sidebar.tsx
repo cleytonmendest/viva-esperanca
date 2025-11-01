@@ -55,7 +55,8 @@ const AppSidebar = async () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
-                const IconComponent = item.icon ? iconMap[item.icon as keyof typeof iconMap] : Home;
+                // Garante que sempre haverá um ícone válido, mesmo se o valor do DB não estiver no mapa
+                const IconComponent = (item.icon && iconMap[item.icon as keyof typeof iconMap]) || Home;
                 return (
                   <SidebarMenuItem key={item.page_name}>
                     <SidebarMenuButton asChild>
