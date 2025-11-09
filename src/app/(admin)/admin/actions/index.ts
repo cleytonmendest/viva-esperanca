@@ -354,3 +354,68 @@ export async function deleteVisitor(visitorId: string) {
     message: 'Visitante removido com sucesso!',
   };
 }
+
+/**
+ * Atualiza o status de uma atribuição (confirmado/recusado)
+ */
+export async function updateAssignmentStatus(
+  assignmentId: string,
+  status: 'confirmado' | 'recusado'
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('event_assignments')
+    .update({ status })
+    .eq('id', assignmentId);
+
+  if (error) {
+    console.error('Error updating assignment status:', error);
+    return {
+      success: false,
+      message: 'Tivemos um problema ao atualizar o status. Tente novamente.',
+    };
+  }
+
+  revalidatePath('/admin');
+
+  return {
+    success: true,
+    message: status === 'confirmado'
+      ? 'Tarefa confirmada com sucesso!'
+      : 'Tarefa recusada.',
+  };
+}
+
+/**
+ * Atribui uma tarefa a um membro específico
+ */
+export async function assignTaskToMember(
+  assignmentId: string,
+  memberId: string
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('event_assignments')
+    .update({
+      member_id: memberId,
+      status: 'confirmado'
+    })
+    .eq('id', assignmentId);
+
+  if (error) {
+    console.error('Error assigning task to member:', error);
+    return {
+      success: false,
+      message: 'Tivemos um problema ao atribuir a tarefa. Tente novamente.',
+    };
+  }
+
+  revalidatePath('/admin');
+
+  return {
+    success: true,
+    message: 'Você se voluntariou para esta tarefa!',
+  };
+}

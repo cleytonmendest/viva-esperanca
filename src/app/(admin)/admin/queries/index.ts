@@ -139,3 +139,405 @@ export async function getProfile() {
 
   return profile;
 }
+
+// ========== DASHBOARD QUERIES ==========
+
+/**
+ * Calcula a data de início com base no período selecionado
+ */
+function getStartDate(period: string): Date {
+  const now = new Date();
+  switch (period) {
+    case '7d':
+      return new Date(now.setDate(now.getDate() - 7));
+    case '30d':
+      return new Date(now.setDate(now.getDate() - 30));
+    case '3m':
+      return new Date(now.setMonth(now.getMonth() - 3));
+    case '6m':
+      return new Date(now.setMonth(now.getMonth() - 6));
+    case '1y':
+      return new Date(now.setFullYear(now.getFullYear() - 1));
+    default:
+      return new Date(now.setDate(now.getDate() - 30));
+  }
+}
+
+/**
+ * Retorna estatísticas de membros para o dashboard
+ */
+export async function getDashboardMembersStats(period: string = '30d') {
+  const supabase = await createClient();
+  const startDate = getStartDate(period);
+
+  // Total de membros ativos
+  const { count: totalMembers } = await supabase
+    .from('members')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'ativo');
+
+  // Membros pendentes de aprovação
+  const { count: pendingMembers } = await supabase
+    .from('members')
+    .select('*', { count: 'exact', head: true })
+    .eq('role', 'pendente');
+
+  // Novos membros no período
+  const { count: newMembers } = await supabase
+    .from('members')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', startDate.toISOString());
+
+  // Distribuição por setor
+  const { data: membersBySector } = await supabase
+    .from('members')
+    .select('sector')
+    .eq('status', 'ativo');
+
+  // Contar membros por setor (membros podem ter múltiplos setores)
+  const sectorCount: Record<string, number> = {};
+  membersBySector?.forEach((member) => {
+    member.sector?.forEach((sector) => {
+      sectorCount[sector] = (sectorCount[sector] || 0) + 1;
+    });
+  });
+
+  // Distribuição por role
+  const { data: membersByRole } = await supabase
+    .from('members')
+    .select('role')
+    .eq('status', 'ativo');
+
+  const roleCount: Record<string, number> = {};
+  membersByRole?.forEach((member) => {
+    roleCount[member.role] = (roleCount[member.role] || 0) + 1;
+  });
+
+  return {
+    totalMembers: totalMembers || 0,
+    pendingMembers: pendingMembers || 0,
+    newMembers: newMembers || 0,
+    sectorDistribution: sectorCount,
+    roleDistribution: roleCount,
+  };
+}
+
+/**
+ * Retorna estatísticas de visitantes para o dashboard
+ */
+export async function getDashboardVisitorsStats(period: string = '30d') {
+  const supabase = await createClient();
+  const startDate = getStartDate(period);
+
+  // Total de visitantes no período
+  const { count: totalVisitors } = await supabase
+    .from('visitors')
+    .select('*', { count: 'exact', head: true })
+    .gte('visite_date', startDate.toISOString());
+
+  // Visitantes de primeira vez
+  const { count: firstTimeVisitors } = await supabase
+    .from('visitors')
+    .select('*', { count: 'exact', head: true })
+    .eq('first_time', true)
+    .gte('visite_date', startDate.toISOString());
+
+  // Status dos visitantes (funil de conversão)
+  const { data: visitorsByStatus } = await supabase
+    .from('visitors')
+    .select('visitor_status')
+    .gte('visite_date', startDate.toISOString());
+
+  const statusCount = {
+    sem_igreja: 0,
+    congregando: 0,
+    membro: 0,
+    desistiu: 0,
+  };
+  visitorsByStatus?.forEach((visitor) => {
+    if (visitor.visitor_status) {
+      const status = visitor.visitor_status as keyof typeof statusCount;
+      if (status in statusCount) {
+        statusCount[status] = statusCount[status] + 1;
+      }
+    }
+  });
+
+  // Visitantes sem follow-up (mais de 15 dias)
+  const fifteenDaysAgo = new Date();
+  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+
+  const { count: visitorsNeedingFollowup } = await supabase
+    .from('visitors')
+    .select('*', { count: 'exact', head: true })
+    .eq('visitor_status', 'sem_igreja')
+    .lte('visite_date', fifteenDaysAgo.toISOString());
+
+  // Tendência mensal (últimos 6 meses)
+  const monthlyTrend = [];
+  for (let i = 5; i >= 0; i--) {
+    const monthStart = new Date();
+    monthStart.setMonth(monthStart.getMonth() - i);
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+
+    const monthEnd = new Date(monthStart);
+    monthEnd.setMonth(monthEnd.getMonth() + 1);
+
+    const { count } = await supabase
+      .from('visitors')
+      .select('*', { count: 'exact', head: true })
+      .gte('visite_date', monthStart.toISOString())
+      .lt('visite_date', monthEnd.toISOString());
+
+    monthlyTrend.push({
+      month: monthStart.toLocaleDateString('pt-BR', { month: 'short' }),
+      count: count || 0,
+    });
+  }
+
+  return {
+    totalVisitors: totalVisitors || 0,
+    firstTimeVisitors: firstTimeVisitors || 0,
+    statusDistribution: statusCount,
+    visitorsNeedingFollowup: visitorsNeedingFollowup || 0,
+    monthlyTrend,
+  };
+}
+
+/**
+ * Retorna estatísticas de eventos para o dashboard
+ */
+export async function getDashboardEventsStats(period: string = '30d') {
+  const supabase = await createClient();
+  const now = new Date();
+  const startDate = getStartDate(period);
+
+  // Próximos eventos (7 dias)
+  const sevenDaysFromNow = new Date();
+  sevenDaysFromNow.setDate(now.getDate() + 7);
+
+  const { data: upcomingEvents } = await supabase
+    .from('events')
+    .select(`
+      *,
+      event_assignments (
+        id,
+        member_id,
+        tasks (
+          id,
+          name,
+          quantity
+        )
+      )
+    `)
+    .gte('event_date', now.toISOString())
+    .lte('event_date', sevenDaysFromNow.toISOString())
+    .order('event_date', { ascending: true });
+
+  // Calcular taxa de preenchimento para cada evento
+  const eventsWithFillRate = upcomingEvents?.map((event) => {
+    const assignments = event.event_assignments || [];
+    const totalTasks = assignments.length;
+    const filledTasks = assignments.filter((a) => a.member_id !== null).length;
+    const fillRate = totalTasks > 0 ? (filledTasks / totalTasks) * 100 : 0;
+
+    return {
+      id: event.id,
+      name: event.name,
+      event_date: event.event_date,
+      totalTasks,
+      filledTasks,
+      fillRate: Math.round(fillRate),
+    };
+  });
+
+  // Total de eventos no período
+  const { count: totalEvents } = await supabase
+    .from('events')
+    .select('*', { count: 'exact', head: true })
+    .gte('event_date', startDate.toISOString())
+    .lte('event_date', now.toISOString());
+
+  return {
+    upcomingEvents: eventsWithFillRate || [],
+    totalEvents: totalEvents || 0,
+  };
+}
+
+/**
+ * Retorna estatísticas de tarefas para o dashboard
+ */
+export async function getDashboardTasksStats() {
+  const supabase = await createClient();
+
+  // Tarefas pendentes por setor
+  const { data: tasksBySector } = await supabase
+    .from('event_assignments')
+    .select(`
+      *,
+      tasks (
+        sector
+      ),
+      events (
+        event_date
+      )
+    `)
+    .gte('events.event_date', new Date().toISOString());
+
+  const sectorStats: Record<string, { total: number; filled: number }> = {};
+
+  tasksBySector?.forEach((assignment) => {
+    const sector = assignment.tasks?.sector;
+    if (sector) {
+      if (!sectorStats[sector]) {
+        sectorStats[sector] = { total: 0, filled: 0 };
+      }
+      sectorStats[sector].total += 1;
+      if (assignment.member_id) {
+        sectorStats[sector].filled += 1;
+      }
+    }
+  });
+
+  // Top membros mais engajados (últimos 3 meses)
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+  const { data: memberEngagement } = await supabase
+    .from('event_assignments')
+    .select(`
+      member_id,
+      members (
+        name
+      ),
+      events (
+        event_date
+      )
+    `)
+    .not('member_id', 'is', null)
+    .eq('status', 'confirmado')
+    .gte('events.event_date', threeMonthsAgo.toISOString());
+
+  const engagementCount: Record<string, { name: string; count: number }> = {};
+
+  memberEngagement?.forEach((assignment) => {
+    const memberId = assignment.member_id;
+    const memberName = assignment.members?.name;
+
+    if (memberId && memberName) {
+      if (!engagementCount[memberId]) {
+        engagementCount[memberId] = { name: memberName, count: 0 };
+      }
+      engagementCount[memberId].count += 1;
+    }
+  });
+
+  const topMembers = Object.values(engagementCount)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // Total de tarefas disponíveis (sem voluntários)
+  const { count: availableTasks } = await supabase
+    .from('event_assignments')
+    .select('*', { count: 'exact', head: true })
+    .is('member_id', null);
+
+  return {
+    sectorStats,
+    topMembers,
+    availableTasks: availableTasks || 0,
+  };
+}
+
+/**
+ * Retorna alertas para o dashboard
+ */
+export async function getDashboardAlerts() {
+  const supabase = await createClient();
+
+  // Membros aguardando aprovação
+  const { count: pendingApproval } = await supabase
+    .from('members')
+    .select('*', { count: 'exact', head: true })
+    .eq('role', 'pendente');
+
+  // Visitantes sem follow-up (>15 dias)
+  const fifteenDaysAgo = new Date();
+  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+
+  const { count: visitorsNeedingFollowup } = await supabase
+    .from('visitors')
+    .select('*', { count: 'exact', head: true })
+    .eq('visitor_status', 'sem_igreja')
+    .lte('visite_date', fifteenDaysAgo.toISOString());
+
+  // Eventos com tarefas <70% preenchidas (próximos 30 dias)
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+  const { data: events } = await supabase
+    .from('events')
+    .select(`
+      id,
+      name,
+      event_assignments (
+        id,
+        member_id
+      )
+    `)
+    .gte('event_date', new Date().toISOString())
+    .lte('event_date', thirtyDaysFromNow.toISOString());
+
+  const eventsLowFill = events?.filter((event) => {
+    const assignments = event.event_assignments || [];
+    const totalTasks = assignments.length;
+    const filledTasks = assignments.filter((a) => a.member_id !== null).length;
+    const fillRate = totalTasks > 0 ? (filledTasks / totalTasks) * 100 : 100;
+    return fillRate < 70;
+  }).length || 0;
+
+  // Tarefas disponíveis
+  const { count: availableTasks } = await supabase
+    .from('event_assignments')
+    .select('*', { count: 'exact', head: true })
+    .is('member_id', null);
+
+  return {
+    pendingApproval: pendingApproval || 0,
+    visitorsNeedingFollowup: visitorsNeedingFollowup || 0,
+    eventsLowFill,
+    availableTasks: availableTasks || 0,
+  };
+}
+
+/**
+ * Retorna dados de crescimento de membros para gráfico de linha
+ */
+export async function getMembersGrowthData() {
+  const supabase = await createClient();
+  const monthlyData = [];
+
+  for (let i = 11; i >= 0; i--) {
+    const monthStart = new Date();
+    monthStart.setMonth(monthStart.getMonth() - i);
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+
+    const monthEnd = new Date(monthStart);
+    monthEnd.setMonth(monthEnd.getMonth() + 1);
+
+    const { count } = await supabase
+      .from('members')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', monthStart.toISOString())
+      .lt('created_at', monthEnd.toISOString());
+
+    monthlyData.push({
+      month: monthStart.toLocaleDateString('pt-BR', { month: 'short' }),
+      count: count || 0,
+    });
+  }
+
+  return monthlyData;
+}

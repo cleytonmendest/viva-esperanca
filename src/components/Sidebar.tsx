@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { Calendar, Church, Home, PersonStanding, ShieldCheck, ListTodo } from "lucide-react" // Adicionei ShieldCheck
+import { Calendar, Church, Home, PersonStanding, ShieldCheck, ListTodo, BarChart3 } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +21,8 @@ const iconMap = {
   PersonStanding,
   Calendar,
   ShieldCheck,
-  ListTodo
+  ListTodo,
+  BarChart3
 };
 
 const AppSidebar = async () => {
