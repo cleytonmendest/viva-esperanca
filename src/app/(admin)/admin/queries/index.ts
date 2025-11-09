@@ -541,3 +541,69 @@ export async function getMembersGrowthData() {
 
   return monthlyData;
 }
+
+/**
+ * Retorna todos os posts do blog com informações de autor e categoria
+ */
+export async function getAllPosts() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('posts')
+    .select(`
+      *,
+      members (id, name),
+      post_categories (id, name, slug)
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
+
+  return data;
+}
+
+/**
+ * Retorna um post específico por ID
+ */
+export async function getPostById(postId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('posts')
+    .select(`
+      *,
+      members (id, name),
+      post_categories (id, name, slug)
+    `)
+    .eq('id', postId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching post:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Retorna todas as categorias de posts
+ */
+export async function getAllCategories() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('post_categories')
+    .select('*')
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+
+  return data;
+}

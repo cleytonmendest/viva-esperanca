@@ -10,7 +10,9 @@
       "Bash(ls:*)",
       "Bash(npx supabase gen types:*)",
       "Bash(src/lib/supabase/database.types.ts)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(tail:*)",
+      "Bash(npx supabase:*)"
     ],
     "deny": [],
     "ask": []

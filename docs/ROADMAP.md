@@ -860,6 +860,77 @@ CREATE TABLE post_categories (
 
 ---
 
+### 🔧 GERENCIAMENTO DE CONTEÚDO (ADMIN) ✅
+
+**Status**: ✅ CONCLUÍDO (09/11/2025)
+
+**Objetivo**: Permitir criação e gerenciamento de posts do blog pelo painel admin
+
+#### Implementado:
+
+**1. Queries para Blog** (`src/app/(admin)/admin/queries/index.ts`)
+- `getAllPosts()` - Lista todos os posts com autor e categoria
+- `getPostById(postId)` - Busca post específico por ID
+- `getAllCategories()` - Lista todas as categorias disponíveis
+
+**2. Actions para Blog** (`src/app/(admin)/admin/actions/index.ts`)
+- `addPost(postData)` - Cria novo post
+- `updatePost(postId, postData)` - Atualiza post existente
+- `deletePost(postId)` - Remove post
+
+**3. Página de Listagem** (`/admin/blog`)
+- Tabela com todos os posts
+- Colunas: Título, Categoria, Autor, Status, Data de criação
+- Badge visual para status (Publicado/Rascunho)
+- Botões de ação (Editar/Deletar)
+
+**4. Diálogos CRUD**:
+- **AddPostDialog** - Formulário completo para criar post
+  - Campos: Título, Slug, Resumo, Conteúdo, Imagem Destacada, Categoria, Status
+  - Autor automaticamente definido (usuário logado)
+  - Data de publicação automática ao publicar
+
+- **EditPostDialog** - Edição de posts existentes
+  - Pré-preenchimento com dados atuais
+  - Atualiza `published_at` se mudar de draft para published
+
+- **DeletePostDialog** - Confirmação antes de deletar
+  - Mostra título do post para confirmação
+  - Ação irreversível
+
+**5. Menu do Admin**
+- Entrada "Blog" adicionada ao sidebar
+- Ícone: BookOpen (Lucide React)
+- Permissões: admin, pastor(a), lider_midia
+- Migration: `20251109000001_add_blog_to_menu.sql`
+
+**6. Schema do Blog** (já existente)
+- Tabela `posts` com campos completos
+- Tabela `post_categories` com 5 categorias padrão:
+  - Pregações
+  - Eventos
+  - Testemunhos
+  - Devocionais
+  - Notícias
+- RLS policies para controle de acesso
+- Triggers para `updated_at` automático
+
+**Fluxo de Trabalho**:
+1. Admin/Pastor/Líder de Mídia acessa `/admin/blog`
+2. Clica em "Novo Post"
+3. Preenche formulário (pode salvar como rascunho)
+4. Publica quando pronto
+5. Post aparece automaticamente no site público (`/blog`)
+
+**Tecnologias Utilizadas**:
+- GenericForm component (formulários dinâmicos)
+- Shadcn/ui components (Dialog, Table, Badge)
+- Server Actions para mutations
+- Server Components para data fetching
+- TypeScript com tipos gerados do Supabase
+
+---
+
 ### ✨ FASE 4: POLIMENTO (LONGO PRAZO) 🔵
 
 **Objetivo**: Refinamentos e otimizações avançadas

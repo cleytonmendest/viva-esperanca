@@ -419,3 +419,84 @@ export async function assignTaskToMember(
     message: 'Você se voluntariou para esta tarefa!',
   };
 }
+
+/**
+ * Cria um novo post no blog
+ */
+export async function addPost(postData: TablesInsert<'posts'>) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from('posts').insert([postData]);
+
+  if (error) {
+    console.error('Error adding post:', error);
+    return {
+      success: false,
+      message: 'Erro ao criar o post. Tente novamente.',
+    };
+  }
+
+  revalidatePath('/admin/blog');
+  revalidatePath('/blog');
+
+  return {
+    success: true,
+    message: 'Post criado com sucesso!',
+  };
+}
+
+/**
+ * Atualiza um post existente
+ */
+export async function updatePost(
+  postId: string,
+  postData: TablesUpdate<'posts'>
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('posts')
+    .update(postData)
+    .eq('id', postId);
+
+  if (error) {
+    console.error('Error updating post:', error);
+    return {
+      success: false,
+      message: 'Erro ao atualizar o post. Tente novamente.',
+    };
+  }
+
+  revalidatePath('/admin/blog');
+  revalidatePath('/blog');
+
+  return {
+    success: true,
+    message: 'Post atualizado com sucesso!',
+  };
+}
+
+/**
+ * Deleta um post
+ */
+export async function deletePost(postId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from('posts').delete().eq('id', postId);
+
+  if (error) {
+    console.error('Error deleting post:', error);
+    return {
+      success: false,
+      message: 'Erro ao deletar o post. Tente novamente.',
+    };
+  }
+
+  revalidatePath('/admin/blog');
+  revalidatePath('/blog');
+
+  return {
+    success: true,
+    message: 'Post deletado com sucesso!',
+  };
+}
