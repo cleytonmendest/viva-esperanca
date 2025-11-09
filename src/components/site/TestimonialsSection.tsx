@@ -50,7 +50,7 @@ export function TestimonialsSection() {
 
                 {/* Testimonial Text */}
                 <p className="text-muted-foreground italic leading-relaxed">
-                  "{testimonial.content}"
+                  &ldquo;{testimonial.content}&rdquo;
                 </p>
 
                 {/* Author Info */}
@@ -77,8 +77,8 @@ export function TestimonialsSection() {
         <Card className="mt-12 bg-primary/5 border-primary/20 max-w-3xl mx-auto">
           <CardContent className="pt-8 pb-8 text-center">
             <p className="text-lg font-semibold text-foreground mb-2">
-              "Portanto, se alguém está em Cristo, é nova criação. As coisas antigas já passaram;
-              eis que surgiram coisas novas!"
+              &ldquo;Portanto, se alguém está em Cristo, é nova criação. As coisas antigas já passaram;
+              eis que surgiram coisas novas!&rdquo;
             </p>
             <p className="text-sm text-primary font-semibold">2 Coríntios 5:17</p>
           </CardContent>

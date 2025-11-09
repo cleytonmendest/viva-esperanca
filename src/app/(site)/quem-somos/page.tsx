@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -307,12 +308,12 @@ export default function QuemSomosPage() {
             >
               Entre em Contato
             </a>
-            <a
+            <Link
               href="/"
               className="inline-flex items-center justify-center gap-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 rounded-md px-8 font-medium transition-colors"
             >
               Voltar ao Início
-            </a>
+            </Link>
           </div>
         </div>
       </section>

@@ -1,6 +1,6 @@
 -- Create post_categories table
 CREATE TABLE IF NOT EXISTS public.post_categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) UNIQUE NOT NULL,
   slug VARCHAR(100) UNIQUE NOT NULL,
   description TEXT,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.post_categories (
 
 -- Create posts table
 CREATE TABLE IF NOT EXISTS public.posts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title VARCHAR(255) NOT NULL,
   slug VARCHAR(255) UNIQUE NOT NULL,
   content TEXT NOT NULL,

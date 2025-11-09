@@ -11,14 +11,15 @@ export const metadata = {
 };
 
 type PageProps = {
-  searchParams: { category?: string };
+  searchParams: Promise<{ category?: string }>;
 };
 
 export default async function BlogPage({ searchParams }: PageProps) {
-  const posts = await getPosts(searchParams.category);
+  const { category } = await searchParams;
+  const posts = await getPosts(category);
   const categories = await getCategories();
 
-  const selectedCategory = categories.find(c => c.slug === searchParams.category);
+  const selectedCategory = categories.find(c => c.slug === category);
 
   return (
     <div className="w-full">
@@ -41,19 +42,19 @@ export default async function BlogPage({ searchParams }: PageProps) {
           <div className="flex flex-wrap gap-2 justify-center">
             <Link href="/blog">
               <Button
-                variant={!searchParams.category ? 'default' : 'outline'}
+                variant={!category ? 'default' : 'outline'}
                 size="sm"
               >
                 Todos
               </Button>
             </Link>
-            {categories.map((category) => (
-              <Link key={category.id} href={`/blog?category=${category.slug}`}>
+            {categories.map((cat) => (
+              <Link key={cat.id} href={`/blog?category=${cat.slug}`}>
                 <Button
-                  variant={searchParams.category === category.slug ? 'default' : 'outline'}
+                  variant={category === cat.slug ? 'default' : 'outline'}
                   size="sm"
                 >
-                  {category.name}
+                  {cat.name}
                 </Button>
               </Link>
             ))}
