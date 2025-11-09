@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { EventsSection } from '@/components/site/EventsSection';
 import { MinistriesSection } from '@/components/site/MinistriesSection';
+import { TestimonialsSection } from '@/components/site/TestimonialsSection';
+import { VisitorForm } from '@/components/site/VisitorForm';
 
 export default function Home() {
   return (
@@ -43,12 +45,11 @@ export default function Home() {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Link href="/contato">
-                <Users className="mr-2 h-5 w-5" />
-                Faça Parte
-              </Link>
-            </Button>
+            <VisitorForm
+              triggerText="Quero Participar"
+              triggerVariant="default"
+              triggerSize="lg"
+            />
             <Button asChild size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 border-white text-white">
               <Link href="/quem-somos">
                 <BookOpen className="mr-2 h-5 w-5" />
@@ -124,6 +125,9 @@ export default function Home() {
       {/* Ministérios Section */}
       <MinistriesSection />
 
+      {/* Depoimentos Section */}
+      <TestimonialsSection />
+
       {/* Endereço e Mapa Section */}
       <section className="py-20 bg-card">
         <div className="max-w-7xl mx-auto px-4">
@@ -190,11 +194,10 @@ export default function Home() {
             Estamos ansiosos para conhecê-lo! Venha experimentar uma comunidade que vive o amor de Cristo.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg">
-              <Link href="/contato">
-                Quero Conhecer a Igreja
-              </Link>
-            </Button>
+            <VisitorForm
+              triggerText="Quero Conhecer a Igreja"
+              triggerSize="lg"
+            />
             <Button asChild size="lg" variant="outline">
               <Link href="/ofertas">
                 <Heart className="mr-2 h-5 w-5" />
