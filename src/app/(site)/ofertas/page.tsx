@@ -42,8 +42,8 @@ export default function OfertasPage() {
             <Card className="bg-card border-primary/20">
               <CardContent className="pt-6">
                 <p className="text-sm text-muted-foreground mb-2 italic">
-                  "Cada um dê conforme determinou em seu coração, não com pesar ou por obrigação,
-                  pois Deus ama quem dá com alegria."
+                  &quot;Cada um dê conforme determinou em seu coração, não com pesar ou por obrigação,
+                  pois Deus ama quem dá com alegria.&quot;
                 </p>
                 <p className="text-xs font-semibold text-primary">2 Coríntios 9:7</p>
               </CardContent>
@@ -53,8 +53,8 @@ export default function OfertasPage() {
             <Card className="bg-card border-primary/20">
               <CardContent className="pt-6">
                 <p className="text-sm text-muted-foreground mb-2 italic">
-                  "Trazei todos os dízimos à casa do tesouro, para que haja mantimento na minha casa,
-                  e depois fazei prova de mim, diz o Senhor dos Exércitos."
+                  &quot;Trazei todos os dízimos à casa do tesouro, para que haja mantimento na minha casa,
+                  e depois fazei prova de mim, diz o Senhor dos Exércitos.&quot;
                 </p>
                 <p className="text-xs font-semibold text-primary">Malaquias 3:10</p>
               </CardContent>
@@ -64,8 +64,8 @@ export default function OfertasPage() {
             <Card className="bg-card border-primary/20">
               <CardContent className="pt-6">
                 <p className="text-sm text-muted-foreground mb-2 italic">
-                  "Lembrem-se: aquele que semeia pouco, também colherá pouco,
-                  e aquele que semeia com fartura, também colherá fartamente."
+                  &quot;Lembrem-se: aquele que semeia pouco, também colherá pouco,
+                  e aquele que semeia com fartura, também colherá fartamente.&quot;
                 </p>
                 <p className="text-xs font-semibold text-primary">2 Coríntios 9:6</p>
               </CardContent>
@@ -177,8 +177,8 @@ export default function OfertasPage() {
                 <div className="mt-4 p-4 bg-muted rounded-lg">
                   <p className="text-sm font-semibold mb-2">Horários dos Cultos:</p>
                   <div className="text-sm text-muted-foreground space-y-1">
-                    <p>• Domingo: 10h e 18h</p>
-                    <p>• Quarta-feira: 19h30</p>
+                    <p>• Domingo: 18h30</p>
+                    <p>• Terça-feira: 20h</p>
                   </div>
                 </div>
               </CardContent>
@@ -204,7 +204,7 @@ export default function OfertasPage() {
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="pt-6">
                 <p className="text-lg font-semibold text-primary mb-2">
-                  "Deus ama quem dá com alegria"
+                  &quot;Deus ama quem dá com alegria&quot;
                 </p>
                 <p className="text-sm text-muted-foreground">2 Coríntios 9:7</p>
               </CardContent>

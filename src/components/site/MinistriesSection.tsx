@@ -33,14 +33,14 @@ const ministries = [
     details: 'Atividades lúdicas, ensino bíblico adaptado e muito amor para os pequenos.',
     color: 'from-pink-500/10 to-pink-500/5',
   },
-  {
-    id: 'social',
-    name: 'Ação Social',
-    icon: HandHeart,
-    description: 'Servindo à comunidade com amor prático através de ações sociais e projetos de impacto.',
-    details: 'Distribuição de alimentos, roupas, visitas e apoio às famílias necessitadas.',
-    color: 'from-green-500/10 to-green-500/5',
-  },
+  // {
+  //   id: 'social',
+  //   name: 'Ação Social',
+  //   icon: HandHeart,
+  //   description: 'Servindo à comunidade com amor prático através de ações sociais e projetos de impacto.',
+  //   details: 'Distribuição de alimentos, roupas, visitas e apoio às famílias necessitadas.',
+  //   color: 'from-green-500/10 to-green-500/5',
+  // },
   {
     id: 'geral',
     name: 'Ministério Geral',
@@ -99,7 +99,7 @@ export function MinistriesSection() {
         <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
           <CardContent className="pt-8 pb-8 text-center">
             <p className="text-lg font-semibold text-foreground mb-2">
-              "Cada um exerça o dom que recebeu para servir aos outros, administrando fielmente a graça de Deus em suas múltiplas formas."
+              &quot;Cada um exerça o dom que recebeu para servir aos outros, administrando fielmente a graça de Deus em suas múltiplas formas.&quot;
             </p>
             <p className="text-sm text-primary font-semibold">1 Pedro 4:10</p>
           </CardContent>

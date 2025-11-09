@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, MapPin, Users, Home, Heart, Music, Baby, HandHeart } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Home, Heart, Music, Baby } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -34,31 +34,7 @@ export default function ProgramacaoPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Domingo Manhã */}
-            <Card className="border-2 hover:border-primary transition-colors">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Clock className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle>Culto de Domingo - Manhã</CardTitle>
-                    <CardDescription>10h00</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-muted-foreground">
-                  Culto de celebração com louvor, pregação da Palavra e ministério infantil.
-                </p>
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  <span>Presencial e Online</span>
-                </div>
-              </CardContent>
-            </Card>
-
+          <div className="grid grid-cols-1 gap-6">
             {/* Domingo Noite */}
             <Card className="border-2 hover:border-primary transition-colors">
               <CardHeader>
@@ -67,8 +43,8 @@ export default function ProgramacaoPage() {
                     <Clock className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <CardTitle>Culto de Domingo - Noite</CardTitle>
-                    <CardDescription>18h00</CardDescription>
+                    <CardTitle>Culto de Domingo</CardTitle>
+                    <CardDescription>18h30</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -78,7 +54,7 @@ export default function ProgramacaoPage() {
                 </p>
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-primary" />
-                  <span>Presencial e Online</span>
+                  <span>Presencial (Online em breve)</span>
                 </div>
               </CardContent>
             </Card>
@@ -91,8 +67,8 @@ export default function ProgramacaoPage() {
                     <Clock className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <CardTitle>Culto de Quarta-feira</CardTitle>
-                    <CardDescription>19h30</CardDescription>
+                    <CardTitle>Culto Terça+</CardTitle>
+                    <CardDescription>20h</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -102,7 +78,7 @@ export default function ProgramacaoPage() {
                 </p>
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-primary" />
-                  <span>Presencial</span>
+                  <span>Presencial (Online em breve)</span>
                 </div>
               </CardContent>
             </Card>
@@ -131,7 +107,7 @@ export default function ProgramacaoPage() {
       <section className="py-20 bg-card">
         <div className="mx-auto max-w-6xl px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Grupos de Comunhão (GC's)</h2>
+            <h2 className="text-3xl font-bold mb-4">Grupos de Crescimento (GC&apos;s)</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Pequenos grupos que se reúnem durante a semana para comunhão, estudo bíblico e
               edificação mútua. Um lugar para criar vínculos profundos e crescer na fé.
@@ -144,14 +120,14 @@ export default function ProgramacaoPage() {
               <div className="flex items-center gap-3">
                 <Users className="h-8 w-8 text-primary" />
                 <div>
-                  <CardTitle className="text-2xl">O que é um Grupo de Comunhão?</CardTitle>
+                  <CardTitle className="text-2xl">O que é um Grupo de Crescimento?</CardTitle>
                   <CardDescription>Comunidade em ação</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Os Grupos de Comunhão (GC's) são o coração da nossa igreja local. São pequenos grupos
+                Os Grupos de Crescimento (GC&apos;s) são o coração da nossa igreja local. São pequenos grupos
                 de pessoas que se reúnem regularmente em casas para:
               </p>
               <ul className="space-y-2 text-muted-foreground">
@@ -181,7 +157,7 @@ export default function ProgramacaoPage() {
 
           {/* Tipos de GC's */}
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold mb-4">Nossos GC's</h3>
+            <h3 className="text-2xl font-bold mb-4">Nossos GC&apos;s</h3>
             <p className="text-muted-foreground">
               Temos grupos para diferentes fases e necessidades
             </p>
@@ -194,14 +170,14 @@ export default function ProgramacaoPage() {
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
-                <h4 className="font-bold text-lg">GC Geral</h4>
+                <h4 className="font-bold text-lg">GC Hope</h4>
                 <p className="text-sm text-muted-foreground">
                   Para toda a família. Grupos mistos com estudos variados.
                 </p>
                 <div className="text-xs text-muted-foreground space-y-1">
                   <p className="flex items-center justify-center gap-1">
                     <Clock className="h-3 w-3" />
-                    Diversos horários
+                    Segundas às 20h
                   </p>
                   <p className="flex items-center justify-center gap-1">
                     <Home className="h-3 w-3" />
@@ -217,18 +193,18 @@ export default function ProgramacaoPage() {
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Heart className="h-8 w-8 text-primary" />
                 </div>
-                <h4 className="font-bold text-lg">GC Jovens</h4>
+                <h4 className="font-bold text-lg">GC Todos por Um</h4>
                 <p className="text-sm text-muted-foreground">
-                  Para jovens e adolescentes. Foco em temas relevantes para essa fase.
+                  Para toda a família. Grupos mistos com estudos variados.
                 </p>
                 <div className="text-xs text-muted-foreground space-y-1">
                   <p className="flex items-center justify-center gap-1">
                     <Clock className="h-3 w-3" />
-                    Sextas às 19h
+                    Segundas às 20h
                   </p>
                   <p className="flex items-center justify-center gap-1">
                     <Home className="h-3 w-3" />
-                    Local rotativo
+                    Est. dos Bandeirantes, 11.227, Comun. César Maia
                   </p>
                 </div>
               </CardContent>
@@ -240,14 +216,14 @@ export default function ProgramacaoPage() {
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
-                <h4 className="font-bold text-lg">GC Casais</h4>
+                <h4 className="font-bold text-lg">GC Recomeço</h4>
                 <p className="text-sm text-muted-foreground">
-                  Exclusivo para casais. Fortalecendo matrimônios à luz da Palavra.
+                  Para toda a família. Grupos mistos com estudos variados.
                 </p>
                 <div className="text-xs text-muted-foreground space-y-1">
                   <p className="flex items-center justify-center gap-1">
                     <Clock className="h-3 w-3" />
-                    Quinzenalmente
+                    Sextas às 20h
                   </p>
                   <p className="flex items-center justify-center gap-1">
                     <Home className="h-3 w-3" />
@@ -258,7 +234,7 @@ export default function ProgramacaoPage() {
             </Card>
 
             {/* GC Mulheres */}
-            <Card className="text-center border-2">
+            {/* <Card className="text-center border-2">
               <CardContent className="pt-8 space-y-4">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Heart className="h-8 w-8 text-primary" />
@@ -278,10 +254,10 @@ export default function ProgramacaoPage() {
                   </p>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* GC Homens */}
-            <Card className="text-center border-2">
+            {/* <Card className="text-center border-2">
               <CardContent className="pt-8 space-y-4">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Users className="h-8 w-8 text-primary" />
@@ -301,10 +277,10 @@ export default function ProgramacaoPage() {
                   </p>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* GC Infantil */}
-            <Card className="text-center border-2">
+            {/* <Card className="text-center border-2">
               <CardContent className="pt-8 space-y-4">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Baby className="h-8 w-8 text-primary" />
@@ -324,7 +300,7 @@ export default function ProgramacaoPage() {
                   </p>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </section>
@@ -367,10 +343,10 @@ export default function ProgramacaoPage() {
             {/* Social */}
             <Card className="text-center">
               <CardContent className="pt-6 space-y-3">
-                <HandHeart className="h-12 w-12 mx-auto text-primary" />
-                <h4 className="font-semibold">Ação Social</h4>
+                <Users className="h-12 w-12 mx-auto text-primary" />
+                <h4 className="font-semibold">Geral</h4>
                 <p className="text-xs text-muted-foreground">
-                  Servindo a comunidade
+                  Segurança, limpeza, recepção e etc.
                 </p>
               </CardContent>
             </Card>
@@ -394,7 +370,7 @@ export default function ProgramacaoPage() {
         <div className="mx-auto max-w-4xl px-4 text-center space-y-6">
           <h2 className="text-3xl font-bold">Pronto para Participar?</h2>
           <p className="text-lg text-muted-foreground">
-            Junte-se a nós em nossos cultos e GC's. Queremos conhecer você e caminhar juntos na fé!
+            Junte-se a nós em nossos cultos e GC&apos;s. Queremos conhecer você e caminhar juntos na fé!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg">

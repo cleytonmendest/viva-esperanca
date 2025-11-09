@@ -86,7 +86,7 @@ export default function ContatoPage() {
                         href="mailto:contato@vivaesperanca.com"
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        contato@vivaesperanca.com
+                        contato@igrejavivaesperanca.com
                       </a>
                     </div>
                   </div>
@@ -99,8 +99,8 @@ export default function ContatoPage() {
                     <div>
                       <h3 className="font-semibold mb-1">Horários dos Cultos</h3>
                       <div className="text-muted-foreground">
-                        <p>Domingo: 10h e 18h</p>
-                        <p>Quarta-feira: 19h30</p>
+                        <p>Domingo: 18h30</p>
+                        <p>Terça-feira: 20h</p>
                       </div>
                     </div>
                   </div>
@@ -111,7 +111,7 @@ export default function ContatoPage() {
               <div className="border-t pt-6">
                 <h3 className="font-semibold mb-4">Redes Sociais</h3>
                 <div className="flex gap-4">
-                  <Link
+                  {/* <Link
                     href="https://facebook.com"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -119,9 +119,9 @@ export default function ContatoPage() {
                     aria-label="Facebook"
                   >
                     <Facebook className="h-6 w-6 text-primary" />
-                  </Link>
+                  </Link> */}
                   <Link
-                    href="https://instagram.com"
+                    href="https://instagram.com/igrejavivaesperancaoficial/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-primary/10 p-3 rounded-lg hover:bg-primary/20 transition-colors"
@@ -129,7 +129,7 @@ export default function ContatoPage() {
                   >
                     <Instagram className="h-6 w-6 text-primary" />
                   </Link>
-                  <Link
+                  {/* <Link
                     href="https://youtube.com"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -137,7 +137,7 @@ export default function ContatoPage() {
                     aria-label="YouTube"
                   >
                     <Youtube className="h-6 w-6 text-primary" />
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function ContatoPage() {
           <h2 className="text-2xl font-bold mb-6 text-center">Como Chegar</h2>
           <div className="w-full h-96 rounded-lg overflow-hidden">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3673.4582789876543!2d-43.36825!3d-22.91667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDU1JzAwLjAiUyA0M8KwMjInMDUuNyJX!5e0!3m2!1spt-BR!2sbr!4v1234567890123!5m2!1spt-BR!2sbr"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7349.638429993778!2d-43.36688634885663!3d-22.920038057969627!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9bd966a38f8a59%3A0xdfecedf02605ce6f!2sIVE%20-%20Igreja%20Viva%20Esperan%C3%A7a!5e0!3m2!1spt-BR!2sbr!4v1762706295459!5m2!1spt-BR!2sbr"
               width="100%"
               height="100%"
               style={{ border: 0 }}

@@ -69,7 +69,7 @@ const FooterMain = () => {
                   href="/programacao"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Programação (GC's)
+                  Programação
                 </Link>
               </li>
               <li>
@@ -122,8 +122,8 @@ const FooterMain = () => {
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <Clock className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p>Domingo: 10h e 18h</p>
-                  <p>Quarta: 19h30</p>
+                  <p>Domingo: 18h30</p>
+                  <p>Terça-feira: 20h</p>
                 </div>
               </li>
             </ul>

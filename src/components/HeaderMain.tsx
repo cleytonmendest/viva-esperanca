@@ -14,7 +14,7 @@ const HeaderMain = () => {
 
   const menuItems = [
     { href: '/quem-somos', label: 'QUEM SOMOS' },
-    { href: '/programacao', label: "GC'S" },
+    { href: '/programacao', label: "PROGRAMAÇÃO" },
     { href: '/ofertas', label: 'DÍZIMOS E OFERTAS' },
     { href: '/contato', label: 'CONTATO' },
     { href: '/blog', label: 'BLOG' },

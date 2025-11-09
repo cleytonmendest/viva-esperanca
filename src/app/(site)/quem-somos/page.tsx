@@ -60,7 +60,7 @@ export default function QuemSomosPage() {
             <Card className="bg-primary/5 border-primary/20 mt-8">
               <CardContent className="pt-6">
                 <p className="text-center italic text-foreground">
-                  "Porque somos cooperadores de Deus; lavoura de Deus, edifício de Deus sois vós."
+                  &quot;Porque somos cooperadores de Deus; lavoura de Deus, edifício de Deus sois vós.&quot;
                   <br />
                   <span className="text-sm font-semibold text-primary">1 Coríntios 3:9</span>
                 </p>
@@ -248,7 +248,7 @@ export default function QuemSomosPage() {
                   <Users className="h-16 w-16 text-primary/50" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">Pastor Titular</h3>
+                  <h3 className="font-bold text-lg">Esmair Filho</h3>
                   <p className="text-sm text-primary">Liderança Pastoral</p>
                   <p className="text-xs text-muted-foreground mt-2">
                     Dedicado ao ensino da Palavra e cuidado do rebanho
@@ -264,7 +264,7 @@ export default function QuemSomosPage() {
                   <Heart className="h-16 w-16 text-primary/50" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">Pastora</h3>
+                  <h3 className="font-bold text-lg">Kelly Coelho</h3>
                   <p className="text-sm text-primary">Ministério Pastoral</p>
                   <p className="text-xs text-muted-foreground mt-2">
                     Cuidado com as famílias e ministério de acolhimento

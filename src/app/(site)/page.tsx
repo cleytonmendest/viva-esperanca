@@ -38,8 +38,8 @@ export default function Home() {
               <h3 className="font-semibold text-lg">Horários dos Cultos</h3>
             </div>
             <div className="space-y-2 text-sm md:text-base">
-              <p>🗓️ Domingo: 10h e 18h</p>
-              <p>🗓️ Quarta-feira: 19h30</p>
+              <p>🗓️ Domingo: 18h30</p>
+              <p>🗓️ Terça-feira: 20h</p>
             </div>
           </div>
 
@@ -156,8 +156,8 @@ export default function Home() {
                 <div>
                   <h3 className="font-semibold text-xl mb-2">Horários dos Cultos</h3>
                   <div className="text-muted-foreground space-y-1">
-                    <p>Domingo: 10h e 18h</p>
-                    <p>Quarta-feira: 19h30</p>
+                    <p>Domingo: 18h30</p>
+                    <p>Terça-feira: 20h</p>
                   </div>
                 </div>
               </div>
@@ -173,7 +173,7 @@ export default function Home() {
             <div className="rounded-lg overflow-hidden h-96 lg:h-full">
               <iframe
                 className="w-full h-full"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12329.494732491006!2d-43.37237395735968!3d-22.9178069116136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9bd966a38f8a59%3A0xdfecedf02605ce6f!2sIVE%20-%20Igreja%20Viva%20Esperan%C3%A7a!5e1!3m2!1spt-BR!2sbr!4v1755646414777!5m2!1spt-BR!2sbr"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7349.638429993778!2d-43.36688634885663!3d-22.920038057969627!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9bd966a38f8a59%3A0xdfecedf02605ce6f!2sIVE%20-%20Igreja%20Viva%20Esperan%C3%A7a!5e0!3m2!1spt-BR!2sbr!4v1762706295459!5m2!1spt-BR!2sbr"
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
