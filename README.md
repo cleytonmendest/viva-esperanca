@@ -143,8 +143,32 @@ viva-esperanca/
 ### 👋 Gerenciamento de Visitantes
 - Registro de visitantes
 - Controle de primeira visita
-- Status de visitante (sem igreja, congregando, membro, desistiu)
+- Status de visitante (sem_igreja, congregando, membro, desistiu)
 - Rastreamento de quem convidou
+- Análise de perfil de visitantes (não crentes vs afastados)
+
+### 📊 Dashboard Executivo
+- **Acesso**: Restrito a líderes (admin, pastor(a), lider_midia, lider_geral)
+- **KPIs principais**: Membros, visitantes, eventos, tarefas
+- **Gráficos**: Funil de conversão, crescimento de membros, tarefas por setor
+- **Alertas inteligentes**: Membros pendentes, visitantes sem follow-up, eventos com baixa taxa de preenchimento
+- **Ranking**: Top 5 membros mais ativos (últimos 3 meses)
+- **Filtros**: Período personalizável (7d, 30d, 3m, 6m, 1y)
+
+#### ⚙️ Setup do Dashboard
+Após o primeiro deploy, execute este SQL no Supabase para habilitar o menu:
+
+```sql
+INSERT INTO page_permissions (page_name, page_path, icon, allowed_roles)
+VALUES (
+  'Dashboard',
+  '/admin/dashboard',
+  'BarChart3',
+  ARRAY['admin', 'pastor(a)', 'lider_midia', 'lider_geral']::user_role_enum[]
+)
+ON CONFLICT (page_path) DO UPDATE
+SET allowed_roles = EXCLUDED.allowed_roles;
+```
 
 ### 🔐 Autenticação e Autorização
 - Login via Supabase Auth
@@ -245,9 +269,21 @@ npm run gen:types
 - Confirme que `allowed_roles` inclui a role do usuário
 - Verifique se o ícone existe no `iconMap` (`Sidebar.tsx`)
 
-## 📚 Documentação Adicional
+## 🚀 Próximos Passos
 
-Para informações mais detalhadas sobre arquitetura, padrões e convenções, consulte o arquivo [CLAUDE.md](./CLAUDE.md).
+Veja todas as features planejadas em **[docs/ROADMAP.md](./docs/ROADMAP.md)**!
+
+### 🔥 Prioridades:
+1. Sistema de notificações WhatsApp automáticas
+2. Calendário interativo com drag-and-drop
+3. Relatórios em PDF/Excel
+4. Check-in de eventos via QR Code
+5. Gestão financeira
+
+## 📚 Documentação
+
+- **[CLAUDE.md](./CLAUDE.md)** - Documentação técnica completa (arquitetura, padrões, convenções)
+- **[docs/ROADMAP.md](./docs/ROADMAP.md)** - Roadmap de features futuras (14 features planejadas)
 
 ## 🤝 Contribuindo
 

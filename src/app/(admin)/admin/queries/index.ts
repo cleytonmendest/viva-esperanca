@@ -401,6 +401,7 @@ export async function getDashboardTasksStats() {
   });
 
   // Top membros mais engajados (últimos 3 meses)
+  // Considera todas as atribuições, independente do status
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
@@ -416,7 +417,6 @@ export async function getDashboardTasksStats() {
       )
     `)
     .not('member_id', 'is', null)
-    .eq('status', 'confirmado')
     .gte('events.event_date', threeMonthsAgo.toISOString());
 
   const engagementCount: Record<string, { name: string; count: number }> = {};
