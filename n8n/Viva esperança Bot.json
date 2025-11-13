@@ -1,0 +1,1114 @@
+{
+  "name": "Viva esperança Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "ive",
+        "remoteJid": "120363345789069123@g.us",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        448,
+        432
+      ],
+      "id": "b3d01448-1597-4e1d-8fe4-42d33f69a7d4",
+      "name": "Aviso Mês - Mensagem Grupo Mídia",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "aad99962-6d0f-49a4-a8a3-145280134dca",
+              "leftValue": "={{ $items().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        736
+      ],
+      "id": "2b86f50f-c547-4f4c-bb72-8bc08668600e",
+      "name": "Se tiver Evento com Escala"
+    },
+    {
+      "parameters": {
+        "url": "https://site-viva-esperanca-site.tkttxg.easypanel.host/api/reminders",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        736
+      ],
+      "id": "e7db1404-bcb2-4c41-943e-d6162419ac76",
+      "name": "Busca Informações API",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "L1E0RwQ8rBlPirSB",
+          "name": "Bearer API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Inclui novo eventos no Supabase\nAtualiza a escala, incluindo novos eventos no supabase",
+        "height": 256,
+        "width": 1296
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -656,
+        352
+      ],
+      "typeVersion": 1,
+      "id": "b77133d8-b14d-4579-9411-b30a6b40b462",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Evento de Escala diário \nVerifica diariamente se há eventos, se tiver envia mensagem no grupo informando a escala\n",
+        "height": 272,
+        "width": 1504
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -656,
+        640
+      ],
+      "typeVersion": 1,
+      "id": "2e43b920-938c-4430-b55f-a410d541fe0f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Pega os dados do nó anterior\nconst member = $input.item.json.members;\nconst event = $input.item.json.event_details;\nconst task = $input.item.json.tasks;\n\n// --- ALTERAÇÃO INICIA AQUI ---\n\n// Pega a data do evento e formata para o padrão brasileiro\nconst eventDateISO = event.event_date;\nconst eventDate = new Date(eventDateISO);\nconst formattedDate = eventDate.toLocaleDateString('pt-BR', {\n  day: '2-digit',\n  month: '2-digit',\n  year: 'numeric',\n  timeZone: 'America/Sao_Paulo'\n});\n\n// --- ALTERAÇÃO TERMINA AQUI ---\n\n// Pega o número de telefone (ex: 21974219271)\nconst rawPhone = member.phone;\n\n// Formata o número para o padrão da Evolution API (individual)\n// Adiciona o código do país (55) e o sufixo @c.us\nconst formattedPhone = `55${rawPhone}@s.whatsapp.net`;\n\n// Monta a mensagem pessoal com a data incluída\nconst message = `Olá ${member.name}! \\n\\nLembrete da sua escala de hoje ${formattedDate}!\\nVocê está no(a) *${task.name}* no *${event.name}*.\\n\\nLembre-se de chegar com 30 minutos de antecedência. Sabemos que imprevistos acontecem, mas não esqueça de avisar seu líder de ministério caso algum problema ocorra.\\n\\nBom culto!`;\n\n// Retorna os dados para o próximo nó\nreturn {\n  message: message,\n  memberPhone: formattedPhone\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        736
+      ],
+      "id": "d6f816cd-99c5-4a40-a26c-c7b6c1116642",
+      "name": "Escala - Mensagem pessoal"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "ive",
+        "remoteJid": "={{ $json.memberPhone }}",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        256,
+        736
+      ],
+      "id": "da8d343c-c50e-4e8e-a622-863bb5e85e53",
+      "name": "Mensagem Pessoal",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d3606d07-a6ff-4c4b-b97e-720dcca9f064",
+              "leftValue": "={{ $json.body.data.message.conversation }}",
+              "rightValue": "@5521973373077",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "dceb69d9-405b-4b1c-9f61-d618afd008c9",
+              "leftValue": "={{ $json.body.data.key.remoteJidAlt }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -544,
+        1040
+      ],
+      "id": "c141def9-ec6c-4a9a-8f2c-f92cf2e97f1c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=### PERSONA E CONTEXTO ###\nVocê é um assistente virtual da Igreja Viva Esperança, especialista em organizar e informar sobre a programação e as equipes de voluntários. Seu tom deve ser sempre cordial, prestativo e eficiente.\n\n### INSTRUÇÕES DE EXECUÇÃO ###\nSua principal estratégia é ser eficiente. Em vez de fazer várias perguntas pequenas, você usará ferramentas poderosas que retornam dados completos. Seu trabalho é filtrar e processar esses dados para encontrar a resposta exata.\n\n1.  **ANÁLISE DA PERGUNTA:** Decida qual ferramenta é a mais adequada para a pergunta do usuário.\n    * **Para perguntas sobre eventos:** (\"qual o próximo culto?\", \"qual a programação da semana?\", \"quem está escalado para o louvor?\", \"quais as tarefas do evento de domingo?\"), use a ferramenta `All Events Details`.\n    * **Para perguntas sobre membros:** (\"quais são as *minhas* escalas?\", \"qual a agenda do João da Silva?\", \"quais membros ativos temos na equipe de mídia?\"), use a ferramenta `Members Schedule`.\n\n2.  **PROCESSAMENTO DOS DADOS:**\n    * Ao usar `All Events Details`, você receberá uma lista de **TODOS** os eventos futuros. É sua responsabilidade analisar essa lista, encontrar o evento específico que o usuário pediu (ex: \"o próximo culto de domingo\") e extrair as informações solicitadas (ex: a equipe de louvor daquele dia).\n    * Ao usar `Members Schedule`, construa os filtros da query string com base na pergunta do usuário.\n\n3.  **REGRA DE OURO: FUSO HORÁRIO**\n    * **ATENÇÃO:** Todas as datas e horários que você recebe das ferramentas estão em UTC (Horário Universal). Antes de apresentar qualquer horário ao usuário, você **DEVE OBRIGATORIAMENTE** convertê-lo para o Horário de Brasília (BRT, UTC-3). Por exemplo, um evento recebido às \"21:30\" deve ser informado ao usuário como \"18:30\".\n\n4.  **FORMULE A RESPOSTA**\n    * Com base nas informações que você filtrou, formule uma resposta completa e amigável.\n    * Se as ferramentas não retornarem dados ou se você não encontrar a informação específica nos dados recebidos, informe ao usuário que não encontrou o que ele pediu. Não invente dados.\n\n### FERRAMENTAS DISPONÍVEIS ###\n\n* **Nome:** `All Events Details`\n    * **Descrição:** Recupera uma lista de todos os próximos eventos a partir da data atual. Para cada evento, a rota retorna informações detalhadas, incluindo todas as tarefas associadas e os membros escalados para cada tarefa.\n    * **Parâmetros:** Nenhum.\n\n* **Nome:** `Members Schedule`\n    * **Descrição:** Recupera uma lista de membros e suas escalas de eventos, incluindo detalhes do evento e da tarefa. Os resultados podem ser filtrados com base nos atributos dos membros.\n    * **Parâmetros (Query String):**\n        * `with_schedule` (opcional): Um booleano (true/false). Se `true`, retorna apenas membros com pelo menos uma tarefa atribuída.\n        * `Filtros de Membro` (opcional): Você pode construir uma string de filtro no formato PostgREST (ex: \"status=eq.ativo&name=ilike.*Silva*\"). Use os operadores (eq, neq, gt, lt, gte, lte, like, ilike) para criar filtros precisos com base na pergunta do usuário.\n\n* **Nome:** `Get All Members`\n  * **Descrição:** Busca informações de todos os membros\n\nCONTEXTO DE CONVERSA:\ndateTime: {{ $('Recebimento de Mensagens').item.json.body.date_time }}\nusuário: {{ $('Recebimento de Mensagens').item.json.body.data.pushName }}\ntelefone: {{ $('Recebimento de Mensagens').item.json.body.data.key.remoteJid.replace(/^55|@s\\.whatsapp\\.net$/g, '') }}\n\nMEMBROS:\n{{ $('Todos os Membros').all().map(item => `Nome: ${item.json.name}, Phone: ${item.json.phone}, Setor: ${item.json.sector}, Role: ${item.json.role} \\n`) }}\n\n### MENSAGEM DO USUÁRIO ###\n{{ $('Recebimento de Mensagens').item.json.body.data.message.conversation }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        1040
+      ],
+      "id": "9917844d-9d88-49c4-80d3-6bc470ba3aa5",
+      "name": "Message a model",
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ohHfHXWSeLJSuZqb",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "ive",
+        "remoteJid": "={{ $('Recebimento de Mensagens').item.json.body.data.key.remoteJid }}",
+        "messageText": "={{ $json.content.parts[0].text }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1040
+      ],
+      "id": "70babc51-b91a-45f6-a7a9-875ebcfe7c9c",
+      "name": "Enviar texto",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ive",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -752,
+        1040
+      ],
+      "id": "370f840f-2148-4b42-826e-b8c33da7f7ba",
+      "name": "Recebimento de Mensagens",
+      "webhookId": "94d7b213-f660-445b-89e9-1a7af14ed6c8"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -608,
+        736
+      ],
+      "id": "c72492dd-02e3-43ce-b658-1b8e072edc3e",
+      "name": "Todos os dias 12pm"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Nome: Obter Agendas dos Membros\n\nDescrição: Recupera uma lista de membros e suas escalas de eventos, incluindo detalhes do evento e da tarefa. Os resultados podem ser filtrados com base nos atributos dos membros.\n\nParâmetros:\n\nEsta rota utiliza um sistema de filtragem flexível através de parâmetros de consulta na URL.\n\nwith_schedule (opcional): Um booleano (true/false). Se definido como true, a rota retornará apenas os membros que possuem pelo menos uma tarefa de evento atribuída.\n\nExemplo: with_schedule=true\n\nFiltros Adicionais (opcional):\n\nFormato: nomeDoCampo=operador.valor\nnomeDoCampo: O atributo do membro pelo qual filtrar (ex: name, status, role).\noperador: O operador de comparação. Os operadores suportados incluem:\neq, neq, gt, lt, gte, lte\nlike, ilike: para correspondência parcial de texto (use * como curinga).\ncs: para verificar se um valor está contido em um campo do tipo array (como sector). O valor deve estar entre chaves {}.\nvalor: O valor a ser comparado.\n\nExemplo de Uso:\n\nPara obter todos os membros ativos do setor de \"mídia\" que possuem alguma escala: /api/members-schedules?status=eq.ativo&sector=cs.{mídia}&with_schedule=true\n\nPara obter todos os membros cujo nome contém \"Silva\": /api/members-schedules?name=ilike.*Silva*",
+        "url": "https://site-viva-esperanca-site.tkttxg.easypanel.host/api/members-schedules",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Name', ``, 'string') }}",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            },
+            {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Name', ``, 'string') }}",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -224,
+        1264
+      ],
+      "id": "47c08f8d-2b32-485e-a021-2653df7b17c3",
+      "name": "Members Schedule",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "L1E0RwQ8rBlPirSB",
+          "name": "Bearer API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Recupera uma lista de todos os próximos eventos a partir da data atual. Para cada evento, a rota retorna informações detalhadas, incluindo todas as tarefas associadas e os membros escalados para cada tarefa.",
+        "url": "https://site-viva-esperanca-site.tkttxg.easypanel.host/api/next-events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        1264
+      ],
+      "id": "2026be68-38f6-4e7f-b504-6c924b5da276",
+      "name": "All Events Details",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "L1E0RwQ8rBlPirSB",
+          "name": "Bearer API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "members",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        96,
+        1264
+      ],
+      "id": "ee5bc796-f6c0-46d8-bd12-2552c89cfb56",
+      "name": "Get All Members",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LHHyhXuKDBW75Iv0",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "members",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        1040
+      ],
+      "id": "0eff85a6-f914-4aea-ae9c-635df079b2b5",
+      "name": "Todos os Membros",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LHHyhXuKDBW75Iv0",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "cleyton.mendest@gmail.com",
+          "mode": "list",
+          "cachedResultName": "cleyton.mendest@gmail.com"
+        },
+        "returnAll": true,
+        "timeMax": "={{ $now.plus({ month: 1 }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -192,
+        432
+      ],
+      "id": "c9c49316-1115-4c4d-873f-0faa5726e787",
+      "name": "Busca todos eventos em 1 mês",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "LbMe82iGtI6JNOGD",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $json.summary }}"
+            },
+            {
+              "fieldId": "event_date",
+              "fieldValue": "={{ $json.start.dateTime }}"
+            },
+            {
+              "fieldId": "description",
+              "fieldValue": "={{ $json.description }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        32,
+        432
+      ],
+      "id": "ca13077e-5b95-43eb-8d8b-96702cdefeb7",
+      "name": "Cria Evento Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LHHyhXuKDBW75Iv0",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Acessa todos os itens que chegam no nó.\nconst items = $input.all();\n\n// Se não houver eventos, podemos parar aqui e retornar uma mensagem vazia ou um aviso.\nif (items.length === 0) {\n  return { json: { message: \"Nenhum novo evento encontrado.\" } };\n}\n\n// 2. Ordena os itens com base no campo 'event_date'.\nitems.sort((a, b) => new Date(a.json.event_date) - new Date(b.json.event_date));\n\n// 3. Formata cada item no formato desejado.\nconst formattedEvents = items.map(item => {\n  const eventName = item.json.name;\n  const eventDate = new Date(item.json.event_date);\n\n  const day = String(eventDate.getDate()).padStart(2, '0');\n  const month = String(eventDate.getMonth() + 1).padStart(2, '0');\n  const year = eventDate.getFullYear();\n  const formattedDate = `${day}/${month}/${year}`;\n\n  const hours = String(eventDate.getHours()).padStart(2, '0');\n  const minutes = String(eventDate.getMinutes()).padStart(2, '0');\n  const formattedTime = `${hours}:${minutes}h`;\n\n  return `${eventName} - ${formattedDate} - ${formattedTime}`;\n});\n\n// 4. Junta todas as linhas formatadas.\nconst eventListString = formattedEvents.join('\\n');\n\n// --- ALTERAÇÃO AQUI ---\n// 5. Adiciona o cabeçalho à lista de eventos.\nconst finalMessage = `Escala disponível para voluntários:\\n${eventListString}`;\n\n// 6. Retorna o resultado para o próximo nó.\nreturn {\n  json: {\n    message: finalMessage\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        432
+      ],
+      "id": "79d294c3-2dd1-4666-aa67-98d53c94d986",
+      "name": "Monta a mensagem"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "events",
+        "limit": 5,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "event_date",
+              "condition": "gt",
+              "keyValue": "={{ $now.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).plus({ days: 1 }).toISO() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        432
+      ],
+      "id": "49fc2fd1-77ad-4e58-857e-33f3e8443b1c",
+      "name": "Busca Evento Posterior",
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "LHHyhXuKDBW75Iv0",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "ive",
+        "remoteJid": "={{ $json.remoteJid }}",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        672,
+        736
+      ],
+      "id": "a78ccab2-4449-43dd-84f2-2e73da685418",
+      "name": "Escala - Mensagem Grupos",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b5c5e153-93d1-427f-aca2-0b39a1a5d53c",
+              "leftValue": "={{ $('Busca Evento Posterior').all().length }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        432
+      ],
+      "id": "6077ae1a-3468-4530-ad68-7c1eac6157cd",
+      "name": "Sem eventos?"
+    },
+    {
+      "parameters": {
+        "team": "90132028197",
+        "events": [
+          "taskCreated"
+        ],
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.clickUpTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        48
+      ],
+      "id": "7ace9828-2a0f-4714-954d-c5189ad88f10",
+      "name": "Ao criar Tarefas",
+      "webhookId": "2807b04f-9efb-479e-b42e-80ac156cbee2",
+      "credentials": {
+        "clickUpApi": {
+          "id": "sQhU5zbvIuKY9PHl",
+          "name": "Acess Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "id": "={{ $json.task_id }}"
+      },
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        48
+      ],
+      "id": "7b7cc32e-4f63-45b5-8713-488e8e6fa25c",
+      "name": "Busca informações da tarefa",
+      "credentials": {
+        "clickUpApi": {
+          "id": "sQhU5zbvIuKY9PHl",
+          "name": "Acess Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega o objeto da tarefa (o primeiro item que chega no nó)\nconst task = $input.first().json;\n\n// 1. Extrair os dados com segurança\nconst taskName = task.name || '';\nconst taskDescription = task.description || null;\n\nconst taskAssignee = (task.assignees && task.assignees.length > 0)\n  ? task.assignees[0].username\n  : null;\n\n// NOVO: 2. Mapear e Formatar Prioridade (com tradução e emoji)\nlet formattedPriority = null;\nif (task.priority && task.priority.priority) {\n  // Pega o texto da prioridade (ex: \"urgent\")\n  const priorityKey = task.priority.priority.toLowerCase(); \n  \n  // Mapeamento de prioridades:\n  // Chave (esquerda) = o texto exato que vem do ClickUp em minúsculas\n  // Valor (direita) = O texto que você quer exibir\n  const priorityMap = {\n    'urgent':   '🔴 Urgente',\n    'high':     '🟡 Alta',\n    'normal':   '🟢 Normal',\n    'low':      '🔵 Baixa',\n    'no priority': '⚪ Sem prioridade' // Adicionei este por segurança\n  };\n\n  // Se a prioridade do ClickUp estiver no nosso mapa, usa a versão formatada\n  // Senão, apenas usa o texto original que veio do ClickUp\n  formattedPriority = priorityMap[priorityKey] || priorityKey;\n}\n\n// 3. Formatar a Data de Entrega\nlet formattedDueDate = null;\nif (task.due_date) {\n  // Converte o timestamp (que é uma string) para número\n  const dueDate = new Date(Number(task.due_date));\n  \n  // Formata para o padrão pt-BR (dd/mm/aaaa)\n  formattedDueDate = dueDate.toLocaleDateString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric'\n  });\n}\n\n// 4. Montar a mensagem condicionalmente\nconst messageLines = [];\nmessageLines.push(\"Olá Mídia, nova tarefa criada! 🚀\");\nmessageLines.push(\"---\"); // Adiciona um separador\n\n// Linhas opcionais (só são adicionadas se o valor existir)\nif (taskName) {\n  messageLines.push(`*Nome:* ${taskName}`);\n}\nif (taskDescription) {\n  messageLines.push(`*Descrição:* ${taskDescription}`);\n}\nif (taskAssignee) {\n  messageLines.push(`*Vinculado a:* ${taskAssignee}`);\n}\n\n// ATUALIZADO: Linha de Prioridade\nif (formattedPriority) {\n  messageLines.push(`*Prioridade:* ${formattedPriority}`);\n}\n\nif (formattedDueDate) {\n  messageLines.push(`*Data de Entrega:* ${formattedDueDate}`);\n}\n\n// BÔNUS: Adicionar o link da tarefa para acesso rápido\nif (task.url) {\n  messageLines.push(\"\\n\"); // Adiciona um espaço\n  messageLines.push(`*Acessar Tarefa:* ${task.url}`);\n}\n\n// 5. Juntar todas as linhas em uma única string\nconst finalMessage = messageLines.join('\\n');\n\n// 6. Retornar os dados para o próximo nó\n// O nó do WhatsApp poderá acessar essa mensagem usando {{$json.message}}\nreturn {\n  json: {\n    message: finalMessage\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        48
+      ],
+      "id": "538c0270-33d0-4db7-b885-7cbd4ac0d59b",
+      "name": "Monta mensagem para Grupo"
+    },
+    {
+      "parameters": {
+        "content": "## Avisa Tarefas criadas \nEnvia mensagens para o grupo toda vez que tarefas são criadas",
+        "height": 272,
+        "width": 896
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -656,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "0037047f-b4a8-429d-97bb-a6961631be03",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "ive",
+        "remoteJid": "120363345789069123@g.us",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        48,
+        48
+      ],
+      "id": "f8e158dd-8be8-4461-9607-c68ccdb1c20f",
+      "name": "Mensagem para Mídia",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 'items' é a variável do n8n que contém os dados do nó anterior.\nconst allAssignments = $('Busca Informações API').all();\n\n// 1. Se não houver escalas, não fazemos nada.\nif (allAssignments.length === 0) {\n  return []; // Retorna um array vazio para parar a execução\n}\n\n// 2. Mapeamento de setores para IDs de grupos do WhatsApp.\n//    !!!! IMPORTANTE: Substitua os valores pelos IDs reais dos seus grupos !!!!\nconst sectorGroupMap = {\n  'mídia': '120363345789069123@g.us', // Mantenha este se já for o correto\n  // 'geral': 'ID_DO_GRUPO_GERAL@g.us',\n  // 'infantil': 'ID_DO_GRUPO_INFANTIL@g.us',\n  // 'social': 'ID_DO_GRUPO_SOCIAL@g.us'\n  // Adicione outros setores e seus respectivos IDs de grupo aqui\n};\n\n// 3. Pega as informações do evento do primeiro item (são iguais para todos).\nconst firstAssignment = allAssignments[0].json;\nconst eventName = firstAssignment.event_details.name;\nconst eventDateISO = firstAssignment.event_details.event_date;\n\n// 4. Formata a data e horário do evento para o fuso horário do Brasil.\nconst eventDate = new Date(eventDateISO);\nconst formattedDate = eventDate.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });\nconst eventTime = eventDate.toLocaleTimeString('pt-BR', {\n  hour: '2-digit',\n  minute: '2-digit',\n  timeZone: 'America/Sao_Paulo'\n});\n\n// 5. Agrupa as escalas por setor.\nconst assignmentsBySector = allAssignments.reduce((acc, item) => {\n  const sector = item.json.tasks.sector;\n  if (!acc[sector]) {\n    acc[sector] = [];\n  }\n  acc[sector].push(item.json);\n  return acc;\n}, {});\n\n// 6. Prepara a lista de itens de saída, um para cada setor.\nconst outputItems = [];\n\nfor (const sector in assignmentsBySector) {\n  // Verifica se o setor tem um grupo mapeado\n  if (sectorGroupMap[sector]) {\n    const assignments = assignmentsBySector[sector];\n    \n    // Monta a lista de voluntários para este setor.\n    const volunteerList = assignments.map(assignment => {\n      const taskName = assignment.tasks.name;\n      const memberName = assignment.members.name;\n      return `*${taskName}*: ${memberName}`;\n    }).join('\\n');\n\n    // Monta a mensagem final para o setor.\n    const finalMessage = `---📢 *Escala - Ministério ${sector.charAt(0).toUpperCase() + sector.slice(1)}* ---\\n\\n*Evento:* ${eventName}\\n*Data:* ${formattedDate}\\n*Horário:* ${eventTime}h\\n\\n${volunteerList}`;\n\n    // Adiciona o objeto formatado à lista de saída.\n    outputItems.push({\n      json: {\n        message: finalMessage,\n        remoteJid: sectorGroupMap[sector] // ID do grupo específico\n      }\n    });\n  }\n}\n\n// 7. Retorna a lista de itens. O próximo nó irá executar uma vez para cada item.\nreturn outputItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        736
+      ],
+      "id": "8472139a-0b92-47a7-ae09-47e1a22571fe",
+      "name": "Escala - Formata Mensagem Grupos"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Se não houver tarefas, retorna vazio\nif (items.length === 0) {\n  return [];\n}\n\n// Obtém o início e fim do dia de HOJE (timezone local do servidor)\nconst now = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })\n// const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);\n// const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);\n\n// const todayStartTimestamp = todayStart.getTime();\n// const todayEndTimestamp = todayEnd.getTime();\n\nconsole.log(now)\n\n// Filtra tarefas que vencem HOJE, NÃO estão concluídas E TÊM assignee\nconst tasksDueToday = items.filter(item => {\n  const task = item.json;\n  \n  // Ignora se não tem due_date\n  if (!task.due_date) return false\n\n  // Converte due_date para timestamp (ClickUp retorna em milissegundos como string)\n  const dueDate = Number(task.due_date);\n  const dueDateFormatted = new Date(dueDate).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })\n\n  \n  // Verifica se vence hoje\n  const isDueToday = now === dueDateFormatted\n\n  console.log(isDueToday, 'vence hoje')\n  // Verifica se não está concluída\n  const status = task.status?.status?.toLowerCase() || '';\n  const isNotCompleted = status !== 'complete' && status !== 'closed' && status !== 'concluído';\n\n  // // Verifica se tem assignee\n  const hasAssignee = task.assignees && task.assignees.length > 0;\n  const assigneeName = hasAssignee ? task.assignees[0].username : 'Sem responsável';\n\n  return isDueToday && isNotCompleted && hasAssignee;\n});\n\n// Retorna as tarefas filtradas\nreturn tasksDueToday.map(item => ({ json: item.json }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        -288
+      ],
+      "id": "d5faacea-db07-4d3f-8bd6-a57d0a734a94",
+      "name": "Filtrar Tarefas do Dia"
+    },
+    {
+      "parameters": {
+        "jsCode": "const tasks = $input.all();\n\n// Se não houver tarefas, não faz nada\nif (tasks.length === 0) {\n  return [];\n}\n\n// ========================================\n// CONFIGURAÇÃO - ALTERE AQUI\n// ========================================\n\n// SEU EMAIL NO CLICKUP (para identificar você e evitar duplicatas)\nconst ADMIN_EMAIL = 'cleyton.mendest@gmail.com';\n\n// SEU TELEFONE (formato: 5521999999999)\nconst ADMIN_PHONE = '5521974219271';\n\n// MAPEAMENTO: email do ClickUp → número de telefone\nconst emailToPhone = {\n  'cleyton.mendest@gmail.com': '5521974219271',\n  'vickfds25@gmail.com': '5521984555258',\n  'fabricia.vieiramendes@gmail.com': '5521975241033',\n  'jessiicamatos@hotmail.com': '5521964242099'\n  // Adicione mais mapeamentos abaixo:\n  // 'fulano@gmail.com': '5521988887777',\n  // 'ciclano@outlook.com': '5521999998888',\n};\n\n// ========================================\n// PROCESSAMENTO\n// ========================================\n\n// Agrupa tarefas por assignee (email)\nconst tasksByAssignee = {};\nconst unmappedEmails = new Set();\n\ntasks.forEach(item => {\n  const task = item.json;\n  \n  // Pega email e nome do primeiro assignee\n  const assigneeEmail = (task.assignees && task.assignees.length > 0)\n    ? task.assignees[0].email\n    : null;\n  \n  const assigneeName = (task.assignees && task.assignees.length > 0)\n    ? task.assignees[0].username\n    : 'Sem responsável';\n\n  // Se não tem email ou não está mapeado, registra e pula\n  if (!assigneeEmail || !emailToPhone[assigneeEmail]) {\n    unmappedEmails.add(assigneeEmail || 'sem-email');\n    return;\n  }\n\n  // Inicializa grupo para este assignee se não existir\n  if (!tasksByAssignee[assigneeEmail]) {\n    tasksByAssignee[assigneeEmail] = {\n      name: assigneeName,\n      phone: emailToPhone[assigneeEmail],\n      tasks: []\n    };\n  }\n\n  // Adiciona tarefa à lista do assignee\n  tasksByAssignee[assigneeEmail].tasks.push(task);\n});\n\n// Prepara mensagens individuais\nconst messages = [];\nlet adminHasTasks = false;\n\n// Para cada assignee, cria uma mensagem individual\nfor (const email in tasksByAssignee) {\n  const assignee = tasksByAssignee[email];\n  \n  // Marca se o admin tem tarefas\n  if (email === ADMIN_EMAIL) {\n    adminHasTasks = true;\n  }\n\n  // Monta lista de tarefas do assignee\n  const taskList = assignee.tasks.map((task, index) => {\n    // Emoji de prioridade\n    const priorityMap = {\n      'urgent': '🔴',\n      'high': '🟡',\n      'normal': '🟢',\n      'low': '🔵'\n    };\n    const priority = task.priority?.priority?.toLowerCase() || 'normal';\n    const priorityEmoji = priorityMap[priority] || '⚪';\n\n    return `${index + 1}. ${priorityEmoji} *${task.name}*\\n   🔗 ${task.url}`;\n  }).join('\\n\\n');\n\n  // Mensagem personalizada\n  const message = `⚠️ *LEMBRETE - SUAS TAREFAS PARA HOJE*\\n\\nOlá ${assignee.name}! Você tem ${assignee.tasks.length} tarefa(s) com vencimento/data de postagem para HOJE:\\n\\n${taskList}\\n\\n---\\nNão esqueça de atualizar o status no ClickUp quando concluir! 🚀`;\n\n  messages.push({\n    json: {\n      message: message,\n      phone: `${assignee.phone}@s.whatsapp.net`,\n      assigneeEmail: email\n    }\n  });\n}\n\n// Se houver tarefas de OUTRAS PESSOAS (não admin), envia resumo para o admin\nconst hasOtherPeopleTasks = Object.keys(tasksByAssignee).some(email => email !== ADMIN_EMAIL);\n\nif (hasOtherPeopleTasks && !adminHasTasks) {\n  // Admin não tem tarefas próprias, então envia só o resumo da equipe\n  const summaryLines = [];\n  \n  for (const email in tasksByAssignee) {\n    if (email !== ADMIN_EMAIL) {\n      const assignee = tasksByAssignee[email];\n      summaryLines.push(`👤 *${assignee.name}*: ${assignee.tasks.length} tarefa(s)`);\n    }\n  }\n\n  const adminSummary = `📋 *RESUMO - TAREFAS DA EQUIPE HOJE*\\n\\n${summaryLines.join('\\n')}\\n\\n---\\nTarefas distribuídas e notificações enviadas.`;\n\n  messages.push({\n    json: {\n      message: adminSummary,\n      phone: `${ADMIN_PHONE}@s.whatsapp.net`,\n      assigneeEmail: ADMIN_EMAIL\n    }\n  });\n}\n\n// Log de emails não mapeados (para debug)\nif (unmappedEmails.size > 0) {\n  console.log('⚠️ Emails sem mapeamento encontrados:', Array.from(unmappedEmails));\n}\n\nreturn messages;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        -288
+      ],
+      "id": "df118dc0-a772-4282-86c6-4c82a1d98beb",
+      "name": "Formatar Mensagem Individual"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        -288
+      ],
+      "id": "f7301f79-59f5-46fb-9eea-02c2286369dd",
+      "name": "Todos os dias as 3pm"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "ive",
+        "remoteJid": "={{ $json.phone }}",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -288
+      ],
+      "id": "2ba8931c-64a6-405b-bba8-77720d5be87f",
+      "name": "Enviar Mensagem Individual",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4386cc2c-468e-464f-80d7-3be5dc9c2cca",
+              "leftValue": "={{ $('Filtrar Tarefas do Dia').all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        -288
+      ],
+      "id": "9ab4f154-2fce-4fbc-95b7-e5371df805ff",
+      "name": "Se tiver tarefas vencendo hoje"
+    },
+    {
+      "parameters": {
+        "content": "## Lembrete de Tarefas Vencendo \nEnvia mensagem no whatsapp para usuário com tarefa vencendo / data de postagem",
+        "height": 304,
+        "width": 1424
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -656,
+        -400
+      ],
+      "typeVersion": 1,
+      "id": "dbfdc0ec-4796-475e-a3e7-dbb90c630fb5",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "team": "90132028197",
+        "space": "90138562023",
+        "folderless": true,
+        "list": "901316558886",
+        "filters": {
+          "dueDateLt": "={{ $now.plus(1, 'days') }}"
+        }
+      },
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -288
+      ],
+      "id": "92096142-be5c-41cc-bbb4-411c5e02df88",
+      "name": "Busca tarefas",
+      "credentials": {
+        "clickUpApi": {
+          "id": "sQhU5zbvIuKY9PHl",
+          "name": "Acess Token"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Se tiver Evento com Escala": {
+      "main": [
+        [
+          {
+            "node": "Escala - Mensagem pessoal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca Informações API": {
+      "main": [
+        [
+          {
+            "node": "Se tiver Evento com Escala",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escala - Mensagem pessoal": {
+      "main": [
+        [
+          {
+            "node": "Mensagem Pessoal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensagem Pessoal": {
+      "main": [
+        [
+          {
+            "node": "Escala - Formata Mensagem Grupos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Todos os Membros",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recebimento de Mensagens": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Todos os dias 12pm": {
+      "main": [
+        [
+          {
+            "node": "Busca Informações API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Members Schedule": {
+      "ai_tool": [
+        [
+          {
+            "node": "Message a model",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Events Details": {
+      "ai_tool": [
+        [
+          {
+            "node": "Message a model",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Members": {
+      "ai_tool": [
+        [
+          {
+            "node": "Message a model",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Todos os Membros": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca todos eventos em 1 mês": {
+      "main": [
+        [
+          {
+            "node": "Cria Evento Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria Evento Supabase": {
+      "main": [
+        [
+          {
+            "node": "Monta a mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monta a mensagem": {
+      "main": [
+        [
+          {
+            "node": "Aviso Mês - Mensagem Grupo Mídia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca Evento Posterior": {
+      "main": [
+        [
+          {
+            "node": "Sem eventos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escala - Mensagem Grupos": {
+      "main": [
+        [
+          {
+            "node": "Busca Evento Posterior",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sem eventos?": {
+      "main": [
+        [
+          {
+            "node": "Busca todos eventos em 1 mês",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ao criar Tarefas": {
+      "main": [
+        [
+          {
+            "node": "Busca informações da tarefa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca informações da tarefa": {
+      "main": [
+        [
+          {
+            "node": "Monta mensagem para Grupo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monta mensagem para Grupo": {
+      "main": [
+        [
+          {
+            "node": "Mensagem para Mídia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escala - Formata Mensagem Grupos": {
+      "main": [
+        [
+          {
+            "node": "Escala - Mensagem Grupos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Tarefas do Dia": {
+      "main": [
+        [
+          {
+            "node": "Se tiver tarefas vencendo hoje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Mensagem Individual": {
+      "main": [
+        [
+          {
+            "node": "Enviar Mensagem Individual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Todos os dias as 3pm": {
+      "main": [
+        [
+          {
+            "node": "Busca tarefas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se tiver tarefas vencendo hoje": {
+      "main": [
+        [
+          {
+            "node": "Formatar Mensagem Individual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca tarefas": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Tarefas do Dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 300,
+    "timeSavedPerExecution": 0,
+    "errorWorkflow": "PUudO0N5sjpqU3jY"
+  },
+  "versionId": "29f8ad44-1e1b-4ba9-a0f0-94e192bb2130",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bcfcac5072405384a384e84f2778ff248877bcc2258b58a629b4ef4e314b6df6"
+  },
+  "id": "PUudO0N5sjpqU3jY",
+  "tags": []
+}
