@@ -17,6 +17,19 @@ export const formatDateTime = (dateString: string) => {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
+        timeZone: 'America/Sao_Paulo', // Força o timezone de Brasília
+    }).format(date);
+};
+
+export const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+
+    // Formata apenas o horário (HH:mm) no timezone de Brasília
+    return new Intl.DateTimeFormat('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'America/Sao_Paulo', // Força o timezone de Brasília
     }).format(date);
 };
 

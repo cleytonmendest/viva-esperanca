@@ -3,7 +3,7 @@ import { Calendar, Clock, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { formatDate, formatDateTime } from '@/lib/format';
+import { formatDate, formatTime } from '@/lib/format';
 
 export async function EventsSection() {
   const supabase = await createClient();
@@ -73,7 +73,7 @@ export async function EventsSection() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-primary" />
-                  <span>{new Date(event.event_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{formatTime(event.event_date)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />

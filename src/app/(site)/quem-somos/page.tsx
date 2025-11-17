@@ -39,23 +39,36 @@ export default function QuemSomosPage() {
 
           <div className="space-y-6 text-muted-foreground leading-relaxed">
             <p>
-              A <strong className="text-foreground">Igreja Viva Esperança</strong> nasceu do desejo de
-              compartilhar o amor transformador de Cristo com a comunidade da Taquara e arredores.
-              Fundada com o propósito de ser um lugar onde pessoas pudessem encontrar esperança,
-              pertencimento e crescimento espiritual.
+              A <strong>Igreja Viva Esperança</strong> foi oficialmente fundada em 08 de junho de 2021, mas cremos que seu propósito foi gerado por Deus antes mesmo da fundação do mundo. Não nascemos apenas como uma instituição religiosa; somos parte da continuidade da obra que Jesus iniciou na cruz, por meio de Sua morte e ressurreição.
             </p>
 
             <p>
-              Desde o início, nossa igreja foi estabelecida sobre três pilares fundamentais:{' '}
-              <strong className="text-foreground">ser bíblica</strong> em nosso ensino,{' '}
-              <strong className="text-foreground">acolhedora</strong> em nossa comunhão e{' '}
-              <strong className="text-foreground">generosa</strong> em nosso serviço.
+              O nome Viva Esperança nasceu da convicção bíblica expressa em 1 Pedro 1.3, onde a Escritura declara que Deus, em Sua grande misericórdia, nos deu uma nova vida para vivermos uma viva esperança. Esse versículo tornou-se para nós um fundamento profético e identitário. Assim, entendemos que Deus não apenas nos chamou para plantar uma igreja, mas para proclamar uma esperança viva, ativa e poderosa, que transforma vidas pela graça de Cristo.
             </p>
 
             <p>
-              Ao longo dos anos, temos visto vidas transformadas, famílias restauradas e uma comunidade
-              vibrante crescendo em fé e amor. Cada membro da Igreja Viva Esperança contribui para
-              escrever esta história, servindo ao Senhor e uns aos outros com alegria.
+              Nossa jornada começou quando recebemos de Deus a direção para sair da amada AD Vargem Pequena, filial da AD Zona Sul na Gávea, e plantar do zero aquilo que Ele já havia semeado em nossos corações: a Igreja Viva Esperança. O desejo que nos movia era participar do que Deus estava fazendo neste tempo, gerando esperança, vida e salvação para aqueles que se encontravam perdidos e distantes do Seu amor.
+            </p>
+            <p>
+              Nascemos com uma missão clara: glorificar a Cristo através da proclamação do Evangelho e da formação de discípulos de Jesus. Nossa visão é gerar discípulos que se pareçam com Cristo, e nosso propósito é amar todos aqueles por quem Jesus entregou Sua vida.
+            </p>
+            <h2 className="text-2xl font-bold mb-4">Os Primeiros Passos</h2>
+            <p>
+              Começamos nos reunindo em um auditório comercial no centro da Taquara, na Estrada do Tindiba, 2089 – sala 308, todas as terças-feiras. Nosso início foi marcado por milagres: Deus nos deu uma direção, mas não tínhamos recursos. Ainda assim, experimentamos Sua provisão de maneira extraordinária, vivendo a verdade de que, quando Deus dá a visão, Ele também envia a provisão.
+            </p>
+            <p>
+              Após quase dez meses reunindo-nos apenas às terças-feiras, avançamos para as reuniões aos domingos. Iniciamos a igreja com 13 pessoas, e Deus, em Sua graça, continuou a acrescentar crescimento.
+            </p>
+            <h2 className="text-2xl font-bold mb-4">Um Marco de Fé</h2>
+            <p>
+              Ao completarmos três anos, o Senhor nos presenteou com a compra de um imóvel no centro da Taquara, onde hoje nos reunimos. Uma nova temporada de milagres se estabeleceu sobre nós, e temos vivido como aqueles que sonham. Ainda há muito a ser feito, mas reconhecemos o quanto já avançamos desde o início — e sabemos que Deus ainda não nos levou ao nosso lugar definitivo.
+            </p>
+            <p>
+              Estamos caminhando com fé, confiando que Aquele que começou a boa obra é fiel para completá-la. O desejo do nosso coração é ser uma igreja composta por milhares de discípulos de Jesus, transformando a sociedade e manifestando o Reino de Deus na Terra.
+            </p>
+            <p>
+              E você também pode fazer parte dessa história.
+              Seja bem-vindo à Igreja Viva Esperança — onde Cristo nos deu uma nova vida para vivermos uma viva esperança.
             </p>
 
             <Card className="bg-primary/5 border-primary/20 mt-8">
