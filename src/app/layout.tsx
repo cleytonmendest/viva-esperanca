@@ -17,6 +17,20 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Igreja Viva Esperança",
   description: "Uma igreja bíblica, acolhedora e generosa",
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Igreja Viva Esperança",
+  },
 };
 
 export default function RootLayout({
