@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { GenericForm, GenericFormRef } from "@/components/forms/GenericForm"
 import { FormConfig } from "@/components/forms/form-config"
 import { unmaskPhoneNumber } from '@/lib/format'
+import { ArrowLeft } from 'lucide-react'
 
 const formConfig: FormConfig = [
   { name: 'name', label: 'Nome completo', type: 'text', placeholder: 'João da Silva', required: true },
@@ -94,6 +95,14 @@ export default function SignUpPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-4 bg-gradient-to-br from-background to-muted/20">
+      <Link
+        href="/"
+        className="absolute top-4 left-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Voltar ao site
+      </Link>
+
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Crie sua conta</h1>
         <p className="text-muted-foreground">
@@ -176,6 +185,14 @@ export default function SignUpPage() {
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
               Fazer login
+            </Link>
+          </div>
+          <div className="text-sm text-center text-muted-foreground">
+            <Link
+              href="/"
+              className="hover:text-foreground transition-colors"
+            >
+              Voltar para o site
             </Link>
           </div>
         </CardFooter>
