@@ -125,7 +125,7 @@ export default function SignUpPage() {
             {isLoading ? 'Criando conta...' : 'Criar conta'}
           </Button>
 
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -134,9 +134,9 @@ export default function SignUpPage() {
                 Ou cadastre-se com
               </span>
             </div>
-          </div>
+          </div> */}
 
-          <Button
+          {/* <Button
             variant="outline"
             className="w-full"
             onClick={handleGoogleSignUp}
@@ -162,7 +162,7 @@ export default function SignUpPage() {
               />
             </svg>
             Google
-          </Button>
+          </Button> */}
 
           <div className="text-xs text-center text-muted-foreground px-4">
             Ao criar sua conta, você será adicionado como membro pendente e aguardará aprovação de um administrador.

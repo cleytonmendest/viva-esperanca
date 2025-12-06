@@ -97,7 +97,7 @@ export default function LoginPage() {
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
 
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -106,9 +106,9 @@ export default function LoginPage() {
                 Ou continue com
               </span>
             </div>
-          </div>
+          </div> */}
 
-          <Button
+          {/* <Button
             variant="outline"
             className="w-full"
             onClick={handleGoogleLogin}
@@ -134,7 +134,7 @@ export default function LoginPage() {
               />
             </svg>
             Google
-          </Button>
+          </Button> */}
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center text-muted-foreground">
