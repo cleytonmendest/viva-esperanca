@@ -170,29 +170,44 @@ export async function getDashboardMembersStats(period: string = '30d') {
   const supabase = await createClient();
   const startDate = getStartDate(period);
 
-  // Total de membros ativos
-  const { count: totalMembers } = await supabase
-    .from('members')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'ativo');
+  // Executar todas as queries em paralelo para melhor performance
+  const [
+    { count: totalMembers },
+    { count: pendingMembers },
+    { count: newMembers },
+    { data: membersBySector },
+    { data: membersByRole },
+  ] = await Promise.all([
+    // Total de membros ativos
+    supabase
+      .from('members')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'ativo'),
 
-  // Membros pendentes de aprovação
-  const { count: pendingMembers } = await supabase
-    .from('members')
-    .select('*', { count: 'exact', head: true })
-    .eq('role', 'pendente');
+    // Membros pendentes de aprovação
+    supabase
+      .from('members')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', 'pendente'),
 
-  // Novos membros no período
-  const { count: newMembers } = await supabase
-    .from('members')
-    .select('*', { count: 'exact', head: true })
-    .gte('created_at', startDate.toISOString());
+    // Novos membros no período
+    supabase
+      .from('members')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', startDate.toISOString()),
 
-  // Distribuição por setor
-  const { data: membersBySector } = await supabase
-    .from('members')
-    .select('sector')
-    .eq('status', 'ativo');
+    // Distribuição por setor
+    supabase
+      .from('members')
+      .select('sector')
+      .eq('status', 'ativo'),
+
+    // Distribuição por role
+    supabase
+      .from('members')
+      .select('role')
+      .eq('status', 'ativo'),
+  ]);
 
   // Contar membros por setor (membros podem ter múltiplos setores)
   const sectorCount: Record<string, number> = {};
@@ -201,12 +216,6 @@ export async function getDashboardMembersStats(period: string = '30d') {
       sectorCount[sector] = (sectorCount[sector] || 0) + 1;
     });
   });
-
-  // Distribuição por role
-  const { data: membersByRole } = await supabase
-    .from('members')
-    .select('role')
-    .eq('status', 'ativo');
 
   const roleCount: Record<string, number> = {};
   membersByRole?.forEach((member) => {
@@ -229,24 +238,68 @@ export async function getDashboardVisitorsStats(period: string = '30d') {
   const supabase = await createClient();
   const startDate = getStartDate(period);
 
-  // Total de visitantes no período
-  const { count: totalVisitors } = await supabase
-    .from('visitors')
-    .select('*', { count: 'exact', head: true })
-    .gte('visite_date', startDate.toISOString());
+  // Visitantes sem follow-up (mais de 15 dias)
+  const fifteenDaysAgo = new Date();
+  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
 
-  // Visitantes de primeira vez
-  const { count: firstTimeVisitors } = await supabase
-    .from('visitors')
-    .select('*', { count: 'exact', head: true })
-    .eq('first_time', true)
-    .gte('visite_date', startDate.toISOString());
+  // Preparar queries mensais para execução em paralelo
+  const monthlyQueries = [];
+  for (let i = 5; i >= 0; i--) {
+    const monthStart = new Date();
+    monthStart.setMonth(monthStart.getMonth() - i);
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
 
-  // Status dos visitantes (funil de conversão)
-  const { data: visitorsByStatus } = await supabase
-    .from('visitors')
-    .select('visitor_status')
-    .gte('visite_date', startDate.toISOString());
+    const monthEnd = new Date(monthStart);
+    monthEnd.setMonth(monthEnd.getMonth() + 1);
+
+    monthlyQueries.push({
+      month: monthStart.toLocaleDateString('pt-BR', { month: 'short' }),
+      query: supabase
+        .from('visitors')
+        .select('id', { count: 'exact', head: true })
+        .gte('visite_date', monthStart.toISOString())
+        .lt('visite_date', monthEnd.toISOString()),
+    });
+  }
+
+  // Executar todas as queries em paralelo
+  const [
+    { count: totalVisitors },
+    { count: firstTimeVisitors },
+    { data: visitorsByStatus },
+    { count: visitorsNeedingFollowup },
+    ...monthlyResults
+  ] = await Promise.all([
+    // Total de visitantes no período
+    supabase
+      .from('visitors')
+      .select('id', { count: 'exact', head: true })
+      .gte('visite_date', startDate.toISOString()),
+
+    // Visitantes de primeira vez
+    supabase
+      .from('visitors')
+      .select('id', { count: 'exact', head: true })
+      .eq('first_time', true)
+      .gte('visite_date', startDate.toISOString()),
+
+    // Status dos visitantes (funil de conversão)
+    supabase
+      .from('visitors')
+      .select('visitor_status')
+      .gte('visite_date', startDate.toISOString()),
+
+    // Visitantes sem follow-up
+    supabase
+      .from('visitors')
+      .select('id', { count: 'exact', head: true })
+      .eq('visitor_status', 'sem_igreja')
+      .lte('visite_date', fifteenDaysAgo.toISOString()),
+
+    // Todas as queries mensais
+    ...monthlyQueries.map((q) => q.query),
+  ]);
 
   const statusCount = {
     sem_igreja: 0,
@@ -263,38 +316,11 @@ export async function getDashboardVisitorsStats(period: string = '30d') {
     }
   });
 
-  // Visitantes sem follow-up (mais de 15 dias)
-  const fifteenDaysAgo = new Date();
-  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
-
-  const { count: visitorsNeedingFollowup } = await supabase
-    .from('visitors')
-    .select('*', { count: 'exact', head: true })
-    .eq('visitor_status', 'sem_igreja')
-    .lte('visite_date', fifteenDaysAgo.toISOString());
-
-  // Tendência mensal (últimos 6 meses)
-  const monthlyTrend = [];
-  for (let i = 5; i >= 0; i--) {
-    const monthStart = new Date();
-    monthStart.setMonth(monthStart.getMonth() - i);
-    monthStart.setDate(1);
-    monthStart.setHours(0, 0, 0, 0);
-
-    const monthEnd = new Date(monthStart);
-    monthEnd.setMonth(monthEnd.getMonth() + 1);
-
-    const { count } = await supabase
-      .from('visitors')
-      .select('*', { count: 'exact', head: true })
-      .gte('visite_date', monthStart.toISOString())
-      .lt('visite_date', monthEnd.toISOString());
-
-    monthlyTrend.push({
-      month: monthStart.toLocaleDateString('pt-BR', { month: 'short' }),
-      count: count || 0,
-    });
-  }
+  // Montar tendência mensal a partir dos resultados
+  const monthlyTrend = monthlyQueries.map((q, index) => ({
+    month: q.month,
+    count: (monthlyResults[index] as { count: number | null }).count || 0,
+  }));
 
   return {
     totalVisitors: totalVisitors || 0,
@@ -460,38 +486,54 @@ export async function getDashboardTasksStats(period: string = '30d') {
 export async function getDashboardAlerts() {
   const supabase = await createClient();
 
-  // Membros aguardando aprovação
-  const { count: pendingApproval } = await supabase
-    .from('members')
-    .select('*', { count: 'exact', head: true })
-    .eq('role', 'pendente');
-
   // Visitantes sem follow-up (>15 dias)
   const fifteenDaysAgo = new Date();
   fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
-
-  const { count: visitorsNeedingFollowup } = await supabase
-    .from('visitors')
-    .select('*', { count: 'exact', head: true })
-    .eq('visitor_status', 'sem_igreja')
-    .lte('visite_date', fifteenDaysAgo.toISOString());
 
   // Eventos com tarefas <70% preenchidas (próximos 30 dias)
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
-  const { data: events } = await supabase
-    .from('events')
-    .select(`
-      id,
-      name,
-      event_assignments (
+  // Executar todas as queries em paralelo
+  const [
+    { count: pendingApproval },
+    { count: visitorsNeedingFollowup },
+    { data: events },
+    { count: availableTasks },
+  ] = await Promise.all([
+    // Membros aguardando aprovação
+    supabase
+      .from('members')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', 'pendente'),
+
+    // Visitantes sem follow-up
+    supabase
+      .from('visitors')
+      .select('id', { count: 'exact', head: true })
+      .eq('visitor_status', 'sem_igreja')
+      .lte('visite_date', fifteenDaysAgo.toISOString()),
+
+    // Eventos próximos com assignments
+    supabase
+      .from('events')
+      .select(`
         id,
-        member_id
-      )
-    `)
-    .gte('event_date', new Date().toISOString())
-    .lte('event_date', thirtyDaysFromNow.toISOString());
+        name,
+        event_assignments (
+          id,
+          member_id
+        )
+      `)
+      .gte('event_date', new Date().toISOString())
+      .lte('event_date', thirtyDaysFromNow.toISOString()),
+
+    // Tarefas disponíveis
+    supabase
+      .from('event_assignments')
+      .select('id', { count: 'exact', head: true })
+      .is('member_id', null),
+  ]);
 
   const eventsLowFill = events?.filter((event) => {
     const assignments = event.event_assignments || [];
@@ -500,12 +542,6 @@ export async function getDashboardAlerts() {
     const fillRate = totalTasks > 0 ? (filledTasks / totalTasks) * 100 : 100;
     return fillRate < 70;
   }).length || 0;
-
-  // Tarefas disponíveis
-  const { count: availableTasks } = await supabase
-    .from('event_assignments')
-    .select('*', { count: 'exact', head: true })
-    .is('member_id', null);
 
   return {
     pendingApproval: pendingApproval || 0,
@@ -520,7 +556,6 @@ export async function getDashboardAlerts() {
  */
 export async function getMembersGrowthData(period: string = '30d') {
   const supabase = await createClient();
-  const monthlyData = [];
 
   // Determinar quantos meses mostrar baseado no período
   let monthsToShow = 12;
@@ -544,6 +579,8 @@ export async function getMembersGrowthData(period: string = '30d') {
       monthsToShow = 6;
   }
 
+  // Preparar queries mensais para execução em paralelo
+  const monthlyQueries = [];
   for (let i = monthsToShow - 1; i >= 0; i--) {
     const monthStart = new Date();
     monthStart.setMonth(monthStart.getMonth() - i);
@@ -553,17 +590,24 @@ export async function getMembersGrowthData(period: string = '30d') {
     const monthEnd = new Date(monthStart);
     monthEnd.setMonth(monthEnd.getMonth() + 1);
 
-    const { count } = await supabase
-      .from('members')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', monthStart.toISOString())
-      .lt('created_at', monthEnd.toISOString());
-
-    monthlyData.push({
+    monthlyQueries.push({
       month: monthStart.toLocaleDateString('pt-BR', { month: 'short' }),
-      count: count || 0,
+      query: supabase
+        .from('members')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', monthStart.toISOString())
+        .lt('created_at', monthEnd.toISOString()),
     });
   }
+
+  // Executar todas as queries em paralelo
+  const results = await Promise.all(monthlyQueries.map((q) => q.query));
+
+  // Montar dados mensais a partir dos resultados
+  const monthlyData = monthlyQueries.map((q, index) => ({
+    month: q.month,
+    count: results[index].count || 0,
+  }));
 
   return monthlyData;
 }
