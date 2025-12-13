@@ -49,9 +49,9 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
     getDashboardMembersStats(period),
     getDashboardVisitorsStats(period),
     getDashboardEventsStats(period),
-    getDashboardTasksStats(),
+    getDashboardTasksStats(period),
     getDashboardAlerts(),
-    getMembersGrowthData(),
+    getMembersGrowthData(period),
   ]);
 
   return (
@@ -115,7 +115,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
       {/* Charts Row 2 */}
       <section className="grid gap-4 md:grid-cols-2">
         <TasksBySector data={tasksStats.sectorStats} />
-        <TopMembers members={tasksStats.topMembers} />
+        <TopMembers members={tasksStats.topMembers} period={period} />
       </section>
 
       {/* Growth Chart */}

@@ -368,10 +368,10 @@ export async function getDashboardEventsStats(period: string = '30d') {
 /**
  * Retorna estatísticas de tarefas para o dashboard
  */
-export async function getDashboardTasksStats() {
+export async function getDashboardTasksStats(period: string = '30d') {
   const supabase = await createClient();
 
-  // Tarefas pendentes por setor
+  // Tarefas pendentes por setor (sempre futuras, não usa filtro de período)
   const { data: tasksBySector } = await supabase
     .from('event_assignments')
     .select(`
@@ -400,11 +400,10 @@ export async function getDashboardTasksStats() {
     }
   });
 
-  // Top membros mais engajados (últimos 3 meses)
+  // Top membros mais engajados (usa o período selecionado)
   // Considera apenas eventos que já aconteceram (passado até hoje)
   const now = new Date();
-  const threeMonthsAgo = new Date();
-  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  const startDate = getStartDate(period);
 
   // Começar pela tabela events para filtrar por data eficientemente
   const { data: eventsWithAssignments } = await supabase
@@ -418,7 +417,7 @@ export async function getDashboardTasksStats() {
         )
       )
     `)
-    .gte('event_date', threeMonthsAgo.toISOString())
+    .gte('event_date', startDate.toISOString())
     .lte('event_date', now.toISOString());
 
   const engagementCount: Record<string, { name: string; count: number }> = {};
@@ -519,11 +518,33 @@ export async function getDashboardAlerts() {
 /**
  * Retorna dados de crescimento de membros para gráfico de linha
  */
-export async function getMembersGrowthData() {
+export async function getMembersGrowthData(period: string = '30d') {
   const supabase = await createClient();
   const monthlyData = [];
 
-  for (let i = 11; i >= 0; i--) {
+  // Determinar quantos meses mostrar baseado no período
+  let monthsToShow = 12;
+  switch (period) {
+    case '7d':
+      monthsToShow = 3; // últimos 3 meses para contexto
+      break;
+    case '30d':
+      monthsToShow = 6; // últimos 6 meses
+      break;
+    case '3m':
+      monthsToShow = 3;
+      break;
+    case '6m':
+      monthsToShow = 6;
+      break;
+    case '1y':
+      monthsToShow = 12;
+      break;
+    default:
+      monthsToShow = 6;
+  }
+
+  for (let i = monthsToShow - 1; i >= 0; i--) {
     const monthStart = new Date();
     monthStart.setMonth(monthStart.getMonth() - i);
     monthStart.setDate(1);

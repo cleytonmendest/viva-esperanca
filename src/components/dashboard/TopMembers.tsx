@@ -7,11 +7,30 @@ interface TopMembersProps {
     name: string;
     count: number;
   }>;
+  period?: string;
 }
 
 const medals = ["🥇", "🥈", "🥉"];
 
-export function TopMembers({ members }: TopMembersProps) {
+// Função para traduzir o período para português
+function getPeriodLabel(period?: string): string {
+  switch (period) {
+    case '7d':
+      return 'Últimos 7 dias';
+    case '30d':
+      return 'Últimos 30 dias';
+    case '3m':
+      return 'Últimos 3 meses';
+    case '6m':
+      return 'Últimos 6 meses';
+    case '1y':
+      return 'Último ano';
+    default:
+      return 'Últimos 30 dias';
+  }
+}
+
+export function TopMembers({ members, period }: TopMembersProps) {
   if (members.length === 0) {
     return (
       <Card>
@@ -20,7 +39,7 @@ export function TopMembers({ members }: TopMembersProps) {
             <Trophy className="h-5 w-5" />
             Top 5 Membros Mais Ativos
           </CardTitle>
-          <p className="text-sm text-muted-foreground">Últimos 3 meses</p>
+          <p className="text-sm text-muted-foreground">{getPeriodLabel(period)}</p>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
@@ -38,7 +57,7 @@ export function TopMembers({ members }: TopMembersProps) {
           <Trophy className="h-5 w-5" />
           Top 5 Membros Mais Ativos
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Últimos 3 meses</p>
+        <p className="text-sm text-muted-foreground">{getPeriodLabel(period)}</p>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
