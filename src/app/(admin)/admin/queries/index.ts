@@ -401,36 +401,41 @@ export async function getDashboardTasksStats() {
   });
 
   // Top membros mais engajados (últimos 3 meses)
-  // Considera todas as atribuições, independente do status
+  // Considera apenas eventos que já aconteceram (passado até hoje)
+  const now = new Date();
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-  const { data: memberEngagement } = await supabase
-    .from('event_assignments')
+  // Começar pela tabela events para filtrar por data eficientemente
+  const { data: eventsWithAssignments } = await supabase
+    .from('events')
     .select(`
-      member_id,
-      members (
-        name
-      ),
-      events (
-        event_date
+      event_date,
+      event_assignments!inner (
+        member_id,
+        members (
+          name
+        )
       )
     `)
-    .not('member_id', 'is', null)
-    .gte('events.event_date', threeMonthsAgo.toISOString());
+    .gte('event_date', threeMonthsAgo.toISOString())
+    .lte('event_date', now.toISOString());
 
   const engagementCount: Record<string, { name: string; count: number }> = {};
 
-  memberEngagement?.forEach((assignment) => {
-    const memberId = assignment.member_id;
-    const memberName = assignment.members?.name;
+  // Contar tarefas por membro
+  eventsWithAssignments?.forEach((event) => {
+    event.event_assignments?.forEach((assignment) => {
+      const memberId = assignment.member_id;
+      const memberName = assignment.members?.name;
 
-    if (memberId && memberName) {
-      if (!engagementCount[memberId]) {
-        engagementCount[memberId] = { name: memberName, count: 0 };
+      if (memberId && memberName) {
+        if (!engagementCount[memberId]) {
+          engagementCount[memberId] = { name: memberName, count: 0 };
+        }
+        engagementCount[memberId].count += 1;
       }
-      engagementCount[memberId].count += 1;
-    }
+    });
   });
 
   const topMembers = Object.values(engagementCount)

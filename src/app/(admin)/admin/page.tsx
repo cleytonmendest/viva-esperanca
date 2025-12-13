@@ -38,30 +38,30 @@ export default async function Admin() {
   }
 
   // Calcular estatísticas pessoais
-  const pendingTasks = assignedTasks.filter(
-    (task) => task.status === "pendente"
-  ).length;
-  const confirmedTasks = assignedTasks.filter(
-    (task) => task.status === "confirmado"
-  ).length;
+  // const pendingTasks = assignedTasks.filter(
+  //   (task) => task.status === "pendente"
+  // ).length;
+  // const confirmedTasks = assignedTasks.filter(
+  //   (task) => task.status === "confirmado"
+  // ).length;
 
   return (
     <main className="p-4 space-y-6">
       {/* Saudação Personalizada */}
       <section>
         <h1 className="text-2xl font-bold">Olá, {profile?.name ?? "Membro"}! 👋</h1>
-        <p className="text-muted-foreground">
+        {/* <p className="text-muted-foreground">
           Você tem {confirmedTasks} {confirmedTasks === 1 ? "tarefa confirmada" : "tarefas confirmadas"}
           {pendingTasks > 0 && (
             <span className="text-yellow-600 font-medium">
               {" "}e {pendingTasks} {pendingTasks === 1 ? "pendente" : "pendentes"} de confirmação
             </span>
           )}
-        </p>
+        </p> */}
       </section>
 
       {/* Alerta pessoal se houver tarefas não confirmadas */}
-      {pendingTasks > 0 && (
+      {/* {pendingTasks > 0 && (
         <section className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <span className="text-2xl">⚠️</span>
@@ -75,7 +75,7 @@ export default async function Admin() {
             </div>
           </div>
         </section>
-      )}
+      )} */}
 
       {/* Resumo Executivo (apenas para líderes) */}
       {isLeader && membersStats && alerts && (
