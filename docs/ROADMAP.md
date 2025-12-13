@@ -10,7 +10,64 @@
 
 ### 🟢 Alta Prioridade
 
-#### 1. Sistema de Notificações WhatsApp
+#### 1. Sistema de Roles, Setores e Permissões Dinâmicos
+**Objetivo**: Refatorar sistema de permissões para ser gerenciável via UI sem necessidade de migrations
+
+**Problema Atual**:
+- Roles hardcoded (`lider_midia`, `lider_geral`) em 12+ arquivos
+- Setores como array de enums (causa confusão)
+- Impossível adicionar novas roles/setores sem migration
+- Permissões apenas por página (sem controle granular)
+- **Tentativa anterior (Nov/2024) foi revertida** devido a bugs de integração
+
+**Solução**:
+- Role único `lider` (setor define área: lider + mídia = líder de mídia)
+- Setor único por membro (simplicidade)
+- Roles e setores gerenciáveis via UI admin
+- Permissões granulares por ação (Create/Read/Update/Delete por recurso)
+- Sistema dual com feature flags (migração segura e gradual)
+- Validações rigorosas de integração (prevenir bug anterior)
+
+**Implementação (6 fases)**:
+- **Fase 0:** Setup staging + Git branch (2-3 dias)
+- **Fase 1:** Migrations BD com dual compatibility (1 semana)
+- **Fase 2:** Helpers com feature flags (1 semana)
+- **Fase 3:** UI admin para CRUD de roles/setores/permissões (2 semanas)
+- **Fase 4:** Ativação gradual de flags + monitoramento (1-2 semanas)
+- **Fase 5:** Limpeza final - remoção de enums (após 2-3 meses estáveis)
+
+**Features**:
+- UI para criar/editar/deletar roles customizadas
+- UI para criar/editar/deletar setores customizados
+- Matrix de permissões de páginas (quais roles veem quais páginas)
+- Matrix de permissões de ações (Create/Read/Update/Delete por recurso)
+- Permissões contextuais por setor (líder só edita seu setor)
+- Feature flags para rollback seguro
+- Ambiente staging para testes antes de produção
+
+**Migrations**:
+```
+supabase/migrations/
+├── 20251206000000_activate_roles_sectors_system.sql
+├── 20251206000001_create_action_permissions_system.sql
+├── 20251206000002_create_feature_flags.sql
+├── 20251213000000_add_configuracoes_menu.sql
+└── 20250301000000_remove_deprecated_enums.sql (Fase 5)
+```
+
+**Documentação**:
+- Plano detalhado: `C:\Users\Cleyton\.claude\plans\adaptive-imagining-treasure.md`
+- Lições aprendidas: `docs/LESSONS_LEARNED.md`
+
+**Impacto**: MUITO ALTO (base para escalabilidade futura)
+**Complexidade**: Muito Alta
+**Duração**: 5-6 semanas + 2-3 meses monitoramento
+**Risco**: Alto (mas mitigado com staging + feature flags)
+**Status**: 🚧 Em Implementação (Fase 0)
+
+---
+
+#### 2. Sistema de Notificações WhatsApp
 **Objetivo**: Follow-up automático de visitantes e lembretes de eventos/tarefas
 
 **Features**:
@@ -30,7 +87,7 @@
 
 ---
 
-#### 2. Calendário Interativo
+#### 3. Calendário Interativo
 **Objetivo**: Visualizar eventos e escalas em formato de calendário
 
 **Features**:
@@ -47,7 +104,7 @@
 
 ---
 
-#### 3. Relatórios e Exportação
+#### 4. Relatórios e Exportação
 **Objetivo**: Gerar relatórios em PDF/Excel para análise
 
 **Features**:
@@ -65,7 +122,7 @@
 
 ### 🟡 Média Prioridade
 
-#### 4. Check-in em Eventos
+#### 5. Check-in em Eventos
 **Objetivo**: Controlar presença em eventos via QR Code ou lista digital
 
 **Features**:
@@ -81,7 +138,7 @@
 
 ---
 
-#### 5. Gestão Financeira
+#### 6. Gestão Financeira
 **Objetivo**: Controle de receitas e despesas da igreja
 
 **Features**:
@@ -98,7 +155,7 @@
 
 ---
 
-#### 6. Gestão de Células/Grupos
+#### 7. Gestão de Células/Grupos
 **Objetivo**: Gerenciar grupos pequenos e células
 
 **Features**:
@@ -117,7 +174,7 @@
 
 ### 🔵 Baixa Prioridade (Melhorias)
 
-#### 7. PWA (Progressive Web App)
+#### 8. PWA (Progressive Web App)
 - Instalável como app no celular
 - Notificações push
 - Funcionamento offline básico
@@ -127,7 +184,7 @@
 
 ---
 
-#### 8. Multi-idioma
+#### 9. Multi-idioma
 - Suporte a PT/ES/EN
 - Stack: Next-intl ou react-i18next
 
@@ -138,7 +195,7 @@
 
 ### 🟣 Ideias para Validar
 
-#### 9. Sistema de Discipulado
+#### 10. Sistema de Discipulado
 - Acompanhamento de novos convertidos
 - Trilha de estudos
 - Relação mentor-mentoreado
@@ -149,7 +206,7 @@
 
 ---
 
-#### 10. Sistema de Oração
+#### 11. Sistema de Oração
 - Mural de pedidos
 - Membros oram por pedidos
 - Notificações
@@ -159,7 +216,7 @@
 
 ---
 
-#### 11. Biblioteca/Midiateca
+#### 12. Biblioteca/Midiateca
 - Catálogo de livros/DVDs
 - Sistema de empréstimo
 - Histórico
@@ -236,9 +293,9 @@
 ## 📅 Roadmap Trimestral Sugerido
 
 ### Q1 2025 (Jan-Mar)
-1. Sistema de Notificações WhatsApp
-2. Calendário Interativo
-3. Completar páginas básicas do site (Contato, Ofertas, Quem Somos)
+1. **Sistema de Roles, Setores e Permissões Dinâmicos** (🚧 Em andamento)
+2. Sistema de Notificações WhatsApp
+3. Calendário Interativo
 
 ### Q2 2025 (Abr-Jun)
 1. Relatórios e Exportação
@@ -334,4 +391,4 @@ Ou crie uma issue com tag `feature-request`.
 ---
 
 **Mantido por**: Equipe de Desenvolvimento
-**Última revisão completa**: 05/01/2025
+**Última revisão completa**: 06/12/2025

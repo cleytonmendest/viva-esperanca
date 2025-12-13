@@ -6,6 +6,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Igreja Viva Esperança** is a comprehensive church management system built with Next.js 15, Supabase, and TypeScript. The application manages members, events, tasks, visitors, and event assignments for church operations with role-based access control and sector-based task distribution.
 
+## ⚠️ CRITICAL: Development Workflow
+
+**MANDATORY PROCESS - NO EXCEPTIONS:**
+
+### Before ANY Implementation:
+1. **ALWAYS** read `docs/ROADMAP.md` first
+2. **VERIFY** if the feature is listed in the roadmap
+3. **CONFIRM** the priority level and implementation approach
+4. **CHECK** for any dependencies or prerequisites
+5. **ONLY THEN** start coding
+
+### After ANY Implementation:
+1. **ALWAYS** update `docs/ROADMAP.md`
+2. **MOVE** the completed item from "PRÓXIMAS FEATURES" to "HISTÓRICO DE IMPLEMENTAÇÕES"
+3. **ADD** completion date and brief description (1 line) in the history table
+4. **COMMIT** the roadmap update along with your changes
+
+**Why This Matters:**
+- Prevents duplicate work and conflicting implementations
+- Ensures alignment with project priorities
+- Maintains clear project documentation
+- Provides visibility into what's been done vs. what's planned
+
+**This is NOT optional.** Every feature implementation MUST follow this workflow. If a feature is not in the roadmap, discuss with the team before implementing.
+
 ## Essential Commands
 
 ### Development Workflow
