@@ -2,6 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Heart, Building2, CreditCard, QrCode } from 'lucide-react';
 import { CopyPixButton } from '@/components/site/CopyPixButton';
+import { PixQRCode } from '@/components/site/PixQRCode';
+import { CopyPixCodeButton } from '@/components/site/CopyPixCodeButton';
 
 export const metadata = {
   title: 'Dízimos e Ofertas | Igreja Viva Esperança',
@@ -9,12 +11,12 @@ export const metadata = {
 };
 
 export default function OfertasPage() {
-  const pixKey = 'contato@vivaesperanca.com';
+  const pixKey = '43.875.943/0001-70';
   const bankData = {
-    bank: 'Banco do Brasil',
+    bank: 'Banco Santander',
     agency: '1234-5',
     account: '12345-6',
-    cnpj: '00.000.000/0001-00',
+    cnpj: '43.875.943/0001-70',
     name: 'Igreja Viva Esperança',
   };
 
@@ -106,13 +108,26 @@ export default function OfertasPage() {
 
                 <Separator />
 
-                <div className="bg-white p-4 rounded-lg flex justify-center">
-                  <div className="w-48 h-48 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg flex items-center justify-center">
-                    <QrCode className="h-24 w-24 text-primary/50" />
-                  </div>
+                <div className="bg-white p-6 rounded-lg">
+                  <PixQRCode
+                    pixKey={pixKey}
+                    merchantName="Igreja Viva Esperanca"
+                    merchantCity="Rio de Janeiro"
+                    description="Dizimo/Oferta"
+                    size={240}
+                  />
                 </div>
-                <p className="text-xs text-muted-foreground text-center">
+                <p className="text-xs text-muted-foreground text-center mb-3">
                   Escaneie o QR Code acima com seu app de banco para fazer a transferência via PIX
+                </p>
+                <CopyPixCodeButton
+                  pixKey={pixKey}
+                  merchantName="Igreja Viva Esperanca"
+                  merchantCity="Rio de Janeiro"
+                  description="Dizimo/Oferta"
+                />
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Ou copie o código acima e cole no app do seu banco (PIX Copia e Cola)
                 </p>
               </CardContent>
             </Card>
