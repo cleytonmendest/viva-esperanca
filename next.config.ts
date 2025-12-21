@@ -3,9 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
 
-  // Habilita standalone mode para Docker
-  output: 'standalone',
-
   // Headers de segurança para proteger contra ataques
   async headers() {
     return [
