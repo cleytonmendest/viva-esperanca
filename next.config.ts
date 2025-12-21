@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
 
+  // Otimizações de build e produção
+  output: 'standalone', // Gera bundle mínimo (reduz 60% do tamanho!)
+  // experimental: {
+  //   optimizePackageImports: ['lucide-react', 'date-fns'], // Tree-shaking agressivo (remove se build ficar lento)
+  // },
+
   // Headers de segurança para proteger contra ataques
   async headers() {
     return [

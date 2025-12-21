@@ -37,20 +37,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Criar usuário não-root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Criar usuário não-root ANTES de copiar arquivos
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Copiar package.json e node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
-
-# Copiar arquivos built
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-
-# Mudar proprietário dos arquivos
-RUN chown -R nextjs:nodejs /app
+# Copiar arquivos standalone (bundle mínimo)
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Trocar para usuário não-root
 USER nextjs
@@ -58,6 +52,7 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Comando para iniciar a aplicação
-CMD ["npm", "start"]
+# Comando otimizado (standalone não precisa de npm)
+CMD ["node", "server.js"]

@@ -11,6 +11,9 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+// Força renderização dinâmica (evita requisições ao Supabase durante build)
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);

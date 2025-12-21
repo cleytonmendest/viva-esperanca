@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   description: "Uma igreja bíblica, acolhedora e generosa",
 };
 
+// Força renderização dinâmica (evita requisições ao Supabase durante build)
+export const dynamic = 'force-dynamic';
+
 export default async function RootLayout({
   children,
 }: Readonly<{

@@ -10,6 +10,9 @@ export const metadata = {
   description: 'Leia nossos artigos, pregações, testemunhos e notícias da Igreja Viva Esperança.',
 };
 
+// Força renderização dinâmica (evita requisições ao Supabase durante build)
+export const dynamic = 'force-dynamic';
+
 type PageProps = {
   searchParams: Promise<{ category?: string }>;
 };

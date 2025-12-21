@@ -7,6 +7,9 @@ import { MinistriesSection } from '@/components/site/MinistriesSection';
 import { TestimonialsSection } from '@/components/site/TestimonialsSection';
 import { VisitorForm } from '@/components/site/VisitorForm';
 
+// Força renderização dinâmica (EventsSection faz fetch do Supabase)
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <main className="">
