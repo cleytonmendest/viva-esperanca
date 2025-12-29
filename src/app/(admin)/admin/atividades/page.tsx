@@ -4,22 +4,23 @@ import { ActivitiesFilters } from "./components/ActivitiesFilters";
 import { Activity } from "lucide-react";
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     type?: string;
     period?: string;
-  };
+  }>;
 }
 
 export default async function AtividadesPage({ searchParams }: PageProps) {
-  const page = Number(searchParams.page) || 1;
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
   const limit = 50;
   const offset = (page - 1) * limit;
 
   // Buscar logs com filtros e paginação
   const { logs, total } = await getFilteredAuditLogs(limit, offset, {
-    type: searchParams.type,
-    period: searchParams.period || '30d',
+    type: params.type,
+    period: params.period || '30d',
   });
 
   const totalPages = Math.ceil(total / limit);
@@ -39,7 +40,7 @@ export default async function AtividadesPage({ searchParams }: PageProps) {
 
       {/* Filtros */}
       <section>
-        <ActivitiesFilters currentType={searchParams.type} currentPeriod={searchParams.period} />
+        <ActivitiesFilters currentType={params.type} currentPeriod={params.period} />
       </section>
 
       {/* Timeline */}

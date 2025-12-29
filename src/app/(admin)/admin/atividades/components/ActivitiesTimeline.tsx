@@ -46,7 +46,7 @@ const actionColors: Record<string, string> = {
 
 // Formatar descrição da atividade
 function formatActivityDescription(log: AuditLog): { title: string; subtitle: string } {
-  const details = log.details as Record<string, any>;
+  const details = (log.details as Record<string, unknown>) || {};
 
   switch (log.action_type) {
     case 'task_assigned':
