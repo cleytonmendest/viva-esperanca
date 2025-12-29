@@ -162,7 +162,7 @@ export default function MyAssignmentsRefactored({ tasks }: MyAssignmentsRefactor
                 {tasks.map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between p-3 bg-muted/30 rounded-md border"
+                    className="flex flex-col items-start lg:flex-row lg:items-center justify-between p-3 bg-muted/30 rounded-md border"
                   >
                     <div className="flex-1">
                       <p className="font-medium text-sm">
@@ -180,7 +180,7 @@ export default function MyAssignmentsRefactored({ tasks }: MyAssignmentsRefactor
 
                     {/* Ações (apenas se pendente) */}
                     {task.status === "pendente" && (
-                      <div className="flex items-center gap-2 ml-4">
+                      <div className="flex items-center gap-2 lg:ml-4 mt-4">
                         <Button
                           size="sm"
                           variant="outline"

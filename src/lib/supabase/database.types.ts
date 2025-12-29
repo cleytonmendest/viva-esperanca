@@ -412,12 +412,16 @@ export type Database = {
       }
       visitors: {
         Row: {
+          consent_lgpd: boolean
           created_at: string
           event_name: string | null
           first_time: boolean
+          how_found_church: string | null
           id: string
           invited_by: string | null
+          prayer_requests: string | null
           visite_date: string
+          visitor_city: string | null
           visitor_name: string
           visitor_status:
             | Database["public"]["Enums"]["visitor_status_enum"]
@@ -425,12 +429,16 @@ export type Database = {
           visitor_whatsapp: string
         }
         Insert: {
+          consent_lgpd?: boolean
           created_at?: string
           event_name?: string | null
           first_time?: boolean
+          how_found_church?: string | null
           id?: string
           invited_by?: string | null
+          prayer_requests?: string | null
           visite_date: string
+          visitor_city?: string | null
           visitor_name: string
           visitor_status?:
             | Database["public"]["Enums"]["visitor_status_enum"]
@@ -438,27 +446,23 @@ export type Database = {
           visitor_whatsapp: string
         }
         Update: {
+          consent_lgpd?: boolean
           created_at?: string
           event_name?: string | null
           first_time?: boolean
+          how_found_church?: string | null
           id?: string
           invited_by?: string | null
+          prayer_requests?: string | null
           visite_date?: string
+          visitor_city?: string | null
           visitor_name?: string
           visitor_status?:
             | Database["public"]["Enums"]["visitor_status_enum"]
             | null
           visitor_whatsapp?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "visitors_invited_by_fkey"
-            columns: ["invited_by"]
-            isOneToOne: false
-            referencedRelation: "members"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

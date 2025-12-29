@@ -12,8 +12,8 @@
       "Bash(src/lib/supabase/database.types.ts)",
       "Bash(cat:*)",
       "Bash(tail:*)",
-      "Bash(npx supabase:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npx shadcn@latest add:*)"
     ],
     "deny": [],
     "ask": []

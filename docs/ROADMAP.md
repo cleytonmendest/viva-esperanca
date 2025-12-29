@@ -269,7 +269,7 @@ supabase/migrations/
 ---
 
 #### 4. Engajamento
-- [ ] Formulário de visitante (integrar com tabela `visitors`)
+- [x] Formulário de visitante (integrar com tabela `visitors`)
 - [ ] Integração com redes sociais (Instagram feed, YouTube)
 - [ ] Newsletter signup
 
@@ -378,6 +378,7 @@ Ou crie uma issue com tag `feature-request`.
 
 | Feature | Data | Descrição |
 |---------|------|-----------|
+| Formulário de Visitante | Dez/2025 | Formulário público em /visitante com campos expandidos (cidade, como conheceu, pedidos de oração) e página de agradecimento |
 | Dashboard Executivo | Jan/2025 | Dashboard admin com métricas e estatísticas principais |
 | Refatoração Admin | Jan/2025 | Reestruturação de componentes do painel admin |
 | Sistema de Blog (Admin) | Nov/2024 | CRUD completo de posts com categorias e status |
@@ -391,4 +392,4 @@ Ou crie uma issue com tag `feature-request`.
 ---
 
 **Mantido por**: Equipe de Desenvolvimento
-**Última revisão completa**: 06/12/2025
+**Última revisão completa**: 28/12/2025
