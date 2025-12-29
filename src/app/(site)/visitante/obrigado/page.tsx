@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function ThankYouPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-neutral-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <section className="min-h-screen pt-32 bg-gradient-to-b from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-neutral-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto text-center">
         <div className="bg-white dark:bg-neutral-800 shadow-xl rounded-2xl p-12">
           {/* Ícone de sucesso */}
@@ -84,6 +84,6 @@ export default function ThankYouPage() {
           </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
