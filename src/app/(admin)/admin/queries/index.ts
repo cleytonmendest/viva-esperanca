@@ -814,3 +814,74 @@ export async function getDashboardActivities(limit: number = 10) {
 
   return data || [];
 }
+
+/**
+ * Retorna logs de auditoria com filtros opcionais
+ */
+export async function getFilteredAuditLogs(
+  limit: number = 50,
+  offset: number = 0,
+  filters?: {
+    type?: string;
+    period?: string;
+  }
+) {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from('audit_logs')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false });
+
+  // Filtro por tipo
+  if (filters?.type && filters.type !== 'all') {
+    const typeMap: Record<string, string[]> = {
+      tasks: ['task_assigned', 'task_self_assigned', 'task_removed'],
+      events: ['event_created', 'event_updated', 'event_deleted'],
+      members: ['member_created', 'member_updated', 'member_deleted', 'member_approved'],
+      visitors: ['visitor_submitted', 'visitor_updated', 'visitor_deleted'],
+    };
+
+    const actionTypes = typeMap[filters.type];
+    if (actionTypes) {
+      query = query.in('action_type', actionTypes);
+    }
+  }
+
+  // Filtro por período
+  if (filters?.period && filters.period !== 'all') {
+    const now = new Date();
+    let startDate: Date;
+
+    switch (filters.period) {
+      case '24h':
+        startDate = new Date(now.setHours(now.getHours() - 24));
+        break;
+      case '7d':
+        startDate = new Date(now.setDate(now.getDate() - 7));
+        break;
+      case '30d':
+        startDate = new Date(now.setDate(now.getDate() - 30));
+        break;
+      case '90d':
+        startDate = new Date(now.setDate(now.getDate() - 90));
+        break;
+      default:
+        startDate = new Date(now.setDate(now.getDate() - 30));
+    }
+
+    query = query.gte('created_at', startDate.toISOString());
+  }
+
+  // Paginação
+  query = query.range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error('Error fetching filtered audit logs:', error);
+    return { logs: [], total: 0 };
+  }
+
+  return { logs: data || [], total: count || 0 };
+}

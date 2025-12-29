@@ -7,8 +7,10 @@ import {
   getProfile,
   getDashboardMembersStats,
   getDashboardAlerts,
+  getDashboardActivities,
 } from "./queries";
 import { ExecutiveSummaryCard } from "@/components/dashboard/ExecutiveSummaryCard";
+import { ActivitiesWidget } from "@/components/dashboard/ActivitiesWidget";
 
 // Roles que têm acesso ao resumo executivo
 const LEADER_ROLES = ['admin', 'pastor(a)', 'lider_midia', 'lider_geral'];
@@ -17,13 +19,14 @@ export default async function Admin() {
   const profile = await getProfile();
   const isLeader = profile ? LEADER_ROLES.includes(profile.role) : false;
 
-  // Buscar dados básicos
-  const [assignedTasks, availableTasks, allMembers] = await Promise.all([
+  // Buscar dados básicos (todos os usuários veem)
+  const [assignedTasks, availableTasks, allMembers, recentActivities] = await Promise.all([
     profile ? getAssignedTasks(profile.id) : Promise.resolve([]),
     profile?.sector && profile.sector.length > 0
       ? getAvailableTasks(profile.sector)
       : Promise.resolve([]),
     getAllMembers(),
+    getDashboardActivities(5), // Últimas 5 atividades
   ]);
 
   // Se for líder, buscar também dados do resumo executivo
@@ -90,6 +93,11 @@ export default async function Admin() {
           />
         </section>
       )}
+
+      {/* Widget de Atividades Recentes (todos veem) */}
+      <section>
+        <ActivitiesWidget activities={recentActivities} />
+      </section>
 
       {/* Minhas Tarefas */}
       <section>

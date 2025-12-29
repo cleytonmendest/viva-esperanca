@@ -89,3 +89,48 @@ export const isPhoneNumberValid = (phone: string): boolean => {
     return cleaned.length === 11;
 };
 
+/**
+ * Formata uma data em formato relativo (ex: "há 2 minutos", "há 1 hora").
+ * @param dateString A data em formato ISO ou timestamp.
+ * @returns String formatada com tempo relativo.
+ */
+export const formatRelativeTime = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInSeconds = Math.floor(diffInMs / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    // Menos de 1 minuto
+    if (diffInSeconds < 60) {
+        return 'Agora mesmo';
+    }
+
+    // Menos de 1 hora
+    if (diffInMinutes < 60) {
+        return `Há ${diffInMinutes} ${diffInMinutes === 1 ? 'minuto' : 'minutos'}`;
+    }
+
+    // Menos de 24 horas
+    if (diffInHours < 24) {
+        return `Há ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
+    }
+
+    // Ontem
+    if (diffInDays === 1) {
+        return `Ontem, ${formatTime(dateString)}`;
+    }
+
+    // Menos de 7 dias (mostra dia da semana)
+    if (diffInDays < 7) {
+        const weekdays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        const dayOfWeek = weekdays[date.getDay()];
+        return `${dayOfWeek}, ${formatTime(dateString)}`;
+    }
+
+    // Mais de 7 dias (mostra data completa)
+    return formatDateTime(dateString);
+};
+
