@@ -8,9 +8,11 @@ import {
   getDashboardMembersStats,
   getDashboardAlerts,
   getDashboardActivities,
+  getTopActiveMembers,
 } from "./queries";
 import { ExecutiveSummaryCard } from "@/components/dashboard/ExecutiveSummaryCard";
 import { ActivitiesWidget } from "@/components/dashboard/ActivitiesWidget";
+import { TopMembersWidget } from "@/components/dashboard/TopMembersWidget";
 
 // Roles que têm acesso ao resumo executivo
 const LEADER_ROLES = ['admin', 'pastor(a)', 'lider_midia', 'lider_geral'];
@@ -32,11 +34,13 @@ export default async function Admin() {
   // Se for líder, buscar também dados do resumo executivo
   let membersStats = null;
   let alerts = null;
+  let topMembers = null;
 
   if (isLeader) {
-    [membersStats, alerts] = await Promise.all([
+    [membersStats, alerts, topMembers] = await Promise.all([
       getDashboardMembersStats('30d'),
-      getDashboardAlerts()
+      getDashboardAlerts(),
+      getTopActiveMembers('30d')
     ]);
   }
 
@@ -91,6 +95,13 @@ export default async function Admin() {
               visitorsNeedingFollowup: alerts.visitorsNeedingFollowup,
             }}
           />
+        </section>
+      )}
+
+      {/* Top Membros Mais Ativos (apenas para líderes) */}
+      {isLeader && topMembers && (
+        <section>
+          <TopMembersWidget members={topMembers} period="30d" />
         </section>
       )}
 

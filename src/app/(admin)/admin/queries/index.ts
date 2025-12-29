@@ -885,3 +885,73 @@ export async function getFilteredAuditLogs(
 
   return { logs: data || [], total: count || 0 };
 }
+
+/**
+ * Busca os 5 membros mais ativos com base nos logs de auditoria
+ * @param period Período de análise: '7d', '30d', '90d', 'all'
+ * @returns Array com top 5 membros e contagem de ações
+ */
+export async function getTopActiveMembers(period: string = '30d') {
+  const supabase = await createClient();
+
+  // Calcular data de início baseado no período
+  let startDate: Date | null = null;
+
+  if (period !== 'all') {
+    const now = new Date();
+    switch (period) {
+      case '7d':
+        startDate = new Date(now.setDate(now.getDate() - 7));
+        break;
+      case '30d':
+        startDate = new Date(now.setDate(now.getDate() - 30));
+        break;
+      case '90d':
+        startDate = new Date(now.setDate(now.getDate() - 90));
+        break;
+      default:
+        startDate = new Date(now.setDate(now.getDate() - 30));
+    }
+  }
+
+  // Buscar todos os logs do período
+  let query = supabase
+    .from('audit_logs')
+    .select('*')
+    .not('member_name', 'is', null)
+    .order('created_at', { ascending: false });
+
+  if (startDate) {
+    query = query.gte('created_at', startDate.toISOString());
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching audit logs for top members:', error);
+    return [];
+  }
+
+  // Agrupar e contar manualmente (Supabase não tem GROUP BY direto)
+  const memberCounts = new Map<string, { name: string; count: number; user_id: string | null }>();
+
+  data?.forEach((log) => {
+    const key = log.member_name || 'Sistema';
+    if (memberCounts.has(key)) {
+      memberCounts.get(key)!.count++;
+    } else {
+      memberCounts.set(key, {
+        name: key,
+        count: 1,
+        user_id: log.user_id || null,
+      });
+    }
+  });
+
+  // Converter para array e ordenar
+  const topMembers = Array.from(memberCounts.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  return topMembers;
+}

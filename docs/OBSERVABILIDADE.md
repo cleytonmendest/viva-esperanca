@@ -29,10 +29,12 @@ Implementar **sistema de auditoria e observabilidade** para:
 - Queries para leitura de logs
 - 100% type-safe
 
-🚧 **Fase 2: Visualização (PRÓXIMA)**
-- Página de Atividades Recentes
-- Relatórios de Engajamento
-- Widget no Dashboard
+✅ **Fase 2: Visualização (COMPLETA)**
+- Widget no Dashboard (ActivitiesWidget - últimas 5 atividades)
+- Página `/admin/atividades` com timeline completo
+- Filtros por tipo de ação e período
+- Paginação de logs (50 por página)
+- Formatação de tempo relativo
 
 🔮 **Fase 3: Features Avançadas (FUTURO)**
 - IP tracking
@@ -160,10 +162,13 @@ viva-esperanca/
 - RLS policy corrigida (permitir authenticated inserir)
 - Campo `member_name` registrando pessoa correta
 
-### 🚧 Próximos Passos:
-- Página `/admin/atividades`
-- Widget de atividades no dashboard
-- Relatórios de engajamento
+### 🎯 Próximos Passos (Fase 3):
+- Exportação de logs em CSV/Excel
+- Perfil individual com estatísticas pessoais
+- Top 5 membros mais ativos (widget)
+- Notificações baseadas em logs
+- Relatório de engajamento detalhado
+- IP tracking (opcional)
 
 ---
 

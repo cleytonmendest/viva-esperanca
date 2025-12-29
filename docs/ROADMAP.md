@@ -378,6 +378,8 @@ Ou crie uma issue com tag `feature-request`.
 
 | Feature | Data | Descrição |
 |---------|------|-----------|
+| Sistema de Observabilidade (Fase 2) | Dez/2025 | Widget de atividades no dashboard, página /admin/atividades com timeline, filtros e paginação |
+| Sistema de Observabilidade (Fase 1) | Dez/2025 | Infraestrutura completa de auditoria: tabela audit_logs, helpers, integração em actions, queries type-safe |
 | Formulário de Visitante | Dez/2025 | Formulário público em /visitante com campos expandidos (cidade, como conheceu, pedidos de oração) e página de agradecimento |
 | Dashboard Executivo | Jan/2025 | Dashboard admin com métricas e estatísticas principais |
 | Refatoração Admin | Jan/2025 | Reestruturação de componentes do painel admin |
