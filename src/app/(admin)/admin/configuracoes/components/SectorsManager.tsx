@@ -24,10 +24,16 @@ export function SectorsManager({ initialSectors }: SectorsManagerProps) {
   const [editingSector, setEditingSector] = useState<Sector | null>(null);
   const [deletingSector, setDeletingSector] = useState<Sector | null>(null);
 
-  const getIcon = (iconName: string | null) => {
-    if (!iconName) return Icons.Users;
-    const Icon = Icons[iconName as keyof typeof Icons];
-    return Icon || Icons.Users;
+  const renderIcon = (iconName: string | null, className: string, color?: string | null) => {
+    const iconKey = iconName || 'Users';
+    const Icon = Icons[iconKey as keyof typeof Icons] as React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+
+    if (!Icon || typeof Icon !== 'function' || Icon.length > 1) {
+      const DefaultIcon = Icons.Users;
+      return <DefaultIcon className={className} style={{ color: color || undefined }} />;
+    }
+
+    return <Icon className={className} style={{ color: color || undefined }} />;
   };
 
   return (
@@ -66,11 +72,10 @@ export function SectorsManager({ initialSectors }: SectorsManagerProps) {
               </TableRow>
             ) : (
               sectors.map((sector) => {
-                const IconComponent = getIcon(sector.icon);
                 return (
                   <TableRow key={sector.id}>
                     <TableCell>
-                      <IconComponent className="h-5 w-5" style={{ color: sector.color || undefined }} />
+                      {renderIcon(sector.icon, "h-5 w-5", sector.color)}
                     </TableCell>
                     <TableCell className="font-medium">{sector.name}</TableCell>
                     <TableCell className="text-muted-foreground">

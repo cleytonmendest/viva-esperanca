@@ -30,7 +30,7 @@ export function RolesManager({ initialRoles }: RolesManagerProps) {
           <div>
             <CardTitle>Gestão de Roles</CardTitle>
             <CardDescription>
-              Crie e gerencie roles do sistema. Roles com "Liderança" têm acesso a recursos administrativos.
+              Crie e gerencie roles do sistema. Roles com &quot;Liderança&quot; têm acesso a recursos administrativos.
             </CardDescription>
           </div>
           <Button onClick={() => setAddDialogOpen(true)}>

@@ -24,14 +24,14 @@ export function EditRoleDialog({ role, open, onOpenChange }: EditRoleDialogProps
   const [formData, setFormData] = useState({
     name: role.name,
     description: role.description || "",
-    is_leadership: role.is_leadership,
+    is_leadership: role.is_leadership ?? false,
   });
 
   useEffect(() => {
     setFormData({
       name: role.name,
       description: role.description || "",
-      is_leadership: role.is_leadership,
+      is_leadership: role.is_leadership ?? false,
     });
   }, [role]);
 

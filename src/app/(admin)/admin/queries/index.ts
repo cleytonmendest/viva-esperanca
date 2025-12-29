@@ -130,8 +130,8 @@ export async function getProfile() {
     .from("members")
     .select(`
       *,
-      roles(id, name, description, is_leadership),
-      sectors(id, name, description, icon, color)
+      roles(id, name, description, is_leadership, created_at, updated_at),
+      sectors(id, name, description, icon, color, created_at, updated_at)
     `)
     .eq("user_id", user.id)
     .single();
