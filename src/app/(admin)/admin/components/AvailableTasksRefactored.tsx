@@ -52,8 +52,9 @@ export default function AvailableTasksRefactored({
 
   const isLeader = useMemo(() => {
     if (!profile) return false;
-    const allowedRoles = ["admin", "lider_midia", "lider_geral", "pastor(a)"];
-    return allowedRoles.includes(profile.role);
+    // Usa sistema dinâmico de roles
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (profile as any).roles?.is_leadership || false;
   }, [profile]);
 
   // Filtrar tarefas

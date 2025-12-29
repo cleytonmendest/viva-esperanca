@@ -40,13 +40,9 @@ const EventTable = ({ initialEvents }: EventTableProps) => {
 
   const canEdit = useMemo(() => {
     if (!profile) return false
-    const allowedRoles: (string | null)[] = [
-      "admin",
-      "lider_midia",
-      "lider_geral",
-      "pastor(a)",
-    ]
-    return allowedRoles.includes(profile.role)
+    // Usa sistema dinâmico de roles
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (profile as any).roles?.is_leadership || false
   }, [profile])
 
   const filteredEvents = useMemo(() => {

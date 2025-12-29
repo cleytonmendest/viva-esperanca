@@ -4,7 +4,10 @@ import type { Tables } from '@/lib/supabase/database.types';
 
 // Define o tipo para os dados do perfil que queremos armazenar.
 // Pegamos o tipo 'Row' da nossa tabela 'members' gerada pela CLI.
-export type MemberProfile = Tables<'members'>;
+export type MemberProfile = Tables<'members'> & {
+  roles?: Tables<'roles'> | null;
+  sectors?: Tables<'sectors'> | null;
+};
 
 // Interface que define a estrutura do nosso store.
 // O que ele vai armazenar (estado) e o que ele pode fazer (ações).

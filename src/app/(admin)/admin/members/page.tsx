@@ -4,9 +4,14 @@ import { Badge } from "@/components/ui/badge"
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
 import { getMembers } from "@/app/(admin)/admin/queries"
 import { formatDate, formatPhoneNumber } from "@/lib/format"
+import { getAllRoles, getAllSectors } from "@/lib/permissions"
 
 const MembersPage = async () => {
-    const members = await getMembers();
+    const [members, roles, sectors] = await Promise.all([
+        getMembers(),
+        getAllRoles(),
+        getAllSectors(),
+    ]);
 
     return (
         <>
@@ -15,7 +20,7 @@ const MembersPage = async () => {
             </section>
             <section className="lg:max-w-4xl mx-auto w-full">
                 <div className="flex justify-end mb-4">
-                    <AddNewMemberDialog />
+                    <AddNewMemberDialog roles={roles} sectors={sectors} />
                 </div>
                 <Table>
                     <TableHeader>
@@ -40,7 +45,7 @@ const MembersPage = async () => {
                                 </TableCell>
                                 <TableCell>{formatPhoneNumber(member.phone)}</TableCell>
                                 <TableCell>{formatDate(member.birthdate)}</TableCell>
-                                <TableCell><EditMemberDialog member={member} /></TableCell>
+                                <TableCell><EditMemberDialog member={member} roles={roles} sectors={sectors} /></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

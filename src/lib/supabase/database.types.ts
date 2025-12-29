@@ -175,13 +175,6 @@ export type Database = {
             referencedRelation: "members"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "member_sectors_sector_id_fkey"
-            columns: ["sector_id"]
-            isOneToOne: false
-            referencedRelation: "sectors"
-            referencedColumns: ["id"]
-          },
         ]
       }
       members: {
@@ -194,6 +187,7 @@ export type Database = {
           role: Database["public"]["Enums"]["user_role_enum"]
           role_id: string | null
           sector: Database["public"]["Enums"]["sector_enum"][] | null
+          sector_id: string | null
           status: Database["public"]["Enums"]["member_status_enum"]
           user_id: string | null
         }
@@ -206,6 +200,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role_enum"]
           role_id?: string | null
           sector?: Database["public"]["Enums"]["sector_enum"][] | null
+          sector_id?: string | null
           status?: Database["public"]["Enums"]["member_status_enum"]
           user_id?: string | null
         }
@@ -218,6 +213,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role_enum"]
           role_id?: string | null
           sector?: Database["public"]["Enums"]["sector_enum"][] | null
+          sector_id?: string | null
           status?: Database["public"]["Enums"]["member_status_enum"]
           user_id?: string | null
         }
@@ -227,6 +223,13 @@ export type Database = {
             columns: ["role_id"]
             isOneToOne: false
             referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "members_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
             referencedColumns: ["id"]
           },
         ]
@@ -374,37 +377,58 @@ export type Database = {
       }
       roles: {
         Row: {
-          created_at: string
+          created_at: string | null
+          description: string | null
           id: string
+          is_leadership: boolean | null
           name: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
+          description?: string | null
           id?: string
+          is_leadership?: boolean | null
           name: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
+          description?: string | null
           id?: string
+          is_leadership?: boolean | null
           name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       sectors: {
         Row: {
-          created_at: string
+          color: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
           id: string
           name: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
           id?: string
           name: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
           id?: string
           name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -439,15 +463,7 @@ export type Database = {
           sector?: Database["public"]["Enums"]["sector_enum"] | null
           sector_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "tasks_sector_id_fkey"
-            columns: ["sector_id"]
-            isOneToOne: false
-            referencedRelation: "sectors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       visitors: {
         Row: {

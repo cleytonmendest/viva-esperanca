@@ -14,12 +14,11 @@ import { ExecutiveSummaryCard } from "@/components/dashboard/ExecutiveSummaryCar
 import { ActivitiesWidget } from "@/components/dashboard/ActivitiesWidget";
 import { TopMembersWidget } from "@/components/dashboard/TopMembersWidget";
 
-// Roles que têm acesso ao resumo executivo
-const LEADER_ROLES = ['admin', 'pastor(a)', 'lider_midia', 'lider_geral'];
-
 export default async function Admin() {
   const profile = await getProfile();
-  const isLeader = profile ? LEADER_ROLES.includes(profile.role) : false;
+  // Verifica se é líder usando o novo sistema de roles dinâmicas
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isLeader = profile ? (profile as any).roles?.is_leadership : false;
 
   // Buscar dados básicos (todos os usuários veem)
   const [assignedTasks, availableTasks, allMembers, recentActivities] = await Promise.all([

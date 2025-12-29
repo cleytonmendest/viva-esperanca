@@ -35,7 +35,11 @@ export default async function RootLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const { data: profile } = user
-    ? await supabase.from('members').select('*').eq('user_id', user.id).single()
+    ? await supabase.from('members').select(`
+        *,
+        roles(id, name, description, is_leadership),
+        sectors(id, name, description, icon, color)
+      `).eq('user_id', user.id).single()
     : { data: null };
 
   return (
@@ -44,7 +48,8 @@ export default async function RootLayout({
         className={`${poppins.variable} ${geistMono.variable} antialiased dark`}
       >
         <StoreInitializer user={user} profile={profile} />
-        {profile?.role === 'pendente' && (
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {(profile as any)?.roles?.name === 'Pendente' && (
           <main className="p-4 h-dvh flex flex-col justify-center items-center">
             <section className="text-center w-fit max-w-md border border-gray-300 rounded-lg p-6 shadow-md">
               <h1 className="text-2xl">Aguardando Aprovação</h1>
@@ -52,7 +57,8 @@ export default async function RootLayout({
             </section>
           </main>
         )}
-        {profile?.role !== 'pendente' && user && (
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {(profile as any)?.roles?.name !== 'Pendente' && user && (
           <SidebarProvider>
             <AppSidebar />
             <main className="w-full flex flex-col px-4">

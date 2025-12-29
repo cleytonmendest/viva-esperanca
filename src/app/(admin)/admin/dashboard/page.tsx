@@ -24,14 +24,14 @@ interface DashboardProps {
   searchParams: Promise<{ period?: string }>;
 }
 
-// Roles que têm acesso ao dashboard executivo
-const ALLOWED_ROLES = ['admin', 'pastor(a)', 'lider_midia', 'lider_geral'];
-
 export default async function Dashboard({ searchParams }: DashboardProps) {
   const profile = await getProfile();
 
-  // Controle de acesso - apenas líderes e admins
-  if (!profile || !ALLOWED_ROLES.includes(profile.role)) {
+  // Controle de acesso - apenas líderes e admins (usando sistema dinâmico)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isLeader = profile ? (profile as any).roles?.is_leadership : false;
+
+  if (!profile || !isLeader) {
     redirect('/admin/unauthorized');
   }
 

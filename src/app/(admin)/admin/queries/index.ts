@@ -128,7 +128,11 @@ export async function getProfile() {
 
   const { data: profile, error } = await supabase
     .from("members")
-    .select("*")
+    .select(`
+      *,
+      roles(id, name, description, is_leadership),
+      sectors(id, name, description, icon, color)
+    `)
     .eq("user_id", user.id)
     .single();
 

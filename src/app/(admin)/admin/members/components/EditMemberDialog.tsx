@@ -14,22 +14,24 @@ import { FormConfig } from "@/components/forms/form-config"
 
 type EditMemberDialogProps = {
     member: Tables<'members'>
+    roles: Tables<'roles'>[]
+    sectors: Tables<'sectors'>[]
 }
 
-const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
+const EditMemberDialog = ({ member, roles, sectors }: EditMemberDialogProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const { profile } = useAuthStore()
     const formRef = useRef<GenericFormRef>(null);
 
-    const sectorOptions = Constants.public.Enums.sector_enum.map(sector => ({
-        value: sector,
-        label: sector.charAt(0).toUpperCase() + sector.slice(1)
+    const sectorOptions = sectors.map(sector => ({
+        value: sector.id,
+        label: sector.name
     }));
 
-    const roleOptions = Constants.public.Enums.user_role_enum.map((role: string) => ({
-        value: role,
-        label: role.charAt(0).toUpperCase() + role.slice(1)
+    const roleOptions = roles.map((role) => ({
+        value: role.id,
+        label: role.name
     }));
 
     const formConfig: FormConfig = [
@@ -54,17 +56,18 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
             required: true,
         },
         {
-            name: "sector",
+            name: "sector_id",
             label: "Setor",
-            type: "multiselect",
+            type: "select",
             options: sectorOptions,
             placeholder: "Selecione...",
         },
     ];
 
-    if (profile?.role === 'admin') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((profile as any)?.roles?.name === 'Admin') {
         formConfig.push({
-            name: "role",
+            name: "role_id",
             label: "Role",
             type: "select",
             options: roleOptions,
@@ -74,7 +77,8 @@ const EditMemberDialog = ({ member }: EditMemberDialogProps) => {
 
     const defaultValues = {
         ...member,
-        sector: member.sector ?? [],
+        role_id: member.role_id || undefined,
+        sector_id: member.sector_id || undefined,
     };
 
     const handleSubmit = async (data: TablesUpdate<'members'>) => {
