@@ -665,7 +665,7 @@ export async function getPostById(postId: string) {
 export async function getAllCategories() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { data, error} = await supabase
     .from('post_categories')
     .select('*')
     .order('name', { ascending: true });
@@ -676,4 +676,141 @@ export async function getAllCategories() {
   }
 
   return data;
+}
+
+// ========== AUDIT LOG QUERIES ==========
+
+/**
+ * Retorna os logs de auditoria mais recentes com paginação
+ */
+export async function getRecentAuditLogs(limit: number = 50, offset: number = 0) {
+  const supabase = await createClient();
+
+  const { data, error, count } = await supabase
+    .from('audit_logs')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    console.error('Error fetching audit logs:', error);
+    return { logs: [], total: 0 };
+  }
+
+  return { logs: data || [], total: count || 0 };
+}
+
+/**
+ * Retorna logs de auditoria filtrados por tipo de ação
+ */
+export async function getAuditLogsByActionType(
+  actionType: string,
+  limit: number = 50
+) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('*')
+    .eq('action_type', actionType)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching audit logs by action:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Retorna logs de auditoria de um membro específico
+ */
+export async function getAuditLogsByMember(
+  userId: string,
+  limit: number = 50
+) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching audit logs by member:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Retorna estatísticas de engajamento de membros
+ * (quantas tarefas cada membro aceitou em um período)
+ */
+export async function getMemberEngagementStats(period: string = '30d') {
+  const supabase = await createClient();
+  const startDate = getStartDate(period);
+
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('user_id, member_name, action_type, details')
+    .in('action_type', ['task_assigned', 'task_self_assigned'])
+    .gte('created_at', startDate.toISOString())
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching member engagement:', error);
+    return [];
+  }
+
+  // Agrupar por membro e contar ações
+  const engagementMap: Record<string, { name: string; tasks: number; selfAssigned: number }> = {};
+
+  data?.forEach((log) => {
+    const userId = log.user_id || 'unknown';
+    const memberName = log.member_name || 'Desconhecido';
+
+    if (!engagementMap[userId]) {
+      engagementMap[userId] = {
+        name: memberName,
+        tasks: 0,
+        selfAssigned: 0,
+      };
+    }
+
+    engagementMap[userId].tasks += 1;
+    if (log.action_type === 'task_self_assigned') {
+      engagementMap[userId].selfAssigned += 1;
+    }
+  });
+
+  // Converter para array e ordenar por número de tarefas
+  return Object.entries(engagementMap)
+    .map(([userId, stats]) => ({ userId, ...stats }))
+    .sort((a, b) => b.tasks - a.tasks);
+}
+
+/**
+ * Retorna atividades recentes para o dashboard
+ */
+export async function getDashboardActivities(limit: number = 10) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching dashboard activities:', error);
+    return [];
+  }
+
+  return data || [];
 }

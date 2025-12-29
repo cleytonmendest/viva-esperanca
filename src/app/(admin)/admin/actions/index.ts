@@ -3,10 +3,23 @@
 import { createClient } from '@/lib/supabase/server';
 import { TablesInsert, TablesUpdate } from '@/lib/supabase/database.types';
 import { revalidatePath } from 'next/cache';
+import {
+  logTaskAssignment,
+  logTaskRemoval,
+  logEventAction,
+  logMemberAction
+} from '@/lib/audit';
 
 export async function assignTaskToSelf(memberId: string, formData: FormData) {
   const assignmentId = formData.get('assignmentId') as string;
   const supabase = await createClient();
+
+  // Busca dados do assignment para o log
+  const { data: assignment } = await supabase
+    .from('event_assignments')
+    .select('*, events(id, name), tasks(id, name), members(id, name)')
+    .eq('id', assignmentId)
+    .single();
 
   const { error } = await supabase
     .from('event_assignments')
@@ -19,6 +32,24 @@ export async function assignTaskToSelf(memberId: string, formData: FormData) {
       success: false,
       message: 'Erro ao assumir a tarefa. Tente novamente.',
     };
+  }
+
+  // Registra log de auditoria
+  if (assignment) {
+    const eventData = assignment.events as { id: string; name: string } | null;
+    const taskData = assignment.tasks as { id: string; name: string } | null;
+    const memberData = assignment.members as { id: string; name: string } | null;
+
+    await logTaskAssignment({
+      eventId: assignment.event_id,
+      eventName: eventData?.name || 'Evento',
+      taskId: assignment.task_id,
+      taskName: taskData?.name || 'Tarefa',
+      memberId,
+      memberName: memberData?.name || 'Membro', // Em auto-atribuição, quem FEZ = quem RECEBE
+      assignedToMemberName: memberData?.name || 'Membro', // Mesmo nome
+      isSelfAssigned: true,
+    });
   }
 
   revalidatePath('/admin');
@@ -58,6 +89,13 @@ export async function addAssignmentToEvent(eventId: string, taskId: string) {
 export async function updateAssignmentMember(assignmentId: string, memberId: string | null, eventId: string) {
   const supabase = await createClient();
 
+  // Busca dados do assignment para o log
+  const { data: assignment } = await supabase
+    .from('event_assignments')
+    .select('*, events(id, name), tasks(id, name)')
+    .eq('id', assignmentId)
+    .single();
+
   const { error } = await supabase
     .from('event_assignments')
     .update({ member_id: memberId })
@@ -71,6 +109,29 @@ export async function updateAssignmentMember(assignmentId: string, memberId: str
     };
   }
 
+  // Registra log de auditoria se houver membro atribuído
+  if (assignment && memberId) {
+    const { data: member } = await supabase
+      .from('members')
+      .select('name')
+      .eq('id', memberId)
+      .single();
+
+    const eventData = assignment.events as { id: string; name: string } | null;
+    const taskData = assignment.tasks as { id: string; name: string } | null;
+
+    await logTaskAssignment({
+      eventId: assignment.event_id,
+      eventName: eventData?.name || 'Evento',
+      taskId: assignment.task_id,
+      taskName: taskData?.name || 'Tarefa',
+      memberId,
+      assignedToMemberName: member?.name || 'Membro', // Nome de quem RECEBE a tarefa
+      isSelfAssigned: false,
+      // NÃO passa memberName aqui - logAction vai buscar automaticamente quem está logado (quem FEZ a atribuição)
+    });
+  }
+
   revalidatePath(`/admin/events/${eventId}`);
 
   return {
@@ -82,7 +143,7 @@ export async function updateAssignmentMember(assignmentId: string, memberId: str
 export async function addEvent(eventData: TablesInsert<'events'>) {
   const supabase = await createClient();
 
-  const { error } = await supabase.from('events').insert([eventData]);
+  const { data, error } = await supabase.from('events').insert([eventData]).select().single();
 
   if (error) {
     console.error('Error adding event:', error);
@@ -90,6 +151,19 @@ export async function addEvent(eventData: TablesInsert<'events'>) {
       success: false,
       message: 'Tivemos um problema ao adicionar o evento. Tente novamente mais tarde.',
     };
+  }
+
+  // Registra log de auditoria
+  if (data) {
+    await logEventAction({
+      action: 'created',
+      eventId: data.id,
+      eventName: data.name,
+      eventData: {
+        event_date: data.event_date,
+        description: data.description,
+      },
+    });
   }
 
   revalidatePath('/admin/events');
@@ -103,10 +177,12 @@ export async function addEvent(eventData: TablesInsert<'events'>) {
 export async function updateEvent(eventId: string, eventData: TablesUpdate<'events'>) {
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('events')
     .update(eventData)
-    .eq('id', eventId);
+    .eq('id', eventId)
+    .select()
+    .single();
 
   if (error) {
     console.error('Error updating event:', error);
@@ -114,6 +190,16 @@ export async function updateEvent(eventId: string, eventData: TablesUpdate<'even
       success: false,
       message: 'Tivemos um problema ao atualizar o evento. Tente novamente mais tarde.',
     };
+  }
+
+  // Registra log de auditoria
+  if (data) {
+    await logEventAction({
+      action: 'updated',
+      eventId: data.id,
+      eventName: data.name,
+      eventData: { changes: eventData },
+    });
   }
 
   revalidatePath('/admin/events');
@@ -172,6 +258,13 @@ export async function updateMember(memberId: string, memberData: TablesUpdate<'m
 export async function deleteAssignment(assignmentId: string, eventId: string) {
   const supabase = await createClient();
 
+  // Busca dados do assignment antes de deletar para o log
+  const { data: assignment } = await supabase
+    .from('event_assignments')
+    .select('*, events(name), tasks(name), members(name)')
+    .eq('id', assignmentId)
+    .single();
+
   const { error } = await supabase
     .from('event_assignments')
     .delete()
@@ -183,6 +276,22 @@ export async function deleteAssignment(assignmentId: string, eventId: string) {
       success: false,
       message: 'Tivemos um problema ao remover a tarefa. Tente novamente.',
     };
+  }
+
+  // Registra log de auditoria
+  if (assignment && assignment.member_id) {
+    const eventData = assignment.events as { name: string } | null;
+    const taskData = assignment.tasks as { name: string } | null;
+    const memberData = assignment.members as { name: string } | null;
+
+    await logTaskRemoval({
+      eventId: assignment.event_id,
+      eventName: eventData?.name || 'Evento',
+      taskId: assignment.task_id,
+      taskName: taskData?.name || 'Tarefa',
+      memberId: assignment.member_id,
+      removedFromMemberName: memberData?.name || 'Membro', // Nome de quem TINHA a tarefa removida
+    });
   }
 
   revalidatePath(`/admin/events/${eventId}`);
@@ -286,6 +395,13 @@ export async function updateTask(taskId: string, taskData: TablesUpdate<'tasks'>
 export async function deleteEvent(eventId: string) {
   const supabase = await createClient();
 
+  // Busca dados do evento antes de deletar para o log
+  const { data: event } = await supabase
+    .from('events')
+    .select('id, name, event_date')
+    .eq('id', eventId)
+    .single();
+
   const { error } = await supabase
     .from('events')
     .delete()
@@ -297,6 +413,18 @@ export async function deleteEvent(eventId: string) {
       success: false,
       message: 'Tivemos um problema ao remover o evento. Tente novamente.',
     };
+  }
+
+  // Registra log de auditoria
+  if (event) {
+    await logEventAction({
+      action: 'deleted',
+      eventId: event.id,
+      eventName: event.name,
+      eventData: {
+        event_date: event.event_date,
+      },
+    });
   }
 
   revalidatePath('/admin/events');

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { TablesInsert } from '@/lib/supabase/database.types';
 import { unmaskPhoneNumber } from '@/lib/format';
+import { logVisitorSubmission } from '@/lib/audit';
 
 type ContactMessageData = {
   name: string;
@@ -82,9 +83,11 @@ export async function submitVisitorForm(formData: Omit<TablesInsert<'visitors'>,
       visitor_status: null, // Será preenchido pelo admin posteriormente
     };
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('visitors')
-      .insert([visitorData]);
+      .insert([visitorData])
+      .select()
+      .single();
 
     if (error) {
       console.error('Erro ao cadastrar visitante:', error);
@@ -92,6 +95,20 @@ export async function submitVisitorForm(formData: Omit<TablesInsert<'visitors'>,
         success: false,
         message: 'Não foi possível processar seu cadastro. Por favor, tente novamente.'
       };
+    }
+
+    // Registra log de auditoria
+    if (data) {
+      await logVisitorSubmission({
+        visitorId: data.id,
+        visitorName: data.visitor_name,
+        visitorData: {
+          first_time: data.first_time,
+          event_name: data.event_name,
+          how_found_church: data.how_found_church,
+          visitor_city: data.visitor_city,
+        },
+      });
     }
 
     return {
