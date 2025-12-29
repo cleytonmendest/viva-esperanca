@@ -10,64 +10,7 @@
 
 ### 🟢 Alta Prioridade
 
-#### 1. Sistema de Roles, Setores e Permissões Dinâmicos
-**Objetivo**: Refatorar sistema de permissões para ser gerenciável via UI sem necessidade de migrations
-
-**Problema Atual**:
-- Roles hardcoded (`lider_midia`, `lider_geral`) em 12+ arquivos
-- Setores como array de enums (causa confusão)
-- Impossível adicionar novas roles/setores sem migration
-- Permissões apenas por página (sem controle granular)
-- **Tentativa anterior (Nov/2024) foi revertida** devido a bugs de integração
-
-**Solução**:
-- Role único `lider` (setor define área: lider + mídia = líder de mídia)
-- Setor único por membro (simplicidade)
-- Roles e setores gerenciáveis via UI admin
-- Permissões granulares por ação (Create/Read/Update/Delete por recurso)
-- Sistema dual com feature flags (migração segura e gradual)
-- Validações rigorosas de integração (prevenir bug anterior)
-
-**Implementação (6 fases)**:
-- **Fase 0:** Setup staging + Git branch (2-3 dias)
-- **Fase 1:** Migrations BD com dual compatibility (1 semana)
-- **Fase 2:** Helpers com feature flags (1 semana)
-- **Fase 3:** UI admin para CRUD de roles/setores/permissões (2 semanas)
-- **Fase 4:** Ativação gradual de flags + monitoramento (1-2 semanas)
-- **Fase 5:** Limpeza final - remoção de enums (após 2-3 meses estáveis)
-
-**Features**:
-- UI para criar/editar/deletar roles customizadas
-- UI para criar/editar/deletar setores customizados
-- Matrix de permissões de páginas (quais roles veem quais páginas)
-- Matrix de permissões de ações (Create/Read/Update/Delete por recurso)
-- Permissões contextuais por setor (líder só edita seu setor)
-- Feature flags para rollback seguro
-- Ambiente staging para testes antes de produção
-
-**Migrations**:
-```
-supabase/migrations/
-├── 20251206000000_activate_roles_sectors_system.sql
-├── 20251206000001_create_action_permissions_system.sql
-├── 20251206000002_create_feature_flags.sql
-├── 20251213000000_add_configuracoes_menu.sql
-└── 20250301000000_remove_deprecated_enums.sql (Fase 5)
-```
-
-**Documentação**:
-- Plano detalhado: `C:\Users\Cleyton\.claude\plans\adaptive-imagining-treasure.md`
-- Lições aprendidas: `docs/LESSONS_LEARNED.md`
-
-**Impacto**: MUITO ALTO (base para escalabilidade futura)
-**Complexidade**: Muito Alta
-**Duração**: 5-6 semanas + 2-3 meses monitoramento
-**Risco**: Alto (mas mitigado com staging + feature flags)
-**Status**: 🚧 Em Implementação (Fase 0)
-
----
-
-#### 2. Sistema de Notificações WhatsApp
+#### 1. Sistema de Notificações WhatsApp
 **Objetivo**: Follow-up automático de visitantes e lembretes de eventos/tarefas
 
 **Features**:
@@ -87,7 +30,7 @@ supabase/migrations/
 
 ---
 
-#### 3. Calendário Interativo
+#### 2. Calendário Interativo
 **Objetivo**: Visualizar eventos e escalas em formato de calendário
 
 **Features**:
@@ -104,7 +47,7 @@ supabase/migrations/
 
 ---
 
-#### 4. Relatórios e Exportação
+#### 3. Relatórios e Exportação
 **Objetivo**: Gerar relatórios em PDF/Excel para análise
 
 **Features**:
@@ -122,7 +65,7 @@ supabase/migrations/
 
 ### 🟡 Média Prioridade
 
-#### 5. Check-in em Eventos
+#### 4. Check-in em Eventos
 **Objetivo**: Controlar presença em eventos via QR Code ou lista digital
 
 **Features**:
@@ -138,7 +81,7 @@ supabase/migrations/
 
 ---
 
-#### 6. Gestão Financeira
+#### 5. Gestão Financeira
 **Objetivo**: Controle de receitas e despesas da igreja
 
 **Features**:
@@ -155,7 +98,7 @@ supabase/migrations/
 
 ---
 
-#### 7. Gestão de Células/Grupos
+#### 6. Gestão de Células/Grupos
 **Objetivo**: Gerenciar grupos pequenos e células
 
 **Features**:
@@ -173,6 +116,27 @@ supabase/migrations/
 ---
 
 ### 🔵 Baixa Prioridade (Melhorias)
+
+#### 7. Sistema de Permissões Granulares (v2.0)
+**Objetivo**: Expandir sistema de roles/setores para controle fino de ações
+
+**Contexto**:
+- Sistema básico (v1.0) já implementado ✅
+- Atualmente: permissões por página + `is_leadership` boolean
+- Expansão: permissões por ação (CRUD) e contexto (setor)
+
+**Features:**
+- Matrix de permissões de ações (Create/Read/Update/Delete por recurso)
+- Permissões contextuais por setor (líder só edita seu setor)
+- UI para gerenciar permissões granulares
+
+**Nota:** Sistema atual atende bem. Implementar apenas se houver demanda real.
+
+**Impacto**: Médio (controle mais fino)
+**Complexidade**: Alta
+**Prioridade**: Baixa
+
+---
 
 #### 8. PWA (Progressive Web App)
 - Instalável como app no celular
@@ -293,14 +257,14 @@ supabase/migrations/
 ## 📅 Roadmap Trimestral Sugerido
 
 ### Q1 2025 (Jan-Mar)
-1. **Sistema de Roles, Setores e Permissões Dinâmicos** (🚧 Em andamento)
-2. Sistema de Notificações WhatsApp
-3. Calendário Interativo
+1. Sistema de Notificações WhatsApp
+2. Calendário Interativo
+3. Relatórios e Exportação
 
 ### Q2 2025 (Abr-Jun)
-1. Relatórios e Exportação
-2. Check-in de Eventos
-3. Blog público completo
+1. Check-in de Eventos
+2. Blog público completo
+3. Gestão Financeira (se necessário)
 
 ### Q3 2025 (Jul-Set)
 1. Gestão Financeira
@@ -378,6 +342,7 @@ Ou crie uma issue com tag `feature-request`.
 
 | Feature | Data | Descrição |
 |---------|------|-----------|
+| Sistema de Roles e Setores Dinâmicos (v1) | Dez/2025 | Tabelas roles/sectors, UI de gerenciamento em /admin/configuracoes, migração de enums para FK, helper functions, refatoração completa de verificações de liderança |
 | Sistema de Observabilidade (Fase 2) | Dez/2025 | Widget de atividades no dashboard, página /admin/atividades com timeline, filtros e paginação |
 | Sistema de Observabilidade (Fase 1) | Dez/2025 | Infraestrutura completa de auditoria: tabela audit_logs, helpers, integração em actions, queries type-safe |
 | Formulário de Visitante | Dez/2025 | Formulário público em /visitante com campos expandidos (cidade, como conheceu, pedidos de oração) e página de agradecimento |
