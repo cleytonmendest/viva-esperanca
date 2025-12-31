@@ -16,6 +16,8 @@ export async function middleware(request: NextRequest) {
   // Detecta role usando sistema novo (roles table) ou fallback para enum antigo
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const userRole = (profile as any)?.roles?.name || (profile as any)?.role;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isLeadership = (profile as any)?.roles?.is_leadership || false;
 
   // Lógica de proteção de rota:
   // Se não houver usuário e a rota for do admin (exceto login/signup)...
@@ -32,9 +34,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redireciona membros pendentes para página de aprovação
+  // EXCETO se for líder (para que admins/líderes possam aprovar membros)
   if(
     user &&
     (userRole === 'Pendente' || userRole === 'pendente') &&
+    !isLeadership &&
     request.nextUrl.pathname.startsWith('/admin') &&
     !request.nextUrl.pathname.startsWith('/admin/pending-approval')
   ){

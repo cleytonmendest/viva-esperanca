@@ -181,6 +181,7 @@ export type Database = {
         Row: {
           birthdate: string
           created_at: string
+          deleted_at: string | null
           id: string
           name: string
           phone: string
@@ -194,6 +195,7 @@ export type Database = {
         Insert: {
           birthdate: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           name: string
           phone: string
@@ -207,6 +209,7 @@ export type Database = {
         Update: {
           birthdate?: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           name?: string
           phone?: string

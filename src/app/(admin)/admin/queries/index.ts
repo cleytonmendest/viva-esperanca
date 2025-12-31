@@ -85,7 +85,10 @@ export async function getAssignmentsByEventId(eventId: string) {
 
 export async function getAllMembers() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('members').select('id, name, sector');
+  const { data, error } = await supabase
+    .from('members')
+    .select('id, name, sector')
+    .is('deleted_at', null);  // Exclui membros deletados
 
   if (error) {
     console.error("Error fetching members:", error);
@@ -107,13 +110,48 @@ export async function getAllTasks() {
 
 export async function getMembers() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('members').select('*');
+  const { data, error } = await supabase
+    .from('members')
+    .select('*')
+    .is('deleted_at', null);  // Exclui membros deletados
 
   if (error) {
     console.error("Error fetching members:", error);
     return [];
   }
   return data;
+}
+
+export async function getPendingMembers() {
+  const supabase = await createClient();
+
+  // Busca todos os membros e filtra os pendentes
+  // Considera tanto sistema antigo (role enum) quanto novo (role_id)
+  const { data: allMembers, error } = await supabase
+    .from('members')
+    .select(`
+      *,
+      roles(id, name, description, is_leadership)
+    `)
+    .is('deleted_at', null)  // Exclui membros deletados
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching pending members:", error);
+    return [];
+  }
+
+  // Filtra membros pendentes:
+  // 1. Sistema antigo: role = 'pendente' E role_id = NULL
+  // 2. Sistema novo: roles.name = 'Pendente'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pendingMembers = allMembers?.filter((member: any) => {
+    const hasOldPendingRole = member.role === 'pendente' && !member.role_id;
+    const hasNewPendingRole = member.roles?.name === 'Pendente';
+    return hasOldPendingRole || hasNewPendingRole;
+  }) || [];
+
+  return pendingMembers;
 }
 
 export async function getProfile() {

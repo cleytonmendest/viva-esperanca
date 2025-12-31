@@ -628,3 +628,73 @@ export async function deletePost(postId: string) {
     message: 'Post deletado com sucesso!',
   };
 }
+
+/**
+ * Aprova um membro pendente alterando sua role
+ */
+export async function approveMember(memberId: string, newRoleId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('members')
+    .update({
+      role: 'membro',  // Atualiza enum antigo
+      role_id: newRoleId  // Atualiza foreign key nova
+    })
+    .eq('id', memberId);
+
+  if (error) {
+    console.error('Error approving member:', error);
+    return {
+      success: false,
+      message: 'Erro ao aprovar membro. Tente novamente.',
+    };
+  }
+
+  // TODO: Log de auditoria
+  // await logMemberAction({ ... });
+
+  revalidatePath('/admin/members');
+  revalidatePath('/admin');
+
+  return {
+    success: true,
+    message: 'Membro aprovado com sucesso!',
+  };
+}
+
+/**
+ * Nega um membro pendente (soft delete)
+ */
+export async function denyMember(memberId: string) {
+  const supabase = await createClient();
+
+  // Soft delete: marca deleted_at com timestamp atual
+  const { error } = await supabase
+    .from('members')
+    .update({
+      deleted_at: new Date().toISOString(),
+      status: 'inativo'
+    })
+    .eq('id', memberId);
+
+  if (error) {
+    console.error('Error denying member:', error);
+    return {
+      success: false,
+      message: 'Erro ao negar membro. Tente novamente.',
+    };
+  }
+
+  // TODO: Log de auditoria
+  // await logMemberAction({ ... });
+
+  revalidatePath('/admin/members');
+  revalidatePath('/admin/members/pending');
+  revalidatePath('/admin');
+
+  return {
+    success: true,
+    message: 'Membro negado com sucesso!',
+  };
+}
