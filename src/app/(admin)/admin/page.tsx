@@ -20,11 +20,22 @@ export default async function Admin() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isLeader = profile ? (profile as any).roles?.is_leadership : false;
 
+  // Mapeamento de nome do setor (titlecase) para enum (lowercase)
+  const sectorNameToEnum: Record<string, string> = {
+    'Mídia': 'mídia',
+    'Geral': 'geral',
+    'Louvor': 'louvor',
+    'Infantil': 'infantil',
+    'Social': 'social'
+  };
+
   // Buscar dados básicos (todos os usuários veem)
   const [assignedTasks, availableTasks, allMembers, recentActivities] = await Promise.all([
     profile ? getAssignedTasks(profile.id) : Promise.resolve([]),
-    profile?.sector && profile.sector.length > 0
-      ? getAvailableTasks(profile.sector)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (profile as any)?.sectors?.name
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? getAvailableTasks([sectorNameToEnum[(profile as any).sectors.name] || (profile as any).sectors.name.toLowerCase()])
       : Promise.resolve([]),
     getAllMembers(),
     getDashboardActivities(5), // Últimas 5 atividades

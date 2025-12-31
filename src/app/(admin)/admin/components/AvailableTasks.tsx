@@ -22,7 +22,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface AvailableTasksProps {
   tasks: AvailableTask[];
-  allMembers: ({ id: string; name: string; sector: string[] | null; })[];
+  allMembers: ({ id: string; name: string; sectors: { id: string; name: string } | null; })[];
 }
 
 export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProps) {
@@ -35,13 +35,9 @@ export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProp
 
   const isLeader = useMemo(() => {
     if (!profile) return false;
-    const allowedRoles: (string | null)[] = [
-      "admin",
-      "lider_midia",
-      "lider_geral",
-      "pastor(a)",
-    ];
-    return allowedRoles.includes(profile.role);
+    // Usa sistema dinâmico de roles via FK
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (profile as any).roles?.is_leadership || false;
   }, [profile]);
 
   const processedTasks = [...tasks]
@@ -200,7 +196,7 @@ export default function AvailableTasks({ tasks, allMembers }: AvailableTasksProp
                                       <TableCell>{assignment.tasks?.name ?? "N/A"}</TableCell>
                                       <TableCell className="text-right">
                                         {isLeader ? (
-                                          <LeaderAssignment assignment={assignmentForComponent} allMembers={allMembers.filter(member => member.sector?.includes(assignment.tasks?.sector ?? ''))} />
+                                          <LeaderAssignment assignment={assignmentForComponent} allMembers={allMembers.filter(member => member.sectors?.name.toLowerCase() === assignment.tasks?.sector)} />
                                         ) : (
                                           <MemberAssignment assignment={assignmentForComponent} />
                                         )}

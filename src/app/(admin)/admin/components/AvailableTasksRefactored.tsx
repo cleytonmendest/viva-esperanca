@@ -21,7 +21,7 @@ import {
 
 interface AvailableTasksRefactoredProps {
   tasks: AvailableTask[];
-  allMembers: { id: string; name: string; sector: string[] | null }[];
+  allMembers: { id: string; name: string; sectors: { id: string; name: string } | null }[];
 }
 
 const SECTOR_LABELS: Record<string, string> = {

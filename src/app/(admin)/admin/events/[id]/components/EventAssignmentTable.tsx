@@ -16,6 +16,7 @@ import { deleteAssignment } from "../../../actions";
 
 type Task = Tables<'tasks'>;
 type Member = Tables<'members'>;
+type Sector = Tables<'sectors'>;
 export type Assignment = Tables<'event_assignments'> & {
   tasks: Task | null;
   members: Member | null;
@@ -23,19 +24,41 @@ export type Assignment = Tables<'event_assignments'> & {
 
 interface EventAssignmentsTableProps {
   assignments: Assignment[];
-  allMembers: ({ id: string; name: string; sector: string[] | null; })[];
+  allMembers: ({ id: string; name: string; sectors: { id: string; name: string } | null; })[];
   allTasks: { id: string; name: string }[];
+  allSectors: Sector[];
   eventId: string;
 }
 
-const EventAssignmentTable = ({ allMembers, assignments, allTasks, eventId }: EventAssignmentsTableProps) => {
+const EventAssignmentTable = ({ allMembers, assignments, allTasks, allSectors, eventId }: EventAssignmentsTableProps) => {
   const { profile } = useAuthStore();
-  const isMember = profile?.role === 'membro';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isMember = (profile as any)?.roles?.name === 'Membro';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sectorFilter, setSectorFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState(isMember ? 'open' : 'all');
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Mapeamento de setor (nome) para cor - case-insensitive
+  const sectorColorMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    allSectors.forEach(sector => {
+      // Mapeia tanto o nome original quanto lowercase para suportar ambos os sistemas
+      map[sector.name] = sector.color || '#3B82F6';
+      map[sector.name.toLowerCase()] = sector.color || '#3B82F6';
+    });
+    return map;
+  }, [allSectors]);
+
+  // Mapeamento de enum (lowercase) para nome (titlecase)
+  const sectorEnumToName = useMemo(() => {
+    const map: Record<string, string> = {};
+    allSectors.forEach(sector => {
+      map[sector.name.toLowerCase()] = sector.name;
+    });
+    return map;
+  }, [allSectors]);
 
   const availableAssignments = useMemo(() => {
     if (isMember) {
@@ -105,11 +128,26 @@ const EventAssignmentTable = ({ allMembers, assignments, allTasks, eventId }: Ev
               <SelectValue placeholder="Filtrar por setor" />
             </SelectTrigger>
             <SelectContent>
-              {uniqueSectors.map(sector => (
-                <SelectItem key={sector} value={sector ?? 'all'}>
-                  {sector === 'all' ? 'Todos os Setores' : sector}
-                </SelectItem>
-              ))}
+              {uniqueSectors.map(sector => {
+                const sectorName = sector === 'all' ? 'Todos os Setores' : (sectorEnumToName[sector ?? ''] || sector);
+                const sectorColor = sector !== 'all' ? sectorColorMap[sector ?? ''] : undefined;
+
+                return (
+                  <SelectItem key={sector} value={sector ?? 'all'}>
+                    {sector !== 'all' && sectorColor ? (
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: sectorColor }}
+                        />
+                        {sectorName}
+                      </div>
+                    ) : (
+                      sectorName
+                    )}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           {!isMember && (
@@ -149,7 +187,19 @@ const EventAssignmentTable = ({ allMembers, assignments, allTasks, eventId }: Ev
               <TableRow key={assignment.id}>
                 <TableCell>{assignment.tasks?.name ?? 'Tarefa não encontrada'}</TableCell>
                 <TableCell>
-                  {assignment.tasks?.sector && <Badge>{assignment.tasks.sector}</Badge>}
+                  {assignment.tasks?.sector && (
+                    <Badge
+                      className="border-0"
+                      style={{
+                        backgroundColor: sectorColorMap[assignment.tasks.sector] ||
+                                       sectorColorMap[assignment.tasks.sector.toLowerCase()] ||
+                                       '#3B82F6',
+                        color: '#ffffff'
+                      }}
+                    >
+                      {sectorEnumToName[assignment.tasks.sector] || assignment.tasks.sector}
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   {assignment.members ?
@@ -161,7 +211,7 @@ const EventAssignmentTable = ({ allMembers, assignments, allTasks, eventId }: Ev
                   <div className="flex items-center gap-2">
                     {!isMember ?
                       <>
-                        <LeaderAssignment assignment={assignment} allMembers={allMembers.filter(member => member.sector?.includes(assignment.tasks?.sector ?? ''))} />
+                        <LeaderAssignment assignment={assignment} allMembers={allMembers.filter(member => member.sectors?.name.toLowerCase() === assignment.tasks?.sector)} />
                         <DeleteAssignment
                           assignmentName={assignment.tasks?.name ?? 'Tarefa não encontrada'}
                           onClick={() => handleDeleteAssignment(assignment.id)}

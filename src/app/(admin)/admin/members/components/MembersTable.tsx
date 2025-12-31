@@ -37,19 +37,12 @@ const MembersTable = ({ members, roles, sectors }: MembersTableProps) => {
       const cleanSearch = search.replace(/\D/g, '')
       const matchPhone = cleanSearch ? member.phone?.includes(cleanSearch) : false
 
-      // Busca por setor (sistema antigo - array)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const oldSectors = (member as any).sector || []
-      const matchOldSector = oldSectors.some((s: string) =>
-        s?.toLowerCase().includes(search)
-      )
-
       // Busca por setor (sistema novo - FK)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const newSector = (member as any).sectors
-      const matchNewSector = newSector?.name?.toLowerCase().includes(search) || false
+      const sector = (member as any).sectors
+      const matchSector = sector?.name?.toLowerCase().includes(search) || false
 
-      return matchName || matchPhone || matchOldSector || matchNewSector
+      return matchName || matchPhone || matchSector
     })
   }, [members, searchTerm])
 
@@ -94,38 +87,26 @@ const MembersTable = ({ members, roles, sectors }: MembersTableProps) => {
             </TableRow>
           ) : (
             filteredMembers.map((member) => {
-              // Fallback: usa sistema novo (sectors table - FK única) ou antigo (sector enum array)
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const newSector = (member as any).sectors; // Sistema novo: objeto único ou null
-              const oldSectors = member.sector; // Sistema antigo: array de strings ou null
-
-              // Sistema novo tem prioridade (se sector_id estiver preenchido)
-              const memberSectors = newSector
-                ? [newSector] // Converte objeto único em array para mapeamento
-                : (oldSectors && oldSectors.length > 0 ? oldSectors : []);
+              const sector = (member as any).sectors; // Sistema novo: objeto único ou null
 
               return (
                 <TableRow key={member.id}>
                   <TableCell>{member.name}</TableCell>
                   <TableCell>
-                    {memberSectors.length > 0 ? memberSectors.map((sector: any) => {
-                      // Sistema novo: sector é objeto com color
-                      const sectorColor = sector.color || '#3B82F6'; // Azul padrão
-                      const sectorName = sector.name || sector; // Fallback para string (sistema antigo)
-
-                      return (
-                        <Badge
-                          key={sector.id || sector}
-                          className="mr-1 mb-1 border-0"
-                          style={{
-                            backgroundColor: sectorColor,
-                            color: '#ffffff'
-                          }}
-                        >
-                          {sectorName}
-                        </Badge>
-                      );
-                    }) : <span className="text-xs">Sem setor</span>}
+                    {sector ? (
+                      <Badge
+                        className="mr-1 mb-1 border-0"
+                        style={{
+                          backgroundColor: sector.color || '#3B82F6',
+                          color: '#ffffff'
+                        }}
+                      >
+                        {sector.name}
+                      </Badge>
+                    ) : (
+                      <span className="text-xs">Sem setor</span>
+                    )}
                   </TableCell>
                   <TableCell>{formatPhoneNumber(member.phone)}</TableCell>
                   <TableCell>{formatDate(member.birthdate)}</TableCell>

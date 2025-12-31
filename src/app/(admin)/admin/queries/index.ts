@@ -87,7 +87,11 @@ export async function getAllMembers() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('members')
-    .select('id, name, sector')
+    .select(`
+      id,
+      name,
+      sectors!sector_id(id, name)
+    `)
     .is('deleted_at', null);  // Exclui membros deletados
 
   if (error) {
@@ -129,14 +133,14 @@ export async function getMembers() {
 export async function getPendingMembers() {
   const supabase = await createClient();
 
-  // Busca todos os membros e filtra os pendentes
-  // Considera tanto sistema antigo (role enum) quanto novo (role_id)
-  const { data: allMembers, error } = await supabase
+  // Busca membros pendentes usando role_id FK
+  const { data, error } = await supabase
     .from('members')
     .select(`
       *,
-      roles(id, name, description, is_leadership)
+      roles!role_id!inner(id, name, description, is_leadership)
     `)
+    .eq('roles.name', 'Pendente')
     .is('deleted_at', null)  // Exclui membros deletados
     .order('created_at', { ascending: false });
 
@@ -145,17 +149,7 @@ export async function getPendingMembers() {
     return [];
   }
 
-  // Filtra membros pendentes:
-  // 1. Sistema antigo: role = 'pendente' E role_id = NULL
-  // 2. Sistema novo: roles.name = 'Pendente'
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pendingMembers = allMembers?.filter((member: any) => {
-    const hasOldPendingRole = member.role === 'pendente' && !member.role_id;
-    const hasNewPendingRole = member.roles?.name === 'Pendente';
-    return hasOldPendingRole || hasNewPendingRole;
-  }) || [];
-
-  return pendingMembers;
+  return data || [];
 }
 
 export async function getProfile() {
@@ -230,11 +224,14 @@ export async function getDashboardMembersStats(period: string = '30d') {
       .select('id', { count: 'exact', head: true })
       .eq('status', 'ativo'),
 
-    // Membros pendentes de aprovação
+    // Membros pendentes de aprovação (usando FK)
     supabase
       .from('members')
-      .select('id', { count: 'exact', head: true })
-      .eq('role', 'pendente'),
+      .select(`
+        id,
+        roles!role_id!inner(name)
+      `, { count: 'exact', head: true })
+      .eq('roles.name', 'Pendente'),
 
     // Novos membros no período
     supabase
@@ -242,30 +239,40 @@ export async function getDashboardMembersStats(period: string = '30d') {
       .select('id', { count: 'exact', head: true })
       .gte('created_at', startDate.toISOString()),
 
-    // Distribuição por setor
+    // Distribuição por setor (usando FK)
     supabase
       .from('members')
-      .select('sector')
+      .select(`
+        sectors!sector_id(name)
+      `)
       .eq('status', 'ativo'),
 
-    // Distribuição por role
+    // Distribuição por role (usando FK)
     supabase
       .from('members')
-      .select('role')
+      .select(`
+        roles!role_id(name)
+      `)
       .eq('status', 'ativo'),
   ]);
 
-  // Contar membros por setor (membros podem ter múltiplos setores)
+  // Contar membros por setor (novo sistema: 1 setor por membro)
   const sectorCount: Record<string, number> = {};
   membersBySector?.forEach((member) => {
-    member.sector?.forEach((sector) => {
-      sectorCount[sector] = (sectorCount[sector] || 0) + 1;
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sectorName = (member as any).sectors?.name;
+    if (sectorName) {
+      sectorCount[sectorName] = (sectorCount[sectorName] || 0) + 1;
+    }
   });
 
   const roleCount: Record<string, number> = {};
   membersByRole?.forEach((member) => {
-    roleCount[member.role] = (roleCount[member.role] || 0) + 1;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const roleName = (member as any).roles?.name;
+    if (roleName) {
+      roleCount[roleName] = (roleCount[roleName] || 0) + 1;
+    }
   });
 
   return {
@@ -547,11 +554,14 @@ export async function getDashboardAlerts() {
     { data: events },
     { count: availableTasks },
   ] = await Promise.all([
-    // Membros aguardando aprovação
+    // Membros aguardando aprovação (usando FK)
     supabase
       .from('members')
-      .select('id', { count: 'exact', head: true })
-      .eq('role', 'pendente'),
+      .select(`
+        id,
+        roles!role_id!inner(name)
+      `, { count: 'exact', head: true })
+      .eq('roles.name', 'Pendente'),
 
     // Visitantes sem follow-up
     supabase

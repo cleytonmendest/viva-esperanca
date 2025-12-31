@@ -13,9 +13,9 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // Detecta role usando sistema novo (roles table) ou fallback para enum antigo
+  // Detecta role usando sistema novo (roles table via FK)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userRole = (profile as any)?.roles?.name || (profile as any)?.role;
+  const userRole = (profile as any)?.roles?.name;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isLeadership = (profile as any)?.roles?.is_leadership || false;
 
@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
   // EXCETO se for líder (para que admins/líderes possam aprovar membros)
   if(
     user &&
-    (userRole === 'Pendente' || userRole === 'pendente') &&
+    userRole === 'Pendente' &&
     !isLeadership &&
     request.nextUrl.pathname.startsWith('/admin') &&
     !request.nextUrl.pathname.startsWith('/admin/pending-approval')

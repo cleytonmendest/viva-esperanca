@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import EventAssignmentTable from "@/app/(admin)/admin/events/[id]/components/EventAssignmentTable";
 import { getAssignmentsByEventId, getEventById, getAllMembers, getAllTasks } from "@/app/(admin)/admin/queries";
+import { getAllSectors } from "@/lib/permissions";
 import { formatDate } from "@/lib/format";
 
 type Props = { params: Promise<{ id: string }> };
@@ -8,11 +9,12 @@ type Props = { params: Promise<{ id: string }> };
 const EventDetailPage = async ({params}: Props) => {
     const { id: eventId } = await params;
 
-    const [event, assignments, allMembers, allTasks] = await Promise.all([
+    const [event, assignments, allMembers, allTasks, allSectors] = await Promise.all([
         getEventById(eventId),
         getAssignmentsByEventId(eventId),
         getAllMembers(),
         getAllTasks(),
+        getAllSectors(),
     ]);
 
     if (!event) {
@@ -30,6 +32,7 @@ const EventDetailPage = async ({params}: Props) => {
                         allMembers={allMembers || []}
                         assignments={assignments || []}
                         allTasks={allTasks || []}
+                        allSectors={allSectors || []}
                         eventId={eventId}
                     />
                 </div>

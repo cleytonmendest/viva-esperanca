@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Table,
   TableBody,
@@ -33,6 +33,7 @@ interface EventTableProps {
 }
 
 const EventTable = ({ initialEvents }: EventTableProps) => {
+  const router = useRouter()
   const { profile } = useAuthStore()
   const [searchTerm, setSearchTerm] = useState("")
   const [sortOrder, setSortOrder] = useState("asc")
@@ -118,13 +119,15 @@ const EventTable = ({ initialEvents }: EventTableProps) => {
         </TableHeader>
         <TableBody>
           {filteredEvents.map((event) => (
-            <TableRow key={event.id}>
-              <TableCell>
-                <Link href={`/admin/events/${event.id}`}>{event.name}</Link>
-              </TableCell>
+            <TableRow
+              key={event.id}
+              className="cursor-pointer hover:bg-accent/50"
+              onClick={() => router.push(`/admin/events/${event.id}`)}
+            >
+              <TableCell>{event.name}</TableCell>
               <TableCell>{formatDateTime(event.event_date)}</TableCell>
               {canEdit && (
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
                     <EditNewEventDialog event={event} />
                     <DeleteEventDialog eventId={event.id} eventName={event.name} />
