@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState, useMemo } from "react"
@@ -27,9 +28,8 @@ const MembersTable = ({ members, roles, sectors }: MembersTableProps) => {
     if (!searchTerm.trim()) return members
 
     const search = searchTerm.toLowerCase().trim()
-    console.log('🔍 Buscando por:', search)
 
-    const filtered = members.filter((member) => {
+    return members.filter((member) => {
       // Busca por nome
       const matchName = member.name?.toLowerCase().includes(search) || false
 
@@ -49,17 +49,8 @@ const MembersTable = ({ members, roles, sectors }: MembersTableProps) => {
       const newSector = (member as any).sectors
       const matchNewSector = newSector?.name?.toLowerCase().includes(search) || false
 
-      const isMatch = matchName || matchPhone || matchOldSector || matchNewSector
-
-      if (isMatch) {
-        console.log('✅ Match:', member.name, { matchName, matchPhone, matchOldSector, matchNewSector })
-      }
-
-      return isMatch
+      return matchName || matchPhone || matchOldSector || matchNewSector
     })
-
-    console.log('📊 Resultados:', filtered.length, 'de', members.length)
-    return filtered
   }, [members, searchTerm])
 
   return (
@@ -117,15 +108,24 @@ const MembersTable = ({ members, roles, sectors }: MembersTableProps) => {
                 <TableRow key={member.id}>
                   <TableCell>{member.name}</TableCell>
                   <TableCell>
-                    {memberSectors.length > 0 ? memberSectors.map((sector: any) => (
-                      <Badge
-                        key={sector.id || sector}
-                        variant="default"
-                        className="mr-1 mb-1"
-                      >
-                        {sector.name || sector}
-                      </Badge>
-                    )) : <span className="text-xs">Sem setor</span>}
+                    {memberSectors.length > 0 ? memberSectors.map((sector: any) => {
+                      // Sistema novo: sector é objeto com color
+                      const sectorColor = sector.color || '#3B82F6'; // Azul padrão
+                      const sectorName = sector.name || sector; // Fallback para string (sistema antigo)
+
+                      return (
+                        <Badge
+                          key={sector.id || sector}
+                          className="mr-1 mb-1 border-0"
+                          style={{
+                            backgroundColor: sectorColor,
+                            color: '#ffffff'
+                          }}
+                        >
+                          {sectorName}
+                        </Badge>
+                      );
+                    }) : <span className="text-xs">Sem setor</span>}
                   </TableCell>
                   <TableCell>{formatPhoneNumber(member.phone)}</TableCell>
                   <TableCell>{formatDate(member.birthdate)}</TableCell>
