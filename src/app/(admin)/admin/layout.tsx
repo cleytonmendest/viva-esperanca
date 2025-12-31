@@ -42,23 +42,17 @@ export default async function RootLayout({
       `).eq('user_id', user.id).single()
     : { data: null };
 
+  // Detecta role usando sistema novo (roles table) ou fallback para enum antigo
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userRole = (profile as any)?.roles?.name || (profile as any)?.role;
+
   return (
     <html lang="pt-BR">
       <body
         className={`${poppins.variable} ${geistMono.variable} antialiased dark`}
       >
         <StoreInitializer user={user} profile={profile} />
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(profile as any)?.roles?.name === 'Pendente' && (
-          <main className="p-4 h-dvh flex flex-col justify-center items-center">
-            <section className="text-center w-fit max-w-md border border-gray-300 rounded-lg p-6 shadow-md">
-              <h1 className="text-2xl">Aguardando Aprovação</h1>
-              <p>Sua conta está pendente de aprovação. Por favor, contate ou aguarde o administrador/líder aprovar sua conta.</p>
-            </section>
-          </main>
-        )}
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(profile as any)?.roles?.name !== 'Pendente' && user && (
+        {user && userRole !== 'Pendente' && userRole !== 'pendente' ? (
           <SidebarProvider>
             <AppSidebar />
             <main className="w-full flex flex-col px-4">
@@ -66,8 +60,7 @@ export default async function RootLayout({
               {children}
             </main>
           </SidebarProvider>
-        )}
-        {!user && (
+        ) : (
           children
         )}
 
