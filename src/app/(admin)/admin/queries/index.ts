@@ -112,7 +112,11 @@ export async function getMembers() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('members')
-    .select('*')
+    .select(`
+      *,
+      roles!role_id(id, name, description, is_leadership),
+      sectors!sector_id(id, name, description, icon, color)
+    `)
     .is('deleted_at', null);  // Exclui membros deletados
 
   if (error) {
