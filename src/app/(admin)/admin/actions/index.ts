@@ -96,12 +96,14 @@ export async function addAssignmentToEvent(eventId: string, taskId: string) {
 export async function updateAssignmentMember(assignmentId: string, memberId: string | null, eventId: string) {
   const supabase = await createClient();
 
-  // Busca dados do assignment para o log
+  // Busca dados do assignment ANTES do update para pegar o member_id anterior
   const { data: assignment } = await supabase
     .from('event_assignments')
-    .select('*, events(id, name), tasks(id, name)')
+    .select('*, events(id, name), tasks(id, name), members(name)')
     .eq('id', assignmentId)
     .single();
+
+  const previousMemberId = assignment?.member_id;
 
   const { error } = await supabase
     .from('event_assignments')
@@ -112,38 +114,53 @@ export async function updateAssignmentMember(assignmentId: string, memberId: str
     console.error('Error updating assignment:', error);
     return {
       success: false,
-      message: 'Tivemos um problema ao atribuir a tarefa. Tente novamente.',
+      message: 'Tivemos um problema ao atualizar a tarefa. Tente novamente.',
     };
   }
 
-  // Registra log de auditoria se houver membro atribuído
-  if (assignment && memberId) {
-    const { data: member } = await supabase
-      .from('members')
-      .select('name')
-      .eq('id', memberId)
-      .single();
-
+  // Registra log de auditoria
+  if (assignment) {
     const eventData = assignment.events as { id: string; name: string } | null;
     const taskData = assignment.tasks as { id: string; name: string } | null;
 
-    await logTaskAssignment({
-      eventId: assignment.event_id,
-      eventName: eventData?.name || 'Evento',
-      taskId: assignment.task_id,
-      taskName: taskData?.name || 'Tarefa',
-      memberId,
-      assignedToMemberName: member?.name || 'Membro', // Nome de quem RECEBE a tarefa
-      isSelfAssigned: false,
-      // NÃO passa memberName aqui - logAction vai buscar automaticamente quem está logado (quem FEZ a atribuição)
-    });
+    // Se está DESATRIBUINDO (tinha membro antes, agora não tem)
+    if (previousMemberId && !memberId) {
+      const previousMemberData = assignment.members as { name: string } | null;
+
+      await logTaskRemoval({
+        eventId: assignment.event_id,
+        eventName: eventData?.name || 'Evento',
+        taskId: assignment.task_id,
+        taskName: taskData?.name || 'Tarefa',
+        memberId: previousMemberId,
+        removedFromMemberName: previousMemberData?.name || 'Membro',
+      });
+    }
+    // Se está ATRIBUINDO (tem novo membro)
+    else if (memberId) {
+      const { data: newMember } = await supabase
+        .from('members')
+        .select('name')
+        .eq('id', memberId)
+        .single();
+
+      await logTaskAssignment({
+        eventId: assignment.event_id,
+        eventName: eventData?.name || 'Evento',
+        taskId: assignment.task_id,
+        taskName: taskData?.name || 'Tarefa',
+        memberId,
+        assignedToMemberName: newMember?.name || 'Membro',
+        isSelfAssigned: false,
+      });
+    }
   }
 
   revalidatePath(`/admin/events/${eventId}`);
 
   return {
     success: true,
-    message: 'Tarefa atribuída com sucesso!',
+    message: memberId ? 'Tarefa atribuída com sucesso!' : 'Tarefa desatribuída com sucesso!',
   };
 }
 
@@ -246,7 +263,7 @@ export async function updateMember(memberId: string, memberData: TablesUpdate<'m
 
   // IMPORTANTE: Filtra apenas os campos que são colunas reais da tabela members
   // Remove relações como 'roles' e 'sectors' que causam erro PGRST204
-  const allowedFields = [
+  const allowedFields: (keyof TablesUpdate<'members'>)[] = [
     'name',
     'phone',
     'birthdate',
@@ -262,7 +279,8 @@ export async function updateMember(memberId: string, memberData: TablesUpdate<'m
   const cleanedData: TablesUpdate<'members'> = {};
   for (const key of allowedFields) {
     if (key in memberData) {
-      cleanedData[key as keyof TablesUpdate<'members'>] = memberData[key as keyof TablesUpdate<'members'>];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (cleanedData as any)[key] = (memberData as any)[key];
     }
   }
 

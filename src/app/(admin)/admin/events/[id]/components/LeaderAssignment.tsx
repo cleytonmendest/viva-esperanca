@@ -23,17 +23,27 @@ const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => 
 
   const isChanged = useMemo(() => initialMember !== selectedMember, [initialMember, selectedMember]);
 
-  const memberOptions = allMembers.map(member => ({
-    value: member.id,
-    label: member.name
-  }));
+  const memberOptions = [
+    // Opção para desatribuir (deixar vazio)
+    { value: "", label: "🚫 Nenhum (desatribuir)" },
+    // Todos os membros
+    ...allMembers.map(member => ({
+      value: member.id,
+      label: member.name
+    }))
+  ];
 
   const handleAssignMember = async () => {
     if (!isChanged) return;
 
     setIsSubmitting(true);
 
-    const result = await updateAssignmentMember(assignment.id, selectedMember || null, assignment.event_id);
+    // Se selectedMember for vazio (""), passa null para desatribuir
+    const result = await updateAssignmentMember(
+      assignment.id,
+      selectedMember || null,
+      assignment.event_id
+    );
 
     if (result.success) {
         toast.success(result.message, { position: 'top-center' });
@@ -43,6 +53,14 @@ const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => 
     }
     setIsSubmitting(false);
   }
+
+  // Determina o texto do botão baseado na ação
+  const getButtonText = () => {
+    if (isSubmitting) return 'Salvando...';
+    if (!selectedMember) return 'Desatribuir';
+    if (alreadyTaken) return 'Alterar Membro';
+    return 'Preencher Membro';
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -72,12 +90,12 @@ const LeaderAssignment = ({ assignment, allMembers }: LeaderAssignmentProps) => 
                 Cancelar
               </Button>
             </DialogClose>
-            <Button 
-                variant="default" 
-                onClick={handleAssignMember} 
+            <Button
+                variant="default"
+                onClick={handleAssignMember}
                 disabled={isSubmitting || !isChanged}
             >
-              {isSubmitting ? 'Salvando...' : (alreadyTaken ? 'Alterar Membro' : 'Preencher Membro')}
+              {getButtonText()}
             </Button>
           </div>
         </DialogFooter>
