@@ -342,6 +342,7 @@ Ou crie uma issue com tag `feature-request`.
 
 | Feature | Data | Descrição |
 |---------|------|-----------|
+| Alertas de Vagas em Aberto (n8n) | Jan/2026 | Sistema de notificação automática para vagas em eventos: API /api/open-tasks, workflow n8n com alertas 7 e 3 dias antes, mensagens para grupo WhatsApp |
 | Sistema de Roles e Setores Dinâmicos (v1) | Dez/2025 | Tabelas roles/sectors, UI de gerenciamento em /admin/configuracoes, migração de enums para FK, helper functions, refatoração completa de verificações de liderança |
 | Sistema de Observabilidade (Fase 2) | Dez/2025 | Widget de atividades no dashboard, página /admin/atividades com timeline, filtros e paginação |
 | Sistema de Observabilidade (Fase 1) | Dez/2025 | Infraestrutura completa de auditoria: tabela audit_logs, helpers, integração em actions, queries type-safe |

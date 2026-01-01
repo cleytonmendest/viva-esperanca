@@ -882,6 +882,268 @@
         }
       },
       "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Alerta de Vagas em Aberto\nVerifica eventos futuros (7 e 3 dias antes) e avisa no grupo sobre vagas que ainda precisam de voluntários",
+        "height": 496,
+        "width": 1376
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        1680
+      ],
+      "typeVersion": 1,
+      "id": "424d3993-1bc1-411c-a2ee-74f441a9912f",
+      "name": "Sticky Note - Vagas em Aberto"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -576,
+        1904
+      ],
+      "id": "b5a955ba-4eee-4b6c-935e-3bffc270674e",
+      "name": "Todos os dias 9am"
+    },
+    {
+      "parameters": {
+        "url": "=https://jtgfdbzqpsyckqcgsrhd.supabase.co/rest/v1/events?event_date=gte.{{ $now.plus(7, 'days').startOf('day').toISO() }}&event_date=lte.{{ $now.plus(7, 'days').endOf('day').toISO() }}&select=*,event_assignments!inner(id,task_id,member_id,status,tasks(*))",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -368,
+        1824
+      ],
+      "id": "efb0f773-b2a4-40fb-8678-cac3cacf8b5c",
+      "name": "Busca Vagas 7 dias (API REST)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LHHyhXuKDBW75Iv0",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://jtgfdbzqpsyckqcgsrhd.supabase.co/rest/v1/events?event_date=gte.{{ $now.plus(3, 'days').startOf('day').toISO() }}&event_date=lte.{{ $now.plus(3, 'days').endOf('day').toISO() }}&select=*,event_assignments!inner(id,task_id,member_id,status,tasks(*))",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -368,
+        1984
+      ],
+      "id": "b398bc2d-6fa5-48d3-ae1d-6a86ea79d47f",
+      "name": "Busca Vagas 3 dias (API REST)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LHHyhXuKDBW75Iv0",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtra apenas eventos que têm vagas em aberto (member_id = null e status = pendente)\nconst events = $input.all();\n\nif (events.length === 0) {\n  return [];\n}\n\n// Processa cada evento\nconst eventsWithOpenTasks = events\n  .map(item => {\n    const event = item.json;\n    \n    // Verifica se event_assignments existe\n    if (!event.event_assignments || !Array.isArray(event.event_assignments)) {\n      return null;\n    }\n    \n    // Filtra apenas assignments em aberto\n    const openAssignments = event.event_assignments.filter(\n      assignment => assignment.member_id === null && assignment.status === 'pendente'\n    );\n    \n    if (openAssignments.length === 0) {\n      return null;\n    }\n    \n    return {\n      json: {\n        ...event,\n        event_assignments: openAssignments\n      }\n    };\n  })\n  .filter(item => item !== null);\n\nreturn eventsWithOpenTasks;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        1824
+      ],
+      "id": "f3c2bf54-cf3d-4e46-8ca1-0f9f7b3e9619",
+      "name": "Filtra Vagas em Aberto 7 dias"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-7-days",
+              "leftValue": "={{ $items().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        1824
+      ],
+      "id": "72ad6b6f-230c-4180-ba90-a1c2fc4aa00d",
+      "name": "Se tiver vagas 7 dias"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtra apenas eventos que têm vagas em aberto (member_id = null e status = pendente)\nconst events = $input.all();\n\nif (events.length === 0) {\n  return [];\n}\n\n// Processa cada evento\nconst eventsWithOpenTasks = events\n  .map(item => {\n    const event = item.json;\n    \n    // Verifica se event_assignments existe\n    if (!event.event_assignments || !Array.isArray(event.event_assignments)) {\n      return null;\n    }\n    \n    // Filtra apenas assignments em aberto\n    const openAssignments = event.event_assignments.filter(\n      assignment => assignment.member_id === null && assignment.status === 'pendente'\n    );\n    \n    if (openAssignments.length === 0) {\n      return null;\n    }\n    \n    return {\n      json: {\n        ...event,\n        event_assignments: openAssignments\n      }\n    };\n  })\n  .filter(item => item !== null);\n\nreturn eventsWithOpenTasks;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        1984
+      ],
+      "id": "aeaf8368-ac1d-4b65-a56d-6ab9e70e6f66",
+      "name": "Filtra Vagas em Aberto 3 dias"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-3-days",
+              "leftValue": "={{ $items().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        1984
+      ],
+      "id": "20ff6312-943f-4101-9c84-0a88565b7f7a",
+      "name": "Se tiver vagas 3 dias"
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $input.all();\n\n// Se não houver eventos com vagas, retorna vazio\nif (events.length === 0) {\n  return [];\n}\n\n// Mapeamento de setores para IDs de grupos do WhatsApp\nconst sectorGroupMap = {\n  'mídia': '120363345789069123@g.us',\n  'geral': '5521974219271@g.us',\n  // 'louvor': 'ID_DO_GRUPO_LOUVOR@g.us',\n  // 'infantil': 'ID_DO_GRUPO_INFANTIL@g.us',\n  // 'social': 'ID_DO_GRUPO_SOCIAL@g.us'\n};\n\n// Agrupa todas as tarefas por setor\nconst tasksBySector = {};\n\nevents.forEach(item => {\n  const event = item.json;\n  const eventDate = new Date(event.event_date);\n  const formattedDate = eventDate.toLocaleDateString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    timeZone: 'America/Sao_Paulo'\n  });\n  const eventTime = eventDate.toLocaleTimeString('pt-BR', {\n    hour: '2-digit',\n    minute: '2-digit',\n    timeZone: 'America/Sao_Paulo'\n  });\n  const eventLink = `https://igrejavivaesperanca.com/admin/events/${event.id}`;\n\n  event.event_assignments.forEach(assignment => {\n    const sector = assignment.tasks.sector;\n    \n    if (!tasksBySector[sector]) {\n      tasksBySector[sector] = [];\n    }\n    \n    tasksBySector[sector].push({\n      eventName: event.name,\n      eventDate: formattedDate,\n      eventTime: eventTime,\n      eventLink: eventLink,\n      taskName: assignment.tasks.name,\n      quantity: assignment.tasks.quantity || 1\n    });\n  });\n});\n\n// Prepara mensagens separadas por setor\nconst outputItems = [];\n\nfor (const sector in tasksBySector) {\n  // Verifica se o setor tem um grupo mapeado\n  if (sectorGroupMap[sector]) {\n    const tasks = tasksBySector[sector];\n    \n    // Agrupa tarefas por evento\n    const tasksByEvent = {};\n    tasks.forEach(task => {\n      const key = `${task.eventName}|${task.eventDate}|${task.eventTime}|${task.eventLink}`;\n      if (!tasksByEvent[key]) {\n        tasksByEvent[key] = [];\n      }\n      tasksByEvent[key].push(task);\n    });\n    \n    // Monta a mensagem\n    const eventSummaries = Object.keys(tasksByEvent).map(key => {\n      const [eventName, eventDate, eventTime, eventLink] = key.split('|');\n      const eventTasks = tasksByEvent[key];\n      \n      const taskList = eventTasks.map(t => `   • ${t.taskName} (${t.quantity}x)`).join('\\n');\n      \n      return `📅 *${eventName}*\\n🗓️ ${eventDate} às ${eventTime}h\\n👉 ${eventLink}\\n\\n*Vagas em aberto:*\\n${taskList}`;\n    }).join('\\n\\n---\\n\\n');\n    \n    const sectorName = sector.charAt(0).toUpperCase() + sector.slice(1);\n    const message = `⚠️ *ALERTA - VAGAS EM ABERTO (7 DIAS)* ⚠️\\n*Ministério ${sectorName}*\\n\\nOlá equipe! Temos eventos daqui a *7 dias* que ainda precisam de voluntários:\\n\\n${eventSummaries}\\n\\n---\\n🙏 Clique no link do evento para se voluntariar!`;\n    \n    outputItems.push({\n      json: {\n        message: message,\n        remoteJid: sectorGroupMap[sector]\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        1824
+      ],
+      "id": "17751c78-237a-4f29-a7bf-75ee868444d1",
+      "name": "Formata Mensagem 7 dias"
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $input.all();\n\n// Se não houver eventos com vagas, retorna vazio\nif (events.length === 0) {\n  return [];\n}\n\n// Mapeamento de setores para IDs de grupos do WhatsApp\nconst sectorGroupMap = {\n  'mídia': '120363345789069123@g.us',\n  'geral': '5521974219271@g.us',\n  // 'louvor': 'ID_DO_GRUPO_LOUVOR@g.us',\n  // 'infantil': 'ID_DO_GRUPO_INFANTIL@g.us',\n  // 'social': 'ID_DO_GRUPO_SOCIAL@g.us'\n};\n\n// Agrupa todas as tarefas por setor\nconst tasksBySector = {};\n\nevents.forEach(item => {\n  const event = item.json;\n  const eventDate = new Date(event.event_date);\n  const formattedDate = eventDate.toLocaleDateString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    timeZone: 'America/Sao_Paulo'\n  });\n  const eventTime = eventDate.toLocaleTimeString('pt-BR', {\n    hour: '2-digit',\n    minute: '2-digit',\n    timeZone: 'America/Sao_Paulo'\n  });\n  const eventLink = `https://igrejavivaesperanca.com/admin/events/${event.id}`;\n\n  event.event_assignments.forEach(assignment => {\n    const sector = assignment.tasks.sector;\n    \n    if (!tasksBySector[sector]) {\n      tasksBySector[sector] = [];\n    }\n    \n    tasksBySector[sector].push({\n      eventName: event.name,\n      eventDate: formattedDate,\n      eventTime: eventTime,\n      eventLink: eventLink,\n      taskName: assignment.tasks.name\n    });\n  });\n});\n\n// Prepara mensagens separadas por setor\nconst outputItems = [];\n\nfor (const sector in tasksBySector) {\n  // Verifica se o setor tem um grupo mapeado\n  if (sectorGroupMap[sector]) {\n    const tasks = tasksBySector[sector];\n    \n    // Agrupa tarefas por evento\n    const tasksByEvent = {};\n    tasks.forEach(task => {\n      const key = `${task.eventName}|${task.eventDate}|${task.eventTime}|${task.eventLink}`;\n      if (!tasksByEvent[key]) {\n        tasksByEvent[key] = [];\n      }\n      tasksByEvent[key].push(task);\n    });\n    \n    // Monta a mensagem\n    const eventSummaries = Object.keys(tasksByEvent).map(key => {\n      const [eventName, eventDate, eventTime, eventLink] = key.split('|');\n      const eventTasks = tasksByEvent[key];\n      \n      const taskList = eventTasks.map(t => `   • ${t.taskName}`).join('\\n');\n      \n      return `📅 *${eventName}*\\n🗓️ ${eventDate} às ${eventTime}h\\n👉 ${eventLink}\\n\\n*Vagas em aberto:*\\n${taskList}`;\n    }).join('\\n\\n---\\n\\n');\n    \n    const sectorName = sector.charAt(0).toUpperCase() + sector.slice(1);\n    const message = `🔴 *ÚLTIMO AVISO - VAGAS EM ABERTO (3 DIAS)* 🔴\\n*Ministério ${sectorName}*\\n\\nOlá equipe! Temos eventos daqui a *APENAS 3 DIAS* que ainda precisam de voluntários:\\n\\n${eventSummaries}\\n\\n---\\n🙏 *URGENTE:* Clique no link do evento para se voluntariar!`;\n    \n    outputItems.push({\n      json: {\n        message: message,\n        remoteJid: sectorGroupMap[sector]\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        1984
+      ],
+      "id": "39ae0d05-e78e-4702-8e6a-48bc88f0308b",
+      "name": "Formata Mensagem 3 dias"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "ive145328122025",
+        "remoteJid": "={{ $json.remoteJid }}",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        496,
+        1824
+      ],
+      "id": "7978909a-a297-4a33-97c7-2c847754aab4",
+      "name": "Envia Alerta 7 dias",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "ive145328122025",
+        "remoteJid": "={{ $json.remoteJid }}",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        496,
+        1984
+      ],
+      "id": "e921cf12-4de8-4535-a67e-c94316fb9f69",
+      "name": "Envia Alerta 3 dias",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "pinData": {},
@@ -1209,6 +1471,110 @@
           }
         ]
       ]
+    },
+    "Todos os dias 9am": {
+      "main": [
+        [
+          {
+            "node": "Busca Vagas 7 dias (API REST)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Busca Vagas 3 dias (API REST)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca Vagas 7 dias (API REST)": {
+      "main": [
+        [
+          {
+            "node": "Filtra Vagas em Aberto 7 dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca Vagas 3 dias (API REST)": {
+      "main": [
+        [
+          {
+            "node": "Filtra Vagas em Aberto 3 dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtra Vagas em Aberto 7 dias": {
+      "main": [
+        [
+          {
+            "node": "Se tiver vagas 7 dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se tiver vagas 7 dias": {
+      "main": [
+        [
+          {
+            "node": "Formata Mensagem 7 dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtra Vagas em Aberto 3 dias": {
+      "main": [
+        [
+          {
+            "node": "Se tiver vagas 3 dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se tiver vagas 3 dias": {
+      "main": [
+        [
+          {
+            "node": "Formata Mensagem 3 dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Mensagem 7 dias": {
+      "main": [
+        [
+          {
+            "node": "Envia Alerta 7 dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Mensagem 3 dias": {
+      "main": [
+        [
+          {
+            "node": "Envia Alerta 3 dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -1221,7 +1587,7 @@
     "availableInMCP": true,
     "timeSavedMode": "fixed"
   },
-  "versionId": "b1a93a76-a356-4034-a5cb-3fa66754db80",
+  "versionId": "4c62319c-46f1-4e49-9a63-2b8243edaab8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "bcfcac5072405384a384e84f2778ff248877bcc2258b58a629b4ef4e314b6df6"
