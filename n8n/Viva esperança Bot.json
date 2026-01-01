@@ -4,7 +4,7 @@
     {
       "parameters": {
         "resource": "messages-api",
-        "instanceName": "ive",
+        "instanceName": "ive145328122025",
         "remoteJid": "120363345789069123@g.us",
         "messageText": "={{ $json.message }}",
         "options_message": {}
@@ -12,8 +12,8 @@
       "type": "n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        448,
-        432
+        864,
+        416
       ],
       "id": "b3d01448-1597-4e1d-8fe4-42d33f69a7d4",
       "name": "Aviso Mês - Mensagem Grupo Mídia",
@@ -22,7 +22,8 @@
           "id": "k2eLu0hxnSIREJNz",
           "name": "Evolution account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -59,7 +60,7 @@
     },
     {
       "parameters": {
-        "url": "https://site-viva-esperanca-site.tkttxg.easypanel.host/api/reminders",
+        "url": "https://igrejavivaesperanca.com/api/reminders",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
         "options": {}
@@ -82,13 +83,13 @@
     {
       "parameters": {
         "content": "## Inclui novo eventos no Supabase\nAtualiza a escala, incluindo novos eventos no supabase",
-        "height": 256,
-        "width": 1296
+        "height": 304,
+        "width": 1792
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
         -656,
-        352
+        304
       ],
       "typeVersion": 1,
       "id": "b77133d8-b14d-4579-9411-b30a6b40b462",
@@ -126,7 +127,7 @@
     {
       "parameters": {
         "resource": "messages-api",
-        "instanceName": "ive",
+        "instanceName": "ive145328122025",
         "remoteJid": "={{ $json.memberPhone }}",
         "messageText": "={{ $json.message }}",
         "options_message": {}
@@ -144,7 +145,8 @@
           "id": "k2eLu0hxnSIREJNz",
           "name": "Evolution account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -383,44 +385,16 @@
     },
     {
       "parameters": {
-        "operation": "getAll",
-        "calendar": {
-          "__rl": true,
-          "value": "cleyton.mendest@gmail.com",
-          "mode": "list",
-          "cachedResultName": "cleyton.mendest@gmail.com"
-        },
-        "returnAll": true,
-        "timeMax": "={{ $now.plus({ month: 1 }) }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleCalendar",
-      "typeVersion": 1.3,
-      "position": [
-        -192,
-        432
-      ],
-      "id": "c9c49316-1115-4c4d-873f-0faa5726e787",
-      "name": "Busca todos eventos em 1 mês",
-      "credentials": {
-        "googleCalendarOAuth2Api": {
-          "id": "LbMe82iGtI6JNOGD",
-          "name": "Google Calendar account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "tableId": "events",
         "fieldsUi": {
           "fieldValues": [
             {
               "fieldId": "name",
-              "fieldValue": "={{ $json.summary }}"
+              "fieldValue": "={{ $json.name }}"
             },
             {
               "fieldId": "event_date",
-              "fieldValue": "={{ $json.start.dateTime }}"
+              "fieldValue": "={{ $json.event_date }}"
             },
             {
               "fieldId": "description",
@@ -432,8 +406,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        32,
-        432
+        448,
+        416
       ],
       "id": "ca13077e-5b95-43eb-8d8b-96702cdefeb7",
       "name": "Cria Evento Supabase",
@@ -446,13 +420,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// 1. Acessa todos os itens que chegam no nó.\nconst items = $input.all();\n\n// Se não houver eventos, podemos parar aqui e retornar uma mensagem vazia ou um aviso.\nif (items.length === 0) {\n  return { json: { message: \"Nenhum novo evento encontrado.\" } };\n}\n\n// 2. Ordena os itens com base no campo 'event_date'.\nitems.sort((a, b) => new Date(a.json.event_date) - new Date(b.json.event_date));\n\n// 3. Formata cada item no formato desejado.\nconst formattedEvents = items.map(item => {\n  const eventName = item.json.name;\n  const eventDate = new Date(item.json.event_date);\n\n  const day = String(eventDate.getDate()).padStart(2, '0');\n  const month = String(eventDate.getMonth() + 1).padStart(2, '0');\n  const year = eventDate.getFullYear();\n  const formattedDate = `${day}/${month}/${year}`;\n\n  const hours = String(eventDate.getHours()).padStart(2, '0');\n  const minutes = String(eventDate.getMinutes()).padStart(2, '0');\n  const formattedTime = `${hours}:${minutes}h`;\n\n  return `${eventName} - ${formattedDate} - ${formattedTime}`;\n});\n\n// 4. Junta todas as linhas formatadas.\nconst eventListString = formattedEvents.join('\\n');\n\n// --- ALTERAÇÃO AQUI ---\n// 5. Adiciona o cabeçalho à lista de eventos.\nconst finalMessage = `Escala disponível para voluntários:\\n${eventListString}`;\n\n// 6. Retorna o resultado para o próximo nó.\nreturn {\n  json: {\n    message: finalMessage\n  }\n};"
+        "jsCode": "const items = $input.all();\n\n// Se não houver novos eventos, não envia mensagem\nif (items.length === 0) {\n  return [];\n}\n\n// Conta quantos eventos foram adicionados\nconst eventCount = items.length;\n\n// Mensagem simples e direta\nconst message = `🎉 *${eventCount} ${eventCount === 1 ? 'novo evento' : 'novos eventos'} ${eventCount === 1 ? 'adicionado' : 'adicionados'} ao painel!*\n\n📅 Acesse o site e voluntarie-se:\n👉 https://igrejavivaesperanca.com/admin/events`;\n\nconst grupos = [\n  { nome: 'Mídia', id: '120363345789069123@g.us' },\n  // { nome: 'Louvor', id: 'FUTURO_ID@g.us' },\n  // { nome: 'Infantil', id: 'FUTURO_ID@g.us' }\n];\n\nreturn grupos.map(grupo => ({\n  json: {\n    message: message,\n    remoteJid: grupo.id,\n    grupoNome: grupo.nome\n  }\n}));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        240,
-        432
+        656,
+        416
       ],
       "id": "79d294c3-2dd1-4666-aa67-98d53c94d986",
       "name": "Monta a mensagem"
@@ -467,7 +441,7 @@
             {
               "keyName": "event_date",
               "condition": "gt",
-              "keyValue": "={{ $now.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).plus({ days: 1 }).toISO() }}"
+              "keyValue": "={{ $now }}"
             }
           ]
         }
@@ -475,8 +449,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        -592,
-        432
+        -400,
+        416
       ],
       "id": "49fc2fd1-77ad-4e58-857e-33f3e8443b1c",
       "name": "Busca Evento Posterior",
@@ -492,7 +466,7 @@
     {
       "parameters": {
         "resource": "messages-api",
-        "instanceName": "ive",
+        "instanceName": "ive145328122025",
         "remoteJid": "={{ $json.remoteJid }}",
         "messageText": "={{ $json.message }}",
         "options_message": {}
@@ -510,7 +484,8 @@
           "id": "k2eLu0hxnSIREJNz",
           "name": "Evolution account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -539,8 +514,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -400,
-        432
+        -192,
+        416
       ],
       "id": "6077ae1a-3468-4530-ad68-7c1eac6157cd",
       "name": "Sem eventos?"
@@ -567,7 +542,8 @@
           "id": "sQhU5zbvIuKY9PHl",
           "name": "Acess Token"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
@@ -620,7 +596,7 @@
     {
       "parameters": {
         "resource": "messages-api",
-        "instanceName": "ive",
+        "instanceName": "ive145328122025",
         "remoteJid": "120363345789069123@g.us",
         "messageText": "={{ $json.message }}",
         "options_message": {}
@@ -655,7 +631,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\n// Se não houver tarefas, retorna vazio\nif (items.length === 0) {\n  return [];\n}\n\n// Obtém o início e fim do dia de HOJE (timezone local do servidor)\nconst now = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })\n// const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);\n// const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);\n\n// const todayStartTimestamp = todayStart.getTime();\n// const todayEndTimestamp = todayEnd.getTime();\n\nconsole.log(now)\n\n// Filtra tarefas que vencem HOJE, NÃO estão concluídas E TÊM assignee\nconst tasksDueToday = items.filter(item => {\n  const task = item.json;\n  \n  // Ignora se não tem due_date\n  if (!task.due_date) return false\n\n  // Converte due_date para timestamp (ClickUp retorna em milissegundos como string)\n  const dueDate = Number(task.due_date);\n  const dueDateFormatted = new Date(dueDate).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })\n\n  \n  // Verifica se vence hoje\n  const isDueToday = now === dueDateFormatted\n\n  console.log(isDueToday, 'vence hoje')\n  // Verifica se não está concluída\n  const status = task.status?.status?.toLowerCase() || '';\n  const isNotCompleted = status !== 'complete' && status !== 'closed' && status !== 'concluído';\n\n  // // Verifica se tem assignee\n  const hasAssignee = task.assignees && task.assignees.length > 0;\n  const assigneeName = hasAssignee ? task.assignees[0].username : 'Sem responsável';\n\n  return isDueToday && isNotCompleted && hasAssignee;\n});\n\n// Retorna as tarefas filtradas\nreturn tasksDueToday.map(item => ({ json: item.json }));"
+        "jsCode": "const items = $input.all();\n\n// Se não houver tarefas, retorna vazio\nif (items.length === 0) {\n  return [];\n}\n\n// Pega o início do dia de HOJE no timezone de Brasília\nconst now = new Date();\nconst todayBrasilia = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));\ntodayBrasilia.setHours(0, 0, 0, 0); // Normaliza para 00:00:00\nconst todayTimestamp = todayBrasilia.getTime();\n\nconsole.log('Hoje (timestamp normalizado):', todayTimestamp, '→', todayBrasilia.toISOString());\n\n// Filtra tarefas que vencem HOJE, NÃO estão concluídas E TÊM assignee\nconst tasksDueToday = items.filter(item => {\n  const task = item.json;\n  \n  // Ignora se não tem due_date\n  if (!task.due_date) return false;\n\n  // Converte due_date para timestamp (ClickUp retorna em milissegundos como string)\n  const dueDate = new Date(Number(task.due_date));\n  \n  // Normaliza para o início do dia no timezone de Brasília\n  const dueDateBrasilia = new Date(dueDate.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));\n  dueDateBrasilia.setHours(0, 0, 0, 0);\n  const dueDateTimestamp = dueDateBrasilia.getTime();\n  \n  console.log('Tarefa:', task.name, '→ Due:', dueDateTimestamp, '→', dueDateBrasilia.toISOString());\n  \n  // Verifica se vence hoje\n  const isDueToday = dueDateTimestamp === todayTimestamp;\n\n  // Verifica se não está concluída\n  const status = task.status?.status?.toLowerCase() || '';\n  const isNotCompleted = status !== 'complete' && status !== 'closed' && status !== 'concluído';\n\n  // Verifica se tem assignee\n  const hasAssignee = task.assignees && task.assignees.length > 0;\n\n  // Debug\n  if (isDueToday) {\n    console.log('✅ Tarefa vence hoje:', task.name, '| Completa?', !isNotCompleted, '| Assignee?', hasAssignee);\n  }\n\n  return isDueToday && isNotCompleted && hasAssignee;\n});\n\nconsole.log(`Total de tarefas vencendo hoje: ${tasksDueToday.length}`);\n\n// Retorna as tarefas filtradas\nreturn tasksDueToday.map(item => ({ json: item.json }));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -701,7 +677,7 @@
     {
       "parameters": {
         "resource": "messages-api",
-        "instanceName": "ive",
+        "instanceName": "ive145328122025",
         "remoteJid": "={{ $json.phone }}",
         "messageText": "={{ $json.message }}",
         "options_message": {}
@@ -719,7 +695,8 @@
           "id": "k2eLu0hxnSIREJNz",
           "name": "Evolution account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -794,6 +771,117 @@
           "name": "Acess Token"
         }
       }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -64
+      ],
+      "id": "5077c0ae-0016-4b76-a83e-3c36a56f1f51",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/calendar/v3/calendars/{{ encodeURIComponent('d689eefb05e4d0303ab03b37dbfb76d6d0f3fe29ab7a736c060ed495f6b64bac@group.calendar.google.com') }}/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeMin",
+              "value": "={{ $json.event_date.toDateTime().plus(3, 'hour') }}"
+            },
+            {
+              "name": "timeMax",
+              "value": "={{ $now.plus({ month: 1 }).toISO() }}"
+            },
+            {
+              "name": "singleEvents",
+              "value": "true"
+            },
+            {
+              "name": "orderBy",
+              "value": "startTime"
+            },
+            {
+              "name": "maxResults",
+              "value": "250"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        32,
+        416
+      ],
+      "id": "5cd4a4cd-3f66-4998-a723-304329022692",
+      "name": "HTTP Request",
+      "credentials": {
+        "googleApi": {
+          "id": "eYlfs5hLyxFWBnke",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -608,
+        416
+      ],
+      "id": "d50840f0-f0a9-439e-8e3e-8fa2508939f2",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Node: \"Formata Eventos do Google Calendar\"\nconst response = $input.first().json;\n\n// A API retorna os eventos dentro de \"items\"\nconst events = response.items || [];\n\n// Retorna cada evento como um item separado\nreturn events.map(event => {\n  // Pega a data/hora do evento\n  let eventDate = event.start?.dateTime;\n  \n  // Converte para ISO 8601 com timezone (formato que Supabase aceita)\n  const eventDateTime = new Date(eventDate).toISOString();\n  \n  return {\n    json: {\n      name: event.summary || 'Sem título',\n      event_date: eventDateTime,\n      description: event.description || ''\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        416
+      ],
+      "id": "81e20385-e783-4721-bbbe-28fceb0a4015",
+      "name": "Formata Resultado"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "operation": "send-reaction",
+        "instanceName": "ive145328122025",
+        "remoteJid": "5521974219271@s.whatsapp.net"
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        1552,
+        -64
+      ],
+      "id": "6db4ec5e-1645-431b-92b9-1b254bed9916",
+      "name": "Reagir mensagem",
+      "credentials": {
+        "evolutionApi": {
+          "id": "k2eLu0hxnSIREJNz",
+          "name": "Evolution account"
+        }
+      },
+      "disabled": true
     }
   ],
   "pinData": {},
@@ -930,17 +1018,6 @@
         ]
       ]
     },
-    "Busca todos eventos em 1 mês": {
-      "main": [
-        [
-          {
-            "node": "Cria Evento Supabase",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Cria Evento Supabase": {
       "main": [
         [
@@ -976,20 +1053,14 @@
     },
     "Escala - Mensagem Grupos": {
       "main": [
-        [
-          {
-            "node": "Busca Evento Posterior",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Sem eventos?": {
       "main": [
         [
           {
-            "node": "Busca todos eventos em 1 mês",
+            "node": "HTTP Request",
             "type": "main",
             "index": 0
           }
@@ -1094,6 +1165,50 @@
           }
         ]
       ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Reagir mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Formata Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Busca Evento Posterior",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Resultado": {
+      "main": [
+        [
+          {
+            "node": "Cria Evento Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -1102,9 +1217,11 @@
     "callerPolicy": "workflowsFromSameOwner",
     "executionTimeout": 300,
     "timeSavedPerExecution": 0,
-    "errorWorkflow": "PUudO0N5sjpqU3jY"
+    "errorWorkflow": "THxRqUz0BVlluzs6",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed"
   },
-  "versionId": "29f8ad44-1e1b-4ba9-a0f0-94e192bb2130",
+  "versionId": "b1a93a76-a356-4034-a5cb-3fa66754db80",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "bcfcac5072405384a384e84f2778ff248877bcc2258b58a629b4ef4e314b6df6"
