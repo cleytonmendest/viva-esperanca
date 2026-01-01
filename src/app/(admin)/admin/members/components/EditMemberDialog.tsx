@@ -64,8 +64,8 @@ const EditMemberDialog = ({ member, roles, sectors }: EditMemberDialogProps) => 
         },
     ];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((profile as any)?.roles?.name === 'Admin') {
+    // Apenas admin pode alterar roles
+    if (profile?.roles?.name === 'Admin') {
         formConfig.push({
             name: "role_id",
             label: "Role",
@@ -105,7 +105,8 @@ const EditMemberDialog = ({ member, roles, sectors }: EditMemberDialogProps) => 
         formRef.current?.submit();
     };
 
-    if (member.user_id && profile?.role !== 'admin') return null;
+    // Apenas admin pode editar membros com user_id (vinculados a contas)
+    if (member.user_id && profile?.roles?.name !== 'Admin') return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>

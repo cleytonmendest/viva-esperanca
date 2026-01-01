@@ -234,18 +234,65 @@ export async function addMember(memberData: TablesInsert<'members'>) {
 export async function updateMember(memberId: string, memberData: TablesUpdate<'members'>) {
   const supabase = await createClient();
 
-  const { error } = await supabase
+  // Log dos dados antes de atualizar (para debug em produção)
+  console.log('[updateMember] Atualizando membro:', memberId, 'com dados:', memberData);
+
+  // IMPORTANTE: Filtra apenas os campos que são colunas reais da tabela members
+  // Remove relações como 'roles' e 'sectors' que causam erro PGRST204
+  const allowedFields = [
+    'name',
+    'phone',
+    'birthdate',
+    'user_id',
+    'role',
+    'status',
+    'role_id',
+    'sector_id',
+    'deleted_at',
+    'sector'
+  ];
+
+  const cleanedData: TablesUpdate<'members'> = {};
+  for (const key of allowedFields) {
+    if (key in memberData) {
+      cleanedData[key as keyof TablesUpdate<'members'>] = memberData[key as keyof TablesUpdate<'members'>];
+    }
+  }
+
+  console.log('[updateMember] Dados limpos (sem relações):', cleanedData);
+
+  const { data, error } = await supabase
     .from('members')
-    .update(memberData)
-    .eq('id', memberId);
+    .update(cleanedData)
+    .eq('id', memberId)
+    .select()
+    .single();
 
   if (error) {
-    console.error('Error updating member:', error);
+    console.error('[updateMember] Erro ao atualizar membro:', {
+      memberId,
+      error: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      originalData: memberData,
+      cleanedData
+    });
     return {
       success: false,
-      message: 'Tivemos um problema ao atualizar o membro. Tente novamente mais tarde.',
+      message: `Erro ao atualizar: ${error.message}`,
     };
   }
+
+  console.log('[updateMember] Membro atualizado com sucesso:', data);
+
+  // Registra log de auditoria
+  await logMemberAction({
+    memberId,
+    memberName: data.name,
+    action: 'updated',
+    changes: cleanedData,
+  });
 
   revalidatePath('/admin/members');
 
