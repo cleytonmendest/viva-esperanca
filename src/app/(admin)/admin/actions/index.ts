@@ -17,8 +17,15 @@ export async function assignTaskToSelf(memberId: string, formData: FormData) {
   // Busca dados do assignment para o log
   const { data: assignment } = await supabase
     .from('event_assignments')
-    .select('*, events(id, name), tasks(id, name), members(id, name)')
+    .select('*, events(id, name), tasks(id, name)')
     .eq('id', assignmentId)
+    .single();
+
+  // Busca o nome do membro que está se voluntariando (usando memberId, não a relação)
+  const { data: memberWhoAssigned } = await supabase
+    .from('members')
+    .select('name')
+    .eq('id', memberId)
     .single();
 
   const { error } = await supabase
@@ -38,7 +45,7 @@ export async function assignTaskToSelf(memberId: string, formData: FormData) {
   if (assignment) {
     const eventData = assignment.events as { id: string; name: string } | null;
     const taskData = assignment.tasks as { id: string; name: string } | null;
-    const memberData = assignment.members as { id: string; name: string } | null;
+    const memberName = memberWhoAssigned?.name || 'Membro';
 
     await logTaskAssignment({
       eventId: assignment.event_id,
@@ -46,8 +53,8 @@ export async function assignTaskToSelf(memberId: string, formData: FormData) {
       taskId: assignment.task_id,
       taskName: taskData?.name || 'Tarefa',
       memberId,
-      memberName: memberData?.name || 'Membro', // Em auto-atribuição, quem FEZ = quem RECEBE
-      assignedToMemberName: memberData?.name || 'Membro', // Mesmo nome
+      memberName, // Nome de quem se voluntariou
+      assignedToMemberName: memberName, // Mesmo nome (auto-atribuição)
       isSelfAssigned: true,
     });
   }
