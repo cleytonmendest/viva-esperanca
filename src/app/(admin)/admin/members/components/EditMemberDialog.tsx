@@ -24,10 +24,15 @@ const EditMemberDialog = ({ member, roles, sectors }: EditMemberDialogProps) => 
     const { profile } = useAuthStore()
     const formRef = useRef<GenericFormRef>(null);
 
-    const sectorOptions = sectors.map(sector => ({
-        value: sector.id,
-        label: sector.name
-    }));
+    const sectorOptions = [
+        // Opção para desatribuir setor (usa valor especial em vez de string vazia)
+        { value: "__NONE__", label: "🚫 Nenhum setor" },
+        // Todos os setores
+        ...sectors.map(sector => ({
+            value: sector.id,
+            label: sector.name
+        }))
+    ];
 
     const roleOptions = roles.map((role) => ({
         value: role.id,
@@ -77,8 +82,10 @@ const EditMemberDialog = ({ member, roles, sectors }: EditMemberDialogProps) => 
 
     const defaultValues = {
         ...member,
+        // Role é obrigatória, não permite undefined
         role_id: member.role_id || undefined,
-        sector_id: member.sector_id || undefined,
+        // Setor é opcional, se não tem usa "__NONE__" para mostrar "Nenhum setor"
+        sector_id: member.sector_id || "__NONE__",
     };
 
     const handleSubmit = async (data: TablesUpdate<'members'>) => {
@@ -88,6 +95,8 @@ const EditMemberDialog = ({ member, roles, sectors }: EditMemberDialogProps) => 
         const memberData: TablesUpdate<'members'> = {
             ...data,
             phone: cleanedPhone,
+            // Converte "__NONE__" para null (permite desatribuir setor)
+            sector_id: data.sector_id === "__NONE__" ? null : data.sector_id,
         };
 
         const result = await updateMember(member.id, memberData);
