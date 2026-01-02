@@ -61,7 +61,7 @@ export function Combobox({ empty, options, placeholder, value, onChange }: Combo
                                             (opt) => opt.label.toLowerCase() === currentLabel.toLowerCase()
                                         )?.value;
 
-                                        if (selectedValue) {
+                                        if (selectedValue !== undefined) {
                                             onChange(selectedValue === value ? "" : selectedValue)
                                         }
                                         setOpen(false)
