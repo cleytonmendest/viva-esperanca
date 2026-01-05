@@ -62,6 +62,15 @@ function formatActivityDescription(log: AuditLog): string {
     case 'event_deleted':
       return `Deletou evento "${details.event_name}"`;
 
+    case 'member_created':
+      return `Cadastrou membro ${details.member_name}`;
+
+    case 'member_updated':
+      return `Atualizou membro ${details.member_name}`;
+
+    case 'member_deleted':
+      return `Removeu membro ${details.member_name}`;
+
     case 'member_approved':
       return `Aprovou membro ${details.member_name}`;
 

@@ -201,6 +201,11 @@ export async function logEventAction({
 
 /**
  * Helper específico: Registra ações de membro
+ *
+ * IMPORTANTE:
+ * - memberName: Nome do membro que FOI AFETADO (criado/editado/deletado/aprovado)
+ * - O nome de quem FEZ a ação é buscado automaticamente (usuário logado)
+ * - Isso permite distinguir quando um líder atualiza outro membro vs auto-atualização
  */
 export async function logMemberAction({
   action,
@@ -218,10 +223,10 @@ export async function logMemberAction({
     resourceType: 'member',
     resourceId: memberId,
     details: {
-      member_name: memberName,
+      member_name: memberName, // Nome do membro AFETADO
       changes,
     },
-    memberName,
+    // NÃO passa memberName aqui - logAction busca automaticamente quem FEZ a ação
   });
 }
 

@@ -85,6 +85,24 @@ function formatActivityDescription(log: AuditLog): { title: string; subtitle: st
         subtitle: '',
       };
 
+    case 'member_created':
+      return {
+        title: `Cadastrou membro ${details.member_name}`,
+        subtitle: 'Novo membro adicionado ao sistema',
+      };
+
+    case 'member_updated':
+      return {
+        title: `Atualizou membro ${details.member_name}`,
+        subtitle: 'Informações do membro foram alteradas',
+      };
+
+    case 'member_deleted':
+      return {
+        title: `Removeu membro ${details.member_name}`,
+        subtitle: 'Membro excluído do sistema',
+      };
+
     case 'member_approved':
       return {
         title: `Aprovou membro ${details.member_name}`,

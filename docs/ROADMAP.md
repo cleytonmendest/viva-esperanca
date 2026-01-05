@@ -1,34 +1,77 @@
 # 🗺️ Roadmap - Viva Esperança
 
-> **Última atualização**: Dezembro 2025
->
-> Este documento lista as próximas features prioritárias do sistema. Deve ser consultado antes de qualquer implementação e atualizado após cada conclusão.
+> **Última atualização**: Janeiro 2026
 
 ---
 
-## 🎯 PRÓXIMAS FEATURES (Prioridades)
+## 🎯 PRÓXIMAS FEATURES
+
+### 🔴 Crítico (UX)
+
+#### 1. Melhorias de Navegação e Perfil
+**Problema**: Sidebar esconde opções importantes. Falta página de perfil dedicada.
+
+**Arquitetura**: Dashboard = Ação | Perfil = Identidade
+
+**A) Melhorias Visuais no Sidebar**
+- **Logo/Branding**: Logo da igreja no topo (substitui "Minha Conta")
+- **Identificação do Usuário**:
+  - Círculo com iniciais do nome (ex: "CT" para Cleyton)
+  - Nome completo + role/setor visível
+  - Cores geradas automaticamente por nome (consistência visual)
+- **UserAccountMenu Melhorado**:
+  - Mover para footer do sidebar (padrão de mercado)
+  - Iniciais + Nome + Role visível mesmo quando sidebar colapsa
+  - Dropdown: Ver Perfil | Editar Perfil | Alterar Senha | Sair
+- **Agrupamento de Menus**:
+  - Separar em categorias: "Geral" | "Gestão" | "Configurações"
+  - Visual mais organizado (usar `SidebarGroup`)
+- **Indicador de Página Ativa**: Destaque visual (borda ou background)
+- **Badges/Contadores**:
+  - Ex: "Visitantes (3)" para visitantes pendentes
+  - Notificações futuras
+- **Footer**: Versão do sistema ou link de suporte
+
+**B) Header Principal (fora do sidebar)**
+- Círculo com iniciais clicável no canto superior direito
+- Dropdown rápido: Perfil | Notificações | Sair
+- Sempre visível mesmo em mobile
+
+**C) Dashboard `/admin` - "O que fazer AGORA"** (melhorias incrementais)
+- ✅ Saudação personalizada (já existe)
+- ✅ Minhas tarefas (já existe)
+- ✅ Tarefas disponíveis (já existe)
+- ✅ Atividades recentes - geral (já existe)
+- ✅ Resumo executivo para líderes (já existe)
+- 🆕 **Próximo evento escalado** - card destacado no topo
+- 🆕 **Aniversariantes da semana** - widget pequeno (social)
+
+**D) Perfil `/admin/perfil` - "Quem sou EU"** (nova página)
+- Header: Círculo com iniciais + Nome + Badge de engajamento (Bronze/Prata/Ouro/Platina)
+- **3 Cards de Estatísticas Pessoais**:
+  - Total de voluntariados (ano/mês)
+  - Posição no ranking
+  - Última participação (data + evento)
+- **Gráfico de Participação Mensal** (visualização)
+- **Timeline Pessoal** (histórico completo filtrado deste membro)
+- **Botão "Editar Informações"** (dados pessoais)
+
+**E) Sistema de Avatar (Opcional - Futuro)**
+- Upload de foto de perfil
+- Crop/resize de imagem
+- Storage no Supabase Storage
+- Fallback: Iniciais coloridas (já implementado)
+
+**Divisão Clara**:
+- Dashboard = trabalho/ação (próximos eventos, tarefas)
+- Perfil = identidade/reflexão (estatísticas históricas, progresso pessoal)
+- Sem redundância: atividades na dashboard são **gerais**, timeline no perfil é **pessoal**
+
+**Impacto**: Crítico | **Complexidade**: Baixa-Média
+
+---
 
 ### 🟢 Alta Prioridade
-
-#### 1. Sistema de Notificações WhatsApp
-**Objetivo**: Follow-up automático de visitantes e lembretes de eventos/tarefas
-
-**Features**:
-- Mensagem automática 2-3 dias após visita
-- Lembrete de eventos (2 dias antes + 1 dia antes)
-- Notificação de atribuição de tarefas
-- Alerta para líderes quando visitante não retornar
-
-**Implementação**:
-- API: Twilio, MessageBird ou Evolution API
-- Queue: Usar tabela `message` existente
-- Scheduler: Vercel Cron ou similar
-- Templates: Nova tabela `message_templates`
-
-**Impacto**: Alto (retenção de visitantes + engajamento)
-**Complexidade**: Média-Alta
-
----
 
 #### 2. Calendário Interativo
 **Objetivo**: Visualizar eventos e escalas em formato de calendário
@@ -36,65 +79,61 @@
 **Features**:
 - Visualização mensal/semanal/diária
 - Eventos coloridos por setor
-- Drag-and-drop para atribuição
+- Drag-and-drop para atribuição (opcional)
 - Exportação para Google Calendar/Outlook (iCal)
-- Filtros por setor e tipo de evento
+- Filtros por setor
 
-**Stack**: FullCalendar ou react-big-calendar + DnD Kit
+**Stack**: FullCalendar ou react-big-calendar
 
-**Impacto**: Alto (UX de visualização)
-**Complexidade**: Média
+**Impacto**: Alto | **Complexidade**: Média
 
 ---
 
-#### 3. Relatórios e Exportação
-**Objetivo**: Gerar relatórios em PDF/Excel para análise
+#### 3. Features de Engajamento
 
-**Features**:
-- Relatórios predefinidos (frequência, visitantes, engajamento)
-- Exportação de dados (membros, escalas, estatísticas)
-- Gráficos de crescimento e engajamento
-- Templates customizáveis
+**Quick Wins** (1-2 dias cada):
+- **Calendário Completo**: Mostrar TODOS os eventos (não só voluntariado)
+- **Aniversariantes**: Widget + notificações + envio de mensagem
+- **Diretório de Setor**: Lista de membros do mesmo setor com contato
 
-**Stack**: jsPDF/Puppeteer (PDF) + xlsx/exceljs (Excel)
+**Médio Prazo** (2-4 dias):
+- **Timeline Pessoal**: Histórico cronológico (cadastro, voluntariados, mudanças)
+- **Gamificação**: Badges por participação + Ranking mensal
+- **Notificações In-App**: Badge no header + centro de notificações
 
-**Impacto**: Alto (tomada de decisões)
-**Complexidade**: Média
+**Impacto**: Alto (engajamento) | **Complexidade**: Baixa-Média
 
 ---
 
 ### 🟡 Média Prioridade
 
 #### 4. Check-in em Eventos
-**Objetivo**: Controlar presença em eventos via QR Code ou lista digital
+**Objetivo**: Controlar presença via QR Code ou lista digital
 
 **Features**:
 - QR Code único por evento
 - Check-in instantâneo
-- Relatório de presença (quem veio/faltou)
-- Estatísticas de frequência por membro
+- Relatório de presença
+- Estatísticas de frequência
 
-**Schema**: Nova tabela `event_attendance` ou campo `attended` em `event_assignments`
+**Schema**: Campo `attended` em `event_assignments` ou nova tabela
 
-**Impacto**: Médio (controle e estatísticas)
-**Complexidade**: Baixa-Média
+**Impacto**: Médio | **Complexidade**: Baixa
 
 ---
 
 #### 5. Gestão Financeira
-**Objetivo**: Controle de receitas e despesas da igreja
+**Objetivo**: Controle de receitas e despesas
 
 **Features**:
 - Registro de ofertas/dízimos e despesas
-- Categorização de transações
-- Balanço mensal e gráficos
+- Categorização e balanço mensal
 - Acesso restrito (pastor/tesoureiro)
 - Auditoria de alterações
 
 **Schema**: Tabelas `financial_transactions` e `financial_categories`
 
-**Impacto**: Alto (transparência)
-**Complexidade**: Média-Alta
+**Impacto**: Alto (transparência) | **Complexidade**: Média-Alta
 
 ---
 
@@ -103,38 +142,26 @@
 
 **Features**:
 - Cadastro de células (líder, local, horário)
-- Atribuição de membros a células
+- Atribuição de membros
 - Registro de encontros
-- Relatórios de crescimento e frequência
-- Dashboard para líderes de célula
+- Relatórios e dashboard para líderes
 
 **Schema**: Tabelas `cells`, `cell_members`, `cell_meetings`
 
-**Impacto**: Alto (para igrejas com células)
-**Complexidade**: Média
+**Impacto**: Alto (para igrejas com células) | **Complexidade**: Média
 
 ---
 
-### 🔵 Baixa Prioridade (Melhorias)
+### 🔵 Baixa Prioridade
 
-#### 7. Sistema de Permissões Granulares (v2.0)
-**Objetivo**: Expandir sistema de roles/setores para controle fino de ações
+#### 7. Relatórios e Exportação
+- Relatórios predefinidos (frequência, visitantes, engajamento)
+- Exportação para PDF/Excel
+- Gráficos e templates customizáveis
 
-**Contexto**:
-- Sistema básico (v1.0) já implementado ✅
-- Atualmente: permissões por página + `is_leadership` boolean
-- Expansão: permissões por ação (CRUD) e contexto (setor)
+**Stack**: jsPDF/Puppeteer + xlsx
 
-**Features:**
-- Matrix de permissões de ações (Create/Read/Update/Delete por recurso)
-- Permissões contextuais por setor (líder só edita seu setor)
-- UI para gerenciar permissões granulares
-
-**Nota:** Sistema atual atende bem. Implementar apenas se houver demanda real.
-
-**Impacto**: Médio (controle mais fino)
-**Complexidade**: Alta
-**Prioridade**: Baixa
+**Impacto**: Médio | **Complexidade**: Média
 
 ---
 
@@ -143,138 +170,61 @@
 - Notificações push
 - Funcionamento offline básico
 
-**Impacto**: Médio (acesso mobile)
-**Complexidade**: Média
+**Impacto**: Médio | **Complexidade**: Média
 
 ---
 
-#### 9. Multi-idioma
-- Suporte a PT/ES/EN
-- Stack: Next-intl ou react-i18next
+#### 9. Sistema de Permissões Granulares v2.0
+- Permissões por ação (CRUD por recurso)
+- Permissões contextuais por setor
+- UI para gerenciar permissões
 
-**Impacto**: Baixo (se não houver demanda)
-**Complexidade**: Média
+**Nota**: Sistema atual atende bem. Implementar apenas se houver demanda real.
+
+**Impacto**: Médio | **Complexidade**: Alta
 
 ---
 
 ### 🟣 Ideias para Validar
 
-#### 10. Sistema de Discipulado
-- Acompanhamento de novos convertidos
-- Trilha de estudos
-- Relação mentor-mentoreado
-- Certificados
-
-**Complexidade**: Alta
-**Validação**: Necessária
-
----
-
-#### 11. Sistema de Oração
-- Mural de pedidos
-- Membros oram por pedidos
-- Notificações
-
-**Complexidade**: Média
-**Validação**: Necessária
-
----
-
-#### 12. Biblioteca/Midiateca
-- Catálogo de livros/DVDs
-- Sistema de empréstimo
-- Histórico
-
-**Complexidade**: Média-Alta
-**Validação**: Necessária
+- **Sistema de Discipulado**: Acompanhamento de novos convertidos + trilha de estudos
+- **Sistema de Oração**: Mural de pedidos + notificações
+- **Biblioteca/Midiateca**: Catálogo + empréstimo + histórico
 
 ---
 
 ## 🌐 MELHORIAS DO SITE PÚBLICO
 
-> **Status Atual**: Site básico com homepage parcial. Páginas incompletas.
-
-### 🟢 Fundação (Urgente)
-
-#### 1. Estrutura Básica
-- [x] Menu mobile responsivo
-- [x] Footer completo (3 colunas: Sobre, Links, Contato)
-- [ ] Página `/contato` com formulário
-- [ ] Página `/ofertas` com PIX/QR Code
-- [ ] Melhorar hero com CTAs claros
-
-**Objetivo**: Site 100% navegável
-
----
-
-### 🟡 Conteúdo (Importante)
-
-#### 2. Páginas e Seções
+### Páginas Básicas
+- [ ] `/contato` - Formulário funcional
+- [ ] `/ofertas` - PIX/QR Code
 - [ ] Completar `/quem-somos` (História, Missão/Visão, Liderança)
-- [ ] Section "Próximos Eventos" na homepage (usar API `/api/next-events`)
-- [ ] Section "Valores" na homepage
-- [ ] Section "Ministérios/Setores" na homepage
-- [ ] Section "Depoimentos" na homepage
 
-**Objetivo**: Homepage completa e informativa
+### Homepage
+- [ ] Melhorar hero com CTAs claros
+- [ ] Section "Próximos Eventos" (usar API `/api/next-events`)
+- [ ] Section "Valores"
+- [ ] Section "Ministérios/Setores"
+- [ ] Section "Depoimentos"
 
----
-
-#### 3. Blog Público
-- [ ] Página `/blog` com listagem de posts
-- [ ] Página `/blog/[slug]` para posts individuais
+### Blog
+- [ ] Página `/blog` com listagem
+- [ ] Página `/blog/[slug]` individual
 - [ ] Filtros por categoria
 - [ ] Compartilhamento social
 
-**Nota**: Admin do blog já está implementado ✅
+**Nota**: Admin do blog já implementado ✅
 
-**Objetivo**: Conteúdo atrai visitantes
-
----
-
-#### 4. Engajamento
-- [x] Formulário de visitante (integrar com tabela `visitors`)
+### Engajamento
 - [ ] Integração com redes sociais (Instagram feed, YouTube)
 - [ ] Newsletter signup
 
-**Objetivo**: Captura de leads e engajamento
-
----
-
-### 🔵 Polimento (Longo Prazo)
-
-#### 5. Refinamentos
-- [ ] Animações de scroll (Framer Motion/AOS)
+### Polimento (Longo Prazo)
+- [ ] Animações de scroll
 - [ ] SEO completo (meta tags, Open Graph, sitemap)
 - [ ] Toggle dark/light mode
-- [ ] Busca global (Command Cmd+K)
-- [ ] Otimização de performance (lazy load, code splitting)
-
-**Objetivo**: Site profissional e otimizado
-
----
-
-## 📅 Roadmap Trimestral Sugerido
-
-### Q1 2025 (Jan-Mar)
-1. Sistema de Notificações WhatsApp
-2. Calendário Interativo
-3. Relatórios e Exportação
-
-### Q2 2025 (Abr-Jun)
-1. Check-in de Eventos
-2. Blog público completo
-3. Gestão Financeira (se necessário)
-
-### Q3 2025 (Jul-Set)
-1. Gestão Financeira
-2. Gestão de Células
-3. PWA básico
-
-### Q4 2025 (Out-Dez)
-1. Features baseadas em feedback
-2. Refinamentos e otimizações
-3. Planejamento 2026
+- [ ] Busca global (Cmd+K)
+- [ ] Otimização de performance
 
 ---
 
@@ -283,8 +233,7 @@
 1. **Impacto** - Quantas pessoas/processos afeta?
 2. **Urgência** - É crítico agora?
 3. **Complexidade** - Quanto esforço necessário?
-4. **Dependências** - Bloqueia outras features?
-5. **ROI** - Vale o investimento?
+4. **ROI** - Vale o investimento?
 
 **Matriz**:
 - Alto Impacto + Baixa Complexidade = **Fazer AGORA**
@@ -294,70 +243,52 @@
 
 ---
 
-## 📝 Esclarecimentos Importantes
+## 📊 HISTÓRICO DE IMPLEMENTAÇÕES
+
+| Feature | Data | Descrição |
+|---------|------|-----------|
+| Fix: Audit Logs de Membros | Jan/2026 | Corrigido audit log para distinguir quem FEZ vs quem FOI AFETADO em ações de membros |
+| Alertas de Vagas (n8n) | Jan/2026 | Notificações automáticas WhatsApp para vagas em eventos (7 e 3 dias antes) |
+| Roles e Setores Dinâmicos | Dez/2025 | Sistema completo de gerenciamento em `/admin/configuracoes` |
+| Sistema de Observabilidade | Dez/2025 | Audit logs + timeline de atividades + widget dashboard |
+| Formulário de Visitante | Dez/2025 | Formulário público em `/visitante` com campos expandidos |
+| Dashboard Executivo | Jan/2025 | Métricas e estatísticas principais |
+| Sistema de Blog (Admin) | Nov/2024 | CRUD completo com categorias e status |
+| Menu Mobile + Footer + Header | Nov/2024 | Site responsivo e navegável |
+| Performance + Acessibilidade | Nov/2024 | Otimizações básicas + ARIA + dark mode padrão |
+
+---
+
+## 📝 Notas Importantes
+
+### Sistema de Notificações WhatsApp
+**Status**: ✅ Parcialmente implementado
+
+**O que já existe** (via n8n):
+- Alertas automáticos de vagas em aberto (7 e 3 dias antes)
+- Mensagens direcionadas por setor
+- Links diretos para eventos
+- Integração Evolution API
+
+**Documentação**: `docs/ALERTAS_VAGAS_ABERTO.md`
+
+**Próximos passos**:
+- [ ] Follow-up de visitantes (2-3 dias após visita)
+- [ ] Lembretes de eventos (para membros escalados)
+- [ ] Notificação de atribuição de tarefas
+- [ ] Dashboard para configurar horários e grupos via UI
+
+---
 
 ### Campo `visitor_status`
-**Mapeia o tipo de visitante, NÃO funil de conversão**:
+Mapeia o **tipo de visitante**, não funil de conversão:
 - `sem_igreja`: Não crente ou sem igreja fixa
 - `congregando`: Pessoa afastada que voltou
 - `membro`: Já é membro de outra igreja
 - `desistiu`: Visitou mas não retornou
 
-**Objetivo**: Entender o público que a igreja atrai (evangelístico vs restauração)
-
----
-
-## 📚 Componentes a Criar (Site Público)
-
-```
-src/components/site/
-├── Hero.tsx                 # Hero section
-├── EventsSection.tsx        # Próximos eventos
-├── ValuesSection.tsx        # Valores
-├── MinistriesSection.tsx    # Ministérios
-├── TestimonialsSection.tsx  # Depoimentos
-├── BlogCard.tsx            # Card de post
-├── EventCard.tsx           # Card de evento
-├── ContactForm.tsx         # Form contato
-└── VisitorForm.tsx         # Form visitante
-```
-
----
-
-## 💡 Como Contribuir
-
-1. Fork o repositório
-2. Adicione sua ideia neste arquivo
-3. Categorize por prioridade (🟢🟡🔵🟣)
-4. Explique problema + solução + impacto
-5. Abra um PR
-
-Ou crie uma issue com tag `feature-request`.
-
----
-
-## 📊 HISTÓRICO DE IMPLEMENTAÇÕES
-
-### ✅ Concluídas (Q4 2024 - Q1 2025)
-
-| Feature | Data | Descrição |
-|---------|------|-----------|
-| Alertas de Vagas em Aberto (n8n) | Jan/2026 | Sistema de notificação automática para vagas em eventos: API /api/open-tasks, workflow n8n com alertas 7 e 3 dias antes, mensagens para grupo WhatsApp |
-| Sistema de Roles e Setores Dinâmicos (v1) | Dez/2025 | Tabelas roles/sectors, UI de gerenciamento em /admin/configuracoes, migração de enums para FK, helper functions, refatoração completa de verificações de liderança |
-| Sistema de Observabilidade (Fase 2) | Dez/2025 | Widget de atividades no dashboard, página /admin/atividades com timeline, filtros e paginação |
-| Sistema de Observabilidade (Fase 1) | Dez/2025 | Infraestrutura completa de auditoria: tabela audit_logs, helpers, integração em actions, queries type-safe |
-| Formulário de Visitante | Dez/2025 | Formulário público em /visitante com campos expandidos (cidade, como conheceu, pedidos de oração) e página de agradecimento |
-| Dashboard Executivo | Jan/2025 | Dashboard admin com métricas e estatísticas principais |
-| Refatoração Admin | Jan/2025 | Reestruturação de componentes do painel admin |
-| Sistema de Blog (Admin) | Nov/2024 | CRUD completo de posts com categorias e status |
-| Menu Mobile | Nov/2024 | Menu hamburger responsivo com Sheet component |
-| Footer Completo | Nov/2024 | Footer com 3 colunas (Sobre, Links, Contato) |
-| Header Melhorado | Nov/2024 | Sticky header, logo clicável, indicador de página ativa |
-| Performance Básica | Nov/2024 | Lazy load, otimização de imagens, code splitting |
-| Acessibilidade | Nov/2024 | Alt text, ARIA labels, navegação por teclado |
-| Modo Escuro Padrão | Nov/2024 | Dark mode como tema padrão do site |
+**Objetivo**: Entender o público que a igreja atrai
 
 ---
 
 **Mantido por**: Equipe de Desenvolvimento
-**Última revisão completa**: 28/12/2025
