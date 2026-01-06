@@ -193,6 +193,123 @@
 
 ---
 
+## 🏗️ REFATORAÇÃO DE ARQUITETURA
+
+> **Status**: Planejado | **Documentação**: `docs/ARCHITECTURE.md` + `docs/TESTING_GUIDE.md`
+
+### Objetivo
+
+Evoluir a arquitetura atual (Transaction Script) para **Clean Architecture Light + DDD Tático**, melhorando:
+- ✅ Testabilidade (zero testes → cobertura de 70%+)
+- ✅ Manutenibilidade (lógica isolada e reutilizável)
+- ✅ Desacoplamento (trocar Supabase sem quebrar tudo)
+- ✅ Qualidade (validação consistente, error handling robusto)
+
+### Princípios
+
+1. **Pragmatismo**: Evitar over-engineering, evoluir incrementalmente
+2. **Migração Gradual**: Novas features seguem nova arquitetura, código legado migra conforme necessário
+3. **Documentação Viva**: Toda mudança documentada em `ARCHITECTURE.md`
+
+---
+
+### Fase 1: Fundação (2 semanas) - **PRIORITÁRIO**
+
+**Objetivo**: Setup de ferramentas essenciais
+
+**Tarefas:**
+- [ ] Instalar e configurar **Zod** (validação)
+- [ ] Instalar e configurar **Jest** (testes unitários + integração)
+- [ ] Instalar e configurar **Playwright** (testes E2E)
+- [ ] Criar schemas Zod para Member, Event, Visitor
+- [ ] Refatorar 2-3 forms para usar Zod (client + server)
+- [ ] Escrever 10 testes de exemplo (unit + E2E)
+- [ ] Documentar setup em `docs/TESTING_GUIDE.md` ✅
+
+**Critérios de Sucesso:**
+- ✅ `npm test` roda sem erros
+- ✅ `npm run test:e2e` roda 3+ testes
+- ✅ Validação funcionando em pelo menos 2 features
+
+**Impacto**: Alto | **Complexidade**: Baixa | **ROI**: 🔥 Muito Alto
+
+---
+
+### Fase 2: Repository Pattern (3 semanas)
+
+**Objetivo**: Desacoplar banco de dados
+
+**Tarefas:**
+- [ ] Criar estrutura `src/domain/` e `src/infrastructure/`
+- [ ] Criar interface `MemberRepository`
+- [ ] Implementar `SupabaseMemberRepository`
+- [ ] Migrar queries de membros para usar repository
+- [ ] Repetir para Event, Task, Visitor
+- [ ] Escrever testes de integração para repositories
+
+**Critérios de Sucesso:**
+- ✅ Queries não acessam Supabase diretamente
+- ✅ Repositories têm 80%+ de cobertura de testes
+- ✅ Fácil criar `InMemoryRepository` para testes
+
+**Impacto**: Médio | **Complexidade**: Média | **ROI**: Alto
+
+---
+
+### Fase 3: Use Cases (4 semanas)
+
+**Objetivo**: Isolar lógica de aplicação
+
+**Tarefas:**
+- [ ] Criar estrutura `src/application/`
+- [ ] Implementar Use Cases para CRUD de Member
+- [ ] Implementar Use Cases para Event + Assignments
+- [ ] Refatorar Server Actions para chamar Use Cases
+- [ ] Adicionar Result Pattern para error handling
+- [ ] Escrever testes unitários para Use Cases
+
+**Critérios de Sucesso:**
+- ✅ Server Actions são thin wrappers (<20 linhas)
+- ✅ Use Cases têm 90%+ de cobertura
+- ✅ Lógica de negócio reutilizável (API, CLI, etc.)
+
+**Impacto**: Alto | **Complexidade**: Média-Alta | **ROI**: Alto
+
+---
+
+### Fase 4: Domain Entities (Opcional - 2-3 semanas)
+
+**Objetivo**: Encapsular regras de negócio
+
+**Tarefas:**
+- [ ] Criar classes `Member`, `Event`, `Task`
+- [ ] Mover validações para entidades
+- [ ] Mover regras de negócio (ex: `member.canBeAssignedTo(task)`)
+- [ ] Repositories retornam entidades (não objetos brutos)
+- [ ] Testes unitários para domain logic
+
+**Critérios de Sucesso:**
+- ✅ Domain layer independente de infraestrutura
+- ✅ Regras de negócio testáveis isoladamente
+- ✅ 95%+ de cobertura em domain
+
+**Impacto**: Médio | **Complexidade**: Alta | **ROI**: Médio
+
+---
+
+### Convenções para Novas Features
+
+**A partir de agora**, toda nova feature DEVE seguir:
+
+1. **Validação**: Criar schema Zod em `src/shared/schemas/`
+2. **Testes**: Escrever testes ANTES ou JUNTO com implementação
+3. **Estrutura**: Seguir padrão Repository + Use Case (quando Fase 2/3 estiverem completas)
+4. **Documentação**: Atualizar `ARCHITECTURE.md` se adicionar novo padrão
+
+**Código legado** pode ser refatorado incrementalmente (não é obrigatório)
+
+---
+
 ## 🌐 MELHORIAS DO SITE PÚBLICO
 
 ### Páginas Básicas

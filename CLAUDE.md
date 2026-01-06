@@ -547,3 +547,251 @@ npm run gen:types
 - Check `page_permissions` table has entry for the page
 - Verify `allowed_roles` includes current user's role
 - Ensure icon name exists in `iconMap` in `Sidebar.tsx`
+
+---
+
+## 🏗️ Arquitetura e Padrões de Design
+
+> **IMPORTANTE**: A partir de Janeiro/2026, o projeto está em **migração incremental** para uma arquitetura mais robusta.
+>
+> **Documentação completa**: `docs/ARCHITECTURE.md` + `docs/TESTING_GUIDE.md`
+
+### Status Atual da Arquitetura
+
+**Arquitetura Existente** (código legado):
+- Transaction Script Pattern
+- Server Actions com lógica misturada
+- Acoplamento forte com Supabase
+- Validação fragmentada (client vs server)
+- Zero testes
+
+**Arquitetura Alvo** (novas features):
+- Clean Architecture Light + DDD Tático
+- Repository Pattern (desacoplar banco)
+- Use Cases (lógica isolada)
+- Validação com Zod (client + server)
+- Testes (Jest + Playwright)
+
+### Convenções OBRIGATÓRIAS para Novas Features
+
+A partir de agora, **TODA nova feature** deve seguir:
+
+#### 1. Validação com Zod
+
+**SEMPRE** criar schema em `src/shared/schemas/`:
+
+```typescript
+// src/shared/schemas/memberSchemas.ts
+import { z } from 'zod';
+
+export const CreateMemberSchema = z.object({
+  name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
+  phone: z.string().regex(/^\d{11}$/, 'Telefone inválido'),
+  role: z.enum(['admin', 'pastor(a)', ...]),
+  sector: z.array(z.enum(['mídia', 'geral', ...])).min(1),
+});
+
+export type CreateMemberData = z.infer<typeof CreateMemberSchema>;
+```
+
+**Usar no client** (form):
+```typescript
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const form = useForm({
+  resolver: zodResolver(CreateMemberSchema),
+});
+```
+
+**Usar no server** (action):
+```typescript
+'use server';
+
+export async function createMemberAction(data: unknown) {
+  const parsed = CreateMemberSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  // Usa parsed.data (type-safe)
+}
+```
+
+#### 2. Testes (quando Fase 1 estiver completa)
+
+**SEMPRE** escrever testes para:
+- ✅ Lógica de negócio (unit tests)
+- ✅ Use Cases (unit tests com mocks)
+- ✅ Fluxos críticos (E2E com Playwright)
+
+**Estrutura de testes:**
+```
+src/tests/
+├── unit/
+│   ├── domain/
+│   └── application/
+├── integration/
+│   └── repositories/
+└── e2e/
+    └── [feature].spec.ts
+```
+
+**Exemplo de teste unitário:**
+```typescript
+// src/tests/unit/domain/member/Member.test.ts
+describe('Member', () => {
+  it('deve validar setor compatível', () => {
+    const member = new Member(..., ['mídia']);
+    const task = new Task('Som', 'mídia');
+
+    expect(member.canBeAssignedTo(task)).toBe(true);
+  });
+});
+```
+
+#### 3. Repository Pattern (quando Fase 2 estiver completa)
+
+Ao invés de acessar Supabase diretamente:
+
+**❌ EVITE (código legado):**
+```typescript
+const { data } = await supabase.from('members').select('*');
+```
+
+**✅ PREFIRA (novo padrão):**
+```typescript
+// src/domain/member/MemberRepository.ts (interface)
+export interface MemberRepository {
+  findAll(): Promise<Member[]>;
+  findById(id: string): Promise<Member | null>;
+  save(member: Member): Promise<void>;
+}
+
+// src/infrastructure/supabase/repositories/SupabaseMemberRepository.ts
+export class SupabaseMemberRepository implements MemberRepository {
+  async findAll(): Promise<Member[]> {
+    const { data } = await this.supabase.from('members').select('*');
+    return data.map(this.toDomain);
+  }
+
+  private toDomain(raw: any): Member {
+    return new Member(raw.id, raw.name, ...);
+  }
+}
+```
+
+#### 4. Use Cases (quando Fase 3 estiver completa)
+
+Ao invés de lógica em Server Actions:
+
+**❌ EVITE (código legado):**
+```typescript
+export async function updateMember(id, data) {
+  const supabase = await createClient();
+
+  // Validação
+  if (!data.name) { ... }
+
+  // Update
+  const { data, error } = await supabase.from('members').update(data);
+
+  // Audit
+  await logMemberAction({ ... });
+
+  // Cache
+  revalidatePath('/admin/members');
+
+  return { success: true };
+}
+```
+
+**✅ PREFIRA (novo padrão):**
+```typescript
+// src/application/member/use-cases/UpdateMemberUseCase.ts
+export class UpdateMemberUseCase {
+  constructor(
+    private memberRepo: MemberRepository,
+    private auditLog: AuditLogService,
+  ) {}
+
+  async execute(command: UpdateMemberCommand, executedBy: User) {
+    const member = await this.memberRepo.findById(command.id);
+    if (!member) return Err({ type: 'NOT_FOUND' });
+
+    member.update(command.data);
+    await this.memberRepo.save(member);
+    await this.auditLog.log({ ... });
+
+    return Ok(member);
+  }
+}
+
+// src/app/(admin)/admin/members/actions.ts (thin wrapper)
+'use server';
+
+export async function updateMemberAction(id, data) {
+  const parsed = UpdateMemberSchema.safeParse(data);
+  if (!parsed.success) return { success: false, errors: ... };
+
+  const supabase = await createClient();
+  const repo = new SupabaseMemberRepository(supabase);
+  const useCase = new UpdateMemberUseCase(repo, auditLog);
+
+  const result = await useCase.execute(parsed.data, currentUser);
+
+  if (result.isErr()) return { success: false, error: ... };
+
+  revalidatePath('/admin/members');
+  return { success: true, data: result.value };
+}
+```
+
+### Migração de Código Legado
+
+**Regra geral**: Código legado pode permanecer no padrão antigo. Refatore apenas quando:
+
+1. ✅ Você está implementando uma nova feature relacionada
+2. ✅ Você está corrigindo um bug e quer adicionar testes
+3. ✅ O código está difícil de manter
+4. ❌ Nunca refatore "só por refatorar"
+
+### Estrutura de Pastas (Alvo)
+
+```
+src/
+├── app/                     # Next.js (Presentation)
+├── domain/                  # 🆕 Entities, Repositories (interfaces)
+├── application/             # 🆕 Use Cases, Commands, Queries
+├── infrastructure/          # 🆕 Supabase, APIs, Services (implementações)
+├── shared/                  # 🆕 Schemas, Types, Utils
+├── components/              # UI Components
+├── stores/                  # Client state
+└── tests/                   # 🆕 Unit, Integration, E2E
+```
+
+### Roadmap de Arquitetura
+
+Ver seção **"🏗️ REFATORAÇÃO DE ARQUITETURA"** em `docs/ROADMAP.md` para:
+
+- Fase 1: Fundação (Zod + Testes) - **PRIORITÁRIO**
+- Fase 2: Repository Pattern
+- Fase 3: Use Cases
+- Fase 4: Domain Entities (Opcional)
+
+### Recursos de Aprendizado
+
+- **Arquitetura**: `docs/ARCHITECTURE.md` (conceitos, exemplos, estrutura)
+- **Testes**: `docs/TESTING_GUIDE.md` (Jest vs Playwright, setup, exemplos)
+- **Padrões**: Repository, Use Case, Result Pattern, Validation
+
+### Quando em Dúvida
+
+1. Leia `docs/ARCHITECTURE.md` primeiro
+2. Para testes, veja `docs/TESTING_GUIDE.md`
+3. Siga exemplos de código existentes (se já houver features migradas)
+4. Prefira simplicidade a over-engineering
+5. Documente decisões importantes no próprio código
