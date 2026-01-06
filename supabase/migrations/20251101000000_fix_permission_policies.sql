@@ -1,2 +1,0 @@
--- Migration already applied - file kept for history tracking only
--- This migration was reverted by 20251101000002_rollback_permission_system.sql
