@@ -37,6 +37,25 @@ cp .env.example .env.local
 
 ## 🔑 Configuração do Supabase
 
+### Opção 1: Ambiente Local (Recomendado para Desenvolvimento)
+
+Desenvolva localmente sem afetar produção. Veja guia completo: **[docs/LOCAL_DEVELOPMENT.md](./docs/LOCAL_DEVELOPMENT.md)**
+
+```bash
+# 1. Instalar Docker Desktop
+# 2. Iniciar Supabase local
+npm run supabase:start
+
+# 3. Configurar .env.local para ambiente local
+cp .env.example .env.local
+# (Use as credenciais locais do .env.example)
+
+# 4. Iniciar aplicação
+npm run dev
+```
+
+### Opção 2: Produção/Remote
+
 1. Crie um projeto no [Supabase](https://supabase.com)
 2. Copie a URL do projeto e a chave anon/public
 3. Configure o arquivo `.env.local`:
@@ -46,13 +65,14 @@ NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua_chave_anon
 ```
 
-4. Execute as migrações do banco de dados (se disponíveis):
+4. Execute as migrações do banco de dados:
 
 ```bash
-# Se estiver usando Supabase CLI
-npx supabase db push
+# Link com projeto remoto
+npx supabase link --project-ref seu-project-id
 
-# Ou importe as migrações manualmente pelo Dashboard do Supabase
+# Aplicar migrations
+npx supabase db push
 ```
 
 5. Gere os tipos TypeScript do schema:
@@ -60,6 +80,8 @@ npx supabase db push
 ```bash
 npm run gen:types
 ```
+
+**⚠️ IMPORTANTE:** Antes de fazer deploy de migrations em produção, leia: **[docs/DATABASE_MIGRATIONS.md](./docs/DATABASE_MIGRATIONS.md)**
 
 ## 🏃 Executando o Projeto
 
@@ -178,13 +200,35 @@ SET allowed_roles = EXCLUDED.allowed_roles;
 
 ## 🛠️ Comandos Disponíveis
 
+### Desenvolvimento
+
 ```bash
-npm run dev          # Inicia o servidor de desenvolvimento
-npm run build        # Build de produção
-npm run start        # Inicia servidor de produção
-npm run lint         # Executa ESLint
-npm run gen:types    # Gera tipos TypeScript do Supabase
+npm run dev                # Inicia o servidor de desenvolvimento
+npm run build              # Build de produção
+npm run start              # Inicia servidor de produção
+npm run lint               # Executa ESLint
 ```
+
+### Supabase Local
+
+```bash
+npm run supabase:start     # Inicia Supabase local (Docker)
+npm run supabase:stop      # Para Supabase local
+npm run supabase:reset     # Reseta banco local + reaplica migrations
+npm run supabase:status    # Status dos serviços
+npm run supabase:studio    # Abre Supabase Studio UI
+```
+
+### Database Types & Migrations
+
+```bash
+npm run gen:types          # Gera types do banco de PRODUÇÃO
+npm run gen:types:local    # Gera types do banco LOCAL
+```
+
+**📖 Guias:**
+- **Desenvolvimento Local:** [docs/LOCAL_DEVELOPMENT.md](./docs/LOCAL_DEVELOPMENT.md)
+- **Deploy de Migrations:** [docs/DATABASE_MIGRATIONS.md](./docs/DATABASE_MIGRATIONS.md)
 
 ## 📊 Schema do Banco de Dados
 
@@ -282,8 +326,13 @@ Veja todas as features planejadas em **[docs/ROADMAP.md](./docs/ROADMAP.md)**!
 
 ## 📚 Documentação
 
+### Para Desenvolvedores
+
 - **[CLAUDE.md](./CLAUDE.md)** - Documentação técnica completa (arquitetura, padrões, convenções)
-- **[docs/ROADMAP.md](./docs/ROADMAP.md)** - Roadmap de features futuras (14 features planejadas)
+- **[docs/LOCAL_DEVELOPMENT.md](./docs/LOCAL_DEVELOPMENT.md)** - Setup de ambiente local com Supabase
+- **[docs/DATABASE_MIGRATIONS.md](./docs/DATABASE_MIGRATIONS.md)** - Guia de migrations e deploy seguro
+- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Arquitetura e padrões de design
+- **[docs/ROADMAP.md](./docs/ROADMAP.md)** - Roadmap de features futuras (14+ features planejadas)
 
 ## 🤝 Contribuindo
 
