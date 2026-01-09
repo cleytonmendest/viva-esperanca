@@ -21,6 +21,14 @@ supabase/db/dumps/
 **/supabase/.temp/
 **/supabase/.branches/
 
+# Supabase dumps (protege contra vazamento de dados de produção)
+supabase/*_dump*.sql
+supabase/dump_*.sql
+supabase/auth_dump.sql
+supabase/verify_*.sql
+supabase/backup_*.sql
+supabase/seed.sql
+
 # next.js
 /.next/
 /out/
