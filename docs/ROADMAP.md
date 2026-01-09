@@ -8,7 +8,49 @@
 
 ### 🔴 Crítico (UX)
 
-#### 1. Melhorias de Navegação e Perfil
+#### 1. Ordenação do Sidebar
+**Problema**: Sidebar aparece em ordem aleatória para usuários. Sem controle de ordenação, a navegação fica inconsistente entre ambientes e usuários.
+
+**Solução**:
+- Adicionar coluna `order` (integer) na tabela `page_permissions`
+- Atualizar query do Sidebar para ordenar por `order ASC`
+- Adicionar ordenação default no seed.sql (10, 20, 30, etc. para permitir inserções futuras)
+- Garantir ordenação consistente em todos os ambientes
+
+**Impacto**: Crítico (afeta todos os usuários) | **Complexidade**: Muito Baixa (1-2h)
+
+**SQL**:
+```sql
+ALTER TABLE page_permissions ADD COLUMN order_position integer DEFAULT 999;
+UPDATE page_permissions SET order_position = 10 WHERE page_path = '/admin';
+UPDATE page_permissions SET order_position = 20 WHERE page_path = '/admin/dashboard';
+-- etc.
+```
+
+---
+
+#### 2. Revisão Completa da Página `/admin/tasks`
+**Problema**: Página inconsistente com o resto do painel. Usa roles antigas (enum) ao invés da nova tabela `roles`. Visual desatualizado comparado a `/admin/members` e `/admin/events/:detail`.
+
+**Tarefas**:
+- [ ] Migrar de `user_role_enum` para tabela `roles` (queries + filters)
+- [ ] Atualizar visual para shadcn/ui (cards, dialogs, tables modernos)
+- [ ] Alinhar layout com padrão de `/admin/members` e `/admin/events/:detail`
+- [ ] Revisar actions e queries (remover código legado)
+- [ ] **Auditar outras páginas**: Buscar e documentar outras áreas que ainda usam roles antigas
+
+**Escopo da Auditoria**:
+- `/admin/visitors`
+- `/admin/pending-approval`
+- `/admin/configuracoes` (settings)
+- Sidebar e layout (verificar se usam roles antigas em algum lugar)
+- Server Actions (buscar `user_role_enum` no código)
+
+**Impacto**: Alto (dívida técnica + inconsistência visual) | **Complexidade**: Média (1-2 dias)
+
+---
+
+#### 3. Melhorias de Navegação e Perfil
 **Problema**: Sidebar esconde opções importantes. Falta página de perfil dedicada.
 
 **Arquitetura**: Dashboard = Ação | Perfil = Identidade
@@ -73,7 +115,48 @@
 
 ### 🟢 Alta Prioridade
 
-#### 2. Calendário Interativo
+#### 4. Gestão de Permissões via Painel
+**Problema**: Tabela `page_permissions` só é acessível via SQL. Admins não conseguem gerenciar permissões de páginas sem conhecimento técnico.
+
+**Solução**: Criar página `/admin/configuracoes/permissoes`
+
+**Features**:
+- **Listagem**: Tabela com todas as páginas (nome, path, ícone, roles permitidas)
+- **Edição**: Dialog para editar roles permitidas por página
+- **Ordenação**: Drag-and-drop ou campo numérico para reordenar sidebar
+- **Visualização**: Preview de como o sidebar aparece para cada role
+- **Validação**: Impedir remoção de admin de páginas críticas
+
+**Esquema UI**:
+```
+┌─────────────────────────────────────────────────┐
+│ Gerenciamento de Permissões de Páginas         │
+├─────────────────────────────────────────────────┤
+│ Página        │ Path      │ Ícone │ Roles       │
+│ Dashboard     │ /admin    │ Home  │ [Todos]     │
+│ Membros       │ /members  │ Users │ [Admin, Pa…]│
+│ Eventos       │ /events   │ Cal…  │ [Admin, Lí…]│
+└─────────────────────────────────────────────────┘
+```
+
+**Permissões**: Apenas `admin` e `pastor(a)` podem acessar
+
+**Schema Atual**: Já existe, apenas falta UI
+```typescript
+page_permissions: {
+  page_name: string
+  page_path: string
+  icon: string
+  allowed_roles: user_role_enum[]
+  order_position: integer // adicionar
+}
+```
+
+**Impacto**: Alto (autonomia para admins) | **Complexidade**: Média (2-3 dias)
+
+---
+
+#### 5. Calendário Interativo
 **Objetivo**: Visualizar eventos e escalas em formato de calendário
 
 **Features**:
@@ -89,7 +172,7 @@
 
 ---
 
-#### 3. Features de Engajamento
+#### 6. Features de Engajamento
 
 **Quick Wins** (1-2 dias cada):
 - **Calendário Completo**: Mostrar TODOS os eventos (não só voluntariado)
@@ -107,7 +190,46 @@
 
 ### 🟡 Média Prioridade
 
-#### 4. Check-in em Eventos
+#### 7. Permissões por Setor (Sector-Based Permissions)
+**Contexto**: Atualmente o sistema tem permissões baseadas em **roles** (admin, pastor, lider_midia, etc.). Membros pertencem a **setores** (Mídia, Louvor, Infantil, etc.) mas as permissões não levam isso em conta.
+
+**Problema**:
+- Um líder de Mídia vê tarefas de todos os setores (Louvor, Infantil, etc.)
+- Não há isolamento de dados por setor onde faz sentido
+- Dificulta escalabilidade (ex: igreja com 20 setores)
+
+**Proposta**: Sistema híbrido **Role + Sector**
+
+**Regras de Negócio** (a definir com usuários):
+1. **Visualização de Dados**:
+   - `admin` e `pastor(a)`: Veem tudo (todos os setores)
+   - `lider_midia`: Vê apenas tarefas/eventos do setor Mídia
+   - `lider_geral`: Vê tudo? Ou apenas setor Geral?
+   - `membro`: Vê apenas tarefas do(s) seu(s) setor(es)
+
+2. **Edição de Dados**:
+   - Líderes podem editar apenas dados do seu setor
+   - Admin/Pastor podem editar qualquer setor
+
+3. **Criação de Eventos/Tarefas**:
+   - Tarefa criada por líder de setor = automaticamente do seu setor
+   - Admin/Pastor podem criar para qualquer setor
+
+**Implementação** (quando priorizado):
+- [ ] Mapear quais páginas/recursos devem ter filtro por setor
+- [ ] Adicionar helpers: `canViewSector(user, sector)`, `canEditSector(user, sector)`
+- [ ] Atualizar queries para filtrar por setor quando aplicável
+- [ ] Adicionar filtros de setor na UI (dropdowns, tabs)
+- [ ] Atualizar RLS policies no Supabase (se necessário)
+- [ ] Documentar regras de negócio em `docs/PERMISSIONS.md`
+
+**Nota**: Sistema atual (baseado só em roles) funciona bem para igreja pequena/média. Implementar apenas quando houver **demanda real** de usuários.
+
+**Impacto**: Médio (escalabilidade) | **Complexidade**: Média-Alta (3-5 dias) | **ROI**: Médio
+
+---
+
+#### 8. Check-in em Eventos
 **Objetivo**: Controlar presença via QR Code ou lista digital
 
 **Features**:
@@ -122,7 +244,7 @@
 
 ---
 
-#### 5. Gestão Financeira
+#### 9. Gestão Financeira
 **Objetivo**: Controle de receitas e despesas
 
 **Features**:
@@ -137,7 +259,7 @@
 
 ---
 
-#### 6. Gestão de Células/Grupos
+#### 10. Gestão de Células/Grupos
 **Objetivo**: Gerenciar grupos pequenos e células
 
 **Features**:
@@ -154,7 +276,7 @@
 
 ### 🔵 Baixa Prioridade
 
-#### 7. Relatórios e Exportação
+#### 11. Relatórios e Exportação
 - Relatórios predefinidos (frequência, visitantes, engajamento)
 - Exportação para PDF/Excel
 - Gráficos e templates customizáveis
@@ -165,7 +287,7 @@
 
 ---
 
-#### 8. PWA (Progressive Web App)
+#### 12. PWA (Progressive Web App)
 - Instalável como app no celular
 - Notificações push
 - Funcionamento offline básico
@@ -174,7 +296,7 @@
 
 ---
 
-#### 9. Sistema de Permissões Granulares v2.0
+#### 13. Sistema de Permissões Granulares v2.0
 - Permissões por ação (CRUD por recurso)
 - Permissões contextuais por setor
 - UI para gerenciar permissões
