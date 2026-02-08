@@ -11,7 +11,7 @@ import {
   getTopActiveMembers,
 } from "./queries";
 import { ExecutiveSummaryCard } from "@/components/dashboard/ExecutiveSummaryCard";
-import { ActivitiesWidget } from "@/components/dashboard/ActivitiesWidget";
+// import { ActivitiesWidget } from "@/components/dashboard/ActivitiesWidget";
 import { TopMembersWidget } from "@/components/dashboard/TopMembersWidget";
 
 export default async function Admin() {
@@ -30,7 +30,7 @@ export default async function Admin() {
   };
 
   // Buscar dados básicos (todos os usuários veem)
-  const [assignedTasks, availableTasks, allMembers, recentActivities] = await Promise.all([
+  const [assignedTasks, availableTasks, allMembers] = await Promise.all([
     profile ? getAssignedTasks(profile.id) : Promise.resolve([]),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (profile as any)?.sectors?.name
@@ -108,17 +108,10 @@ export default async function Admin() {
         </section>
       )}
 
-      {/* Top Membros Mais Ativos (apenas para líderes) */}
-      {isLeader && topMembers && (
-        <section>
-          <TopMembersWidget members={topMembers} period="30d" />
-        </section>
-      )}
-
       {/* Widget de Atividades Recentes (todos veem) */}
-      <section>
+{/*       <section>
         <ActivitiesWidget activities={recentActivities} />
-      </section>
+      </section> */}
 
       {/* Minhas Tarefas */}
       <section>
@@ -129,6 +122,13 @@ export default async function Admin() {
       <section>
         <AvailableTasksRefactored tasks={availableTasks} allMembers={allMembers} />
       </section>
+
+      {/* Top Membros Mais Ativos (apenas para líderes) */}
+      {isLeader && topMembers && (
+        <section>
+          <TopMembersWidget members={topMembers} period="30d" />
+        </section>
+      )}
     </main>
   );
 }
