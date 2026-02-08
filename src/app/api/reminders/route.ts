@@ -7,18 +7,6 @@ import type { Tables } from '@/lib/supabase/database.types';
 // Define que esta é uma "Edge Function", otimizada para ser rápida.
 export const runtime = 'edge';
 
-// --- VALIDAÇÃO DE VARIÁVEIS DE AMBIENTE ---
-// Valida que as variáveis críticas estão configuradas
-if (!process.env.N8N_API_SECRET) {
-    throw new Error('N8N_API_SECRET não está configurado');
-}
-if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY não está configurado');
-}
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL não está configurado');
-}
-
 // --- FUNÇÃO DE COMPARAÇÃO SEGURA ---
 // Compara strings de forma segura contra timing attacks
 function timingSafeEqual(a: string, b: string): boolean {
@@ -50,6 +38,30 @@ type EventWithAssignments = Tables<'events'> & {
 
 
 export async function GET(request: Request) {
+    // --- VALIDAÇÃO DE VARIÁVEIS DE AMBIENTE ---
+    // Valida que as variáveis críticas estão configuradas (em runtime, não em build time)
+    if (!process.env.N8N_API_SECRET) {
+        console.error('[API Reminders] N8N_API_SECRET não está configurado');
+        return new NextResponse(
+            JSON.stringify({ message: 'Erro de configuração do servidor' }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.error('[API Reminders] SUPABASE_SERVICE_ROLE_KEY não está configurado');
+        return new NextResponse(
+            JSON.stringify({ message: 'Erro de configuração do servidor' }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        console.error('[API Reminders] NEXT_PUBLIC_SUPABASE_URL não está configurado');
+        return new NextResponse(
+            JSON.stringify({ message: 'Erro de configuração do servidor' }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+
     // --- Camada de Segurança ---
     const authHeader = request.headers.get('authorization');
     const expectedAuth = `Bearer ${process.env.N8N_API_SECRET}`;
