@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useAuthStore } from "@/stores/authStore";
@@ -13,17 +14,22 @@ interface MemberAssignmentProps {
 
 const MemberAssignment = ({ assignment }: MemberAssignmentProps) => {
     const { profile } = useAuthStore();
+    const [isOpen, setIsOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleAssignMember = async () => {''
-        if (!profile) return;
+    const handleAssignMember = async () => {
+        if (!profile || isSubmitting) return;
 
+        setIsSubmitting(true);
         const result = await updateAssignmentMember(assignment.id, profile.id, assignment.event_id);
 
         if (result.success) {
             toast.success(result.message, { position: 'top-center' })
+            setIsOpen(false);
         } else {
             toast.error(result.message, { position: 'top-center' })
         }
+        setIsSubmitting(false);
     };
 
     if(!assignment.tasks?.sector) return null
@@ -31,7 +37,7 @@ const MemberAssignment = ({ assignment }: MemberAssignmentProps) => {
     const isButtonDisabled = !profile?.sector?.includes(assignment.tasks?.sector) || !!assignment.members
 
     return (
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Button disabled={isButtonDisabled} variant={!isButtonDisabled ? 'default' : 'outline'} size="sm">Assumir</Button>
             </DialogTrigger>
@@ -49,8 +55,12 @@ const MemberAssignment = ({ assignment }: MemberAssignmentProps) => {
                                 Cancelar
                             </Button>
                         </DialogClose>
-                        <Button variant="default" onClick={() => handleAssignMember()}>
-                            Assumir
+                        <Button
+                            variant="default"
+                            onClick={handleAssignMember}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Assumindo...' : 'Assumir'}
                         </Button>
                     </div>
                 </DialogFooter>

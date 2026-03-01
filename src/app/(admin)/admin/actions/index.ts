@@ -105,6 +105,14 @@ export async function updateAssignmentMember(assignmentId: string, memberId: str
 
   const previousMemberId = assignment?.member_id;
 
+  // Evita update e log duplicado quando o membro já está atribuído
+  if (previousMemberId === memberId) {
+    return {
+      success: true,
+      message: memberId ? 'Tarefa já atribuída a este membro.' : 'Tarefa já está sem atribuição.',
+    };
+  }
+
   const { error } = await supabase
     .from('event_assignments')
     .update({ member_id: memberId })
